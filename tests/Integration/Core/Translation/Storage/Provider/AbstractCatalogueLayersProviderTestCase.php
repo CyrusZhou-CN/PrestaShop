@@ -33,7 +33,7 @@ use Symfony\Component\Translation\MessageCatalogue;
 /**
  * Test the provider of backOffice translations
  */
-abstract class AbstractCatalogueLayersProviderTest extends KernelTestCase
+abstract class AbstractCatalogueLayersProviderTestCase extends KernelTestCase
 {
     /**
      * @var string

@@ -57,19 +57,9 @@ use Tests\Resources\DummyFileUploader;
 class ProductImageFeatureContext extends AbstractProductFeatureContext
 {
     /**
-     * @var ProductImageRepository
-     */
-    private $productImageRepository;
-
-    /**
      * @var ShopProductImagesCollection
      */
     private $shopProductImagesCollection;
-
-    public function __construct()
-    {
-        $this->productImageRepository = $this->getContainer()->get(ProductImageRepository::class);
-    }
 
     /**
      * @Given following image types should be applicable to products:
@@ -77,7 +67,9 @@ class ProductImageFeatureContext extends AbstractProductFeatureContext
     public function assertProductsImageTypesExists(TableNode $tableNode): void
     {
         $dataRows = $tableNode->getColumnsHash();
-        $imageTypes = $this->productImageRepository->getProductImageTypes();
+        /** @var ProductImageRepository $productImageRepository */
+        $productImageRepository = $this->getContainer()->get(ProductImageRepository::class);
+        $imageTypes = $productImageRepository->getProductImageTypes();
 
         Assert::assertEquals(
             count($dataRows),

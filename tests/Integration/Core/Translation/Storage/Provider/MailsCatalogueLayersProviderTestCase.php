@@ -29,14 +29,14 @@ namespace Tests\Integration\Core\Translation\Storage\Provider;
 
 use PrestaShop\PrestaShop\Core\Language\LanguageRepositoryInterface;
 use PrestaShop\PrestaShop\Core\Translation\Storage\Provider\CoreCatalogueLayersProvider;
-use PrestaShop\PrestaShop\Core\Translation\Storage\Provider\Definition\FrontofficeProviderDefinition;
+use PrestaShop\PrestaShop\Core\Translation\Storage\Provider\Definition\MailsProviderDefinition;
 use PrestaShop\PrestaShop\Core\Translation\TranslationRepositoryInterface;
 use Symfony\Component\Translation\MessageCatalogue;
 
 /**
  * Test the provider of frontOffice translations
  */
-class FrontofficeCatalogueLayersProviderTest extends AbstractCatalogueLayersProviderTest
+class MailsCatalogueLayersProviderTestCase extends AbstractCatalogueLayersProviderTestCase
 {
     /**
      * Test it loads a XLIFF catalogue from the locale's `translations` directory
@@ -47,15 +47,15 @@ class FrontofficeCatalogueLayersProviderTest extends AbstractCatalogueLayersProv
         $catalogue = $this->getFileTranslatedCatalogue('fr-FR');
 
         $expected = [
-            'ShopNotificationsWarning' => [
-                'count' => 8,
+            'EmailsSubject' => [
+                'count' => 24,
                 'translations' => [
-                    'You do not have any vouchers.' => 'Vous ne possédez pas de bon de réduction.',
-                    'You cannot place a new order from your country (%s).' => 'Vous ne pouvez pas créer de nouvelle commande depuis votre pays (%s).',
+                    'Log: You have a new alert from your shop' => 'Log : Vous avez un nouveau message d\'alerte dans votre boutique',
                 ],
             ],
         ];
 
+        // verify all catalogues are loaded
         $this->assertResultIsAsExpected($expected, $catalogue);
     }
 
@@ -68,46 +68,10 @@ class FrontofficeCatalogueLayersProviderTest extends AbstractCatalogueLayersProv
         $catalogue = $this->getDefaultCatalogue('fr-FR');
 
         $expected = [
-            'ShopNotificationsWarning' => [
-                'count' => 8,
+            'EmailsSubject' => [
+                'count' => 24,
                 'translations' => [
-                    'You do not have any vouchers.' => '',
-                    'You cannot place a new order from your country (%s).' => '',
-                ],
-            ],
-        ];
-
-        $this->assertResultIsAsExpected($expected, $catalogue);
-    }
-
-    public function testItLoadsCustomizedTranslationsWithNoThemeFromDatabase(): void
-    {
-        $databaseContent = [
-            [
-                'lang' => 'fr-FR',
-                'key' => 'Uninstall',
-                'translation' => 'Uninstall Traduction customisée',
-                'domain' => 'ShopNotificationsWarning',
-                'theme' => null,
-            ],
-            [
-                'lang' => 'fr-FR',
-                'key' => 'Install',
-                'translation' => 'Install Traduction customisée',
-                'domain' => 'ModulesWirepaymentShop',
-                'theme' => null,
-            ],
-        ];
-
-        // load catalogue from database translations
-        $catalogue = $this->getUserTranslatedCatalogue('fr-FR', $databaseContent);
-
-        $expected = [
-            'ShopNotificationsWarning' => [
-                'count' => 1,
-                'translations' => [
-                    'You do not have any vouchers.' => 'You do not have any vouchers.',
-                    'Uninstall' => 'Uninstall Traduction customisée',
+                    'Log: You have a new alert from your shop' => '',
                 ],
             ],
         ];
@@ -123,29 +87,15 @@ class FrontofficeCatalogueLayersProviderTest extends AbstractCatalogueLayersProv
                 'lang' => 'fr-FR',
                 'key' => 'Uninstall',
                 'translation' => 'Uninstall Traduction customisée',
-                'domain' => 'ShopNotificationsWarning',
+                'domain' => 'EmailsSubject',
                 'theme' => 'classic',
             ],
             [
                 'lang' => 'fr-FR',
                 'key' => 'Install',
                 'translation' => 'Install Traduction customisée',
-                'domain' => 'ModulesWirepaymentShop',
+                'domain' => 'EmailsSubject',
                 'theme' => 'classic',
-            ],
-            [
-                'lang' => 'fr-FR',
-                'key' => 'Some made up text 1',
-                'translation' => 'Un texte inventé 1',
-                'domain' => 'AdminActions',
-                'theme' => 'classic',
-            ],
-            [
-                'lang' => 'fr-FR',
-                'key' => 'Some made up text 2',
-                'translation' => 'Un texte inventé 2',
-                'domain' => 'ModuleWirepaymentShop',
-                'theme' => 'otherTheme',
             ],
         ];
 
@@ -164,12 +114,64 @@ class FrontofficeCatalogueLayersProviderTest extends AbstractCatalogueLayersProv
         $this->assertEmpty($messages);
     }
 
+    public function testItLoadsCustomizedTranslationsWithNoThemeFromDatabase(): void
+    {
+        $databaseContent = [
+            [
+                'lang' => 'fr-FR',
+                'key' => 'Uninstall',
+                'translation' => 'Uninstall Traduction customisée',
+                'domain' => 'EmailsSubject',
+                'theme' => null,
+            ],
+            [
+                'lang' => 'fr-FR',
+                'key' => 'Install',
+                'translation' => 'Install Traduction customisée',
+                'domain' => 'EmailsSubject',
+                'theme' => null,
+            ],
+            [
+                'lang' => 'fr-FR',
+                'key' => 'Some made up text 1',
+                'translation' => 'Un texte inventé 1',
+                'domain' => 'AdminActions',
+                'theme' => 'classic',
+            ],
+            [
+                'lang' => 'fr-FR',
+                'key' => 'Some made up text 2',
+                'translation' => 'Un texte inventé 2',
+                'domain' => 'ModuleWirepaymentShop',
+                'theme' => 'classic',
+            ],
+        ];
+
+        // load catalogue from database translations
+        $catalogue = $this->getUserTranslatedCatalogue('fr-FR', $databaseContent);
+
+        $expected = [
+            'EmailsSubject' => [
+                'count' => 2,
+                'translations' => [
+                    'Uninstall' => 'Uninstall Traduction customisée',
+                    'Install' => 'Install Traduction customisée',
+                ],
+            ],
+        ];
+
+        // verify all catalogues are loaded
+        $this->assertResultIsAsExpected($expected, $catalogue);
+    }
+
     /**
      * @param array $databaseContent
+     *
+     * @return CoreCatalogueLayersProvider
      */
     protected function getProvider(array $databaseContent = []): CoreCatalogueLayersProvider
     {
-        $providerDefinition = new FrontofficeProviderDefinition();
+        $providerDefinition = new MailsProviderDefinition();
 
         return new CoreCatalogueLayersProvider(
             new MockDatabaseTranslationLoader(

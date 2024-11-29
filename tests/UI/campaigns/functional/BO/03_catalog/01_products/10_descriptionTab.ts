@@ -214,7 +214,7 @@ describe('BO - Catalog - Products : Description tab', async () => {
     it('should choose default category', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'chooseDefaultCategory', baseContext);
 
-      await boProductsCreateTabDescriptionPage.chooseDefaultCategory(page, 2);
+      await boProductsCreateTabDescriptionPage.chooseDefaultCategory(page, 'Clothes');
 
       const createProductMessage = await createProductsPage.saveProduct(page);
       expect(createProductMessage).to.equal(createProductsPage.successfulUpdateMessage);
@@ -236,7 +236,7 @@ describe('BO - Catalog - Products : Description tab', async () => {
     it('should choose brand', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'chooseBrand', baseContext);
 
-      await boProductsCreateTabDescriptionPage.chooseBrand(page, 2);
+      await boProductsCreateTabDescriptionPage.chooseBrand(page, 'Studio Design');
 
       const createProductMessage = await createProductsPage.saveProduct(page);
       expect(createProductMessage).to.equal(createProductsPage.successfulUpdateMessage);

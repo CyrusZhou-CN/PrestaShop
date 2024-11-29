@@ -123,7 +123,7 @@ class OrderHistoryPage extends FOBasePage {
    * @param orderRow {Number} Row on orders table
    * @returns {Promise<boolean>}
    */
-  isReorderLinkVisible(page: Page, orderRow: number = 1): Promise<boolean> {
+  async isReorderLinkVisible(page: Page, orderRow: number = 1): Promise<boolean> {
     return this.elementVisible(page, this.reorderLink(orderRow), 1000);
   }
 
@@ -144,7 +144,7 @@ class OrderHistoryPage extends FOBasePage {
    * @param orderRow {number} Row number in orders table
    * @return {Promise<string>}
    */
-  getOrderStatus(page: Page, orderRow: number = 1): Promise<string> {
+  async getOrderStatus(page: Page, orderRow: number = 1): Promise<string> {
     return this.getTextContent(page, `${this.orderTableColumn(orderRow, 5)} span`);
   }
 
@@ -154,7 +154,7 @@ class OrderHistoryPage extends FOBasePage {
    * @param orderRow {number} Row number in orders table
    * @returns {Promise<boolean>}
    */
-  isInvoiceVisible(page: Page, orderRow: number = 1): Promise<boolean> {
+  async isInvoiceVisible(page: Page, orderRow: number = 1): Promise<boolean> {
     return this.elementVisible(page, this.orderTableColumnInvoice(orderRow), 1000);
   }
 
@@ -164,7 +164,7 @@ class OrderHistoryPage extends FOBasePage {
    * @param orderRow {number} Row number in orders table
    * @returns {Promise<string>}
    */
-  getOrderIdFromInvoiceHref(page: Page, orderRow: number = 1): Promise<string> {
+  async getOrderIdFromInvoiceHref(page: Page, orderRow: number = 1): Promise<string> {
     return this.getAttributeContent(page, this.orderTableColumnInvoice(orderRow), 'href');
   }
 
@@ -219,7 +219,7 @@ class OrderHistoryPage extends FOBasePage {
    * @param page {Page} Browser tab
    * @returns {Promise<boolean>}
    */
-  isBoxMessagesSectionVisible(page: Page): Promise<boolean> {
+  async isBoxMessagesSectionVisible(page: Page): Promise<boolean> {
     return this.elementVisible(page, this.boxMessagesSection, 1000);
   }
 
@@ -229,7 +229,7 @@ class OrderHistoryPage extends FOBasePage {
    * @param row {number} Row on table messages (2 is the first row)
    * @returns {Promise<boolean>}
    */
-  isMessageRowVisible(page: Page, row: number = 1): Promise<boolean> {
+  async isMessageRowVisible(page: Page, row: number = 1): Promise<boolean> {
     return this.elementVisible(page, this.messageRow(row + 1), 1000);
   }
 
@@ -239,7 +239,7 @@ class OrderHistoryPage extends FOBasePage {
    * @param row {number} Row on table messages (2 is the first row)
    * @returns {Promise<string>}
    */
-  getMessageRow(page: Page, row: number = 1): Promise<string> {
+  async getMessageRow(page: Page, row: number = 1): Promise<string> {
     return this.getTextContent(page, this.messageRow(row + 1));
   }
 

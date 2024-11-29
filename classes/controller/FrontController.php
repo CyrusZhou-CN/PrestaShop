@@ -501,13 +501,8 @@ class FrontControllerCore extends Controller
      */
     protected function assignGeneralPurposeVariables()
     {
-        if (Validate::isLoadedObject($this->context->cart)) {
-            $cart = $this->context->cart;
-        } else {
-            $cart = new Cart();
-        }
-
         $templateVars = [];
+        $cart = $this->context->cart;
 
         Hook::exec(
             'actionFrontControllerSetVariablesBefore',
@@ -589,10 +584,6 @@ class FrontControllerCore extends Controller
     {
         $this->assignGeneralPurposeVariables();
         $this->process();
-
-        if (!isset($this->context->cart)) {
-            $this->context->cart = new Cart();
-        }
 
         $this->context->smarty->assign([
             'HOOK_HEADER' => Hook::exec('displayHeader'),

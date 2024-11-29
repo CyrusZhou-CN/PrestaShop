@@ -373,6 +373,11 @@ abstract class ModuleCore implements ModuleInterface
     public function install()
     {
         Hook::exec('actionModuleInstallBefore', ['object' => $this]);
+
+        if ($this->_errors) {
+            return false;
+        }
+
         // Check module name validation
         if (!Validate::isModuleName($this->name)) {
             $this->_errors[] = Context::getContext()->getTranslator()->trans('Unable to install the module (Module name is not valid).', [], 'Admin.Modules.Notification');
@@ -524,7 +529,7 @@ abstract class ModuleCore implements ModuleInterface
         if ($upgrade_detail['available_upgrade']) {
             $translator = Context::getContext()->getTranslator();
             if ($upgrade_detail['success']) {
-                $this->_confirmations[] = $translator->trans('Current version: %s', [$this->version], 'Admin.Modules.Notification');
+                $this->_confirmations[] = $translator->trans('Current version: %s', [self::getModuleVersion($this)], 'Admin.Modules.Notification');
                 $this->_confirmations[] = $translator->trans('%d file update applied', [$upgrade_detail['number_upgraded']], 'Admin.Modules.Notification');
 
                 return;
@@ -556,8 +561,9 @@ abstract class ModuleCore implements ModuleInterface
     public static function initUpgradeModule($module)
     {
         if ($module->installed && empty($module->database_version)) {
-            Module::upgradeModuleVersion($module->name, $module->version);
-            $module->database_version = $module->version;
+            $moduleVersion = self::getModuleVersion($module);
+            Module::upgradeModuleVersion($module->name, $moduleVersion);
+            $module->database_version = $moduleVersion;
         }
 
         /*
@@ -666,7 +672,8 @@ abstract class ModuleCore implements ModuleInterface
     {
         static::$modules_cache[$module->name]['upgrade']['upgraded_from'] = $module->database_version;
         // Check the version of the module with the registered one and look if any upgrade file exist
-        if (Tools::version_compare($module->version, $module->database_version, '>')) {
+        $moduleVersion = self::getModuleVersion($module);
+        if (Tools::version_compare($moduleVersion, $module->database_version, '>')) {
             /*
              * $old_version variable is saved on purpose here, because calling Module::getInstanceByName will wipe
              * the $module->database_version information from the object.
@@ -674,11 +681,18 @@ abstract class ModuleCore implements ModuleInterface
             $old_version = $module->database_version;
             $module = Module::getInstanceByName($module->name);
             if ($module instanceof Module) {
-                return $module->loadUpgradeVersionList($module->name, $module->version, $old_version);
+                return $module->loadUpgradeVersionList($module->name, $moduleVersion, $old_version);
             }
         }
 
         return null;
+    }
+
+    public static function getModuleVersion(ModuleCore|stdClass $module): string
+    {
+        $moduleConfig = self::loadModuleXMLConfig($module->name);
+
+        return $moduleConfig['version'] ?? $module->version;
     }
 
     /**
@@ -1482,6 +1496,7 @@ abstract class ModuleCore implements ModuleInterface
                         $item->$k = (string) $v;
                     }
 
+                    $item->version = self::getModuleVersion($item);
                     $item->displayName = stripslashes(Translate::getModuleTranslation((string) $xml_module->name, Module::configXmlStringFormat($xml_module->displayName), (string) $xml_module->name));
                     $item->description = stripslashes(Translate::getModuleTranslation((string) $xml_module->name, Module::configXmlStringFormat($xml_module->description), (string) $xml_module->name));
                     $item->author = stripslashes(Translate::getModuleTranslation((string) $xml_module->name, Module::configXmlStringFormat($xml_module->author), (string) $xml_module->name));
@@ -1535,7 +1550,7 @@ abstract class ModuleCore implements ModuleInterface
                         $item->id = (int) $tmp_module->id;
                         $item->warning = $tmp_module->warning;
                         $item->name = $tmp_module->name;
-                        $item->version = $tmp_module->version;
+                        $item->version = self::getModuleVersion($tmp_module);
                         $item->tab = $tmp_module->tab;
                         $item->displayName = $tmp_module->displayName;
                         $item->description = isset($tmp_module->description) ? stripslashes($tmp_module->description) : null;

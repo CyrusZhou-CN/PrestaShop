@@ -62,18 +62,12 @@ abstract class ContextStateTestCase extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $contextMock
-            ->method('getTranslator')
-            ->willReturn(
-                $this
-                    ->getMockBuilder(Translator::class)
-                    ->disableOriginalConstructor()
-                    ->setMethodsExcept([
-                        'setLocale',
-                        'getLocale',
-                    ])
-                    ->getMock()
-            );
+        $locale = 'en';
+        if (isset($contextFields['language']) && $contextFields['language'] instanceof Language) {
+            $locale = $contextFields['language']->locale;
+        }
+        $translator = new Translator($locale);
+        $contextMock->method('getTranslator')->willReturn($translator);
 
         foreach ($contextFields as $fieldName => $contextValue) {
             $contextMock->$fieldName = $contextValue;

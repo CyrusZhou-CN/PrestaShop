@@ -32,7 +32,6 @@ use AdminAPIKernel;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase as ApiPlatformTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use Configuration;
-use EmptyIterator;
 use PrestaShop\PrestaShop\Core\Domain\ApiClient\Command\AddApiClientCommand;
 use PrestaShop\PrestaShop\Core\Domain\Configuration\ShopConfigurationInterface;
 use PrestaShop\PrestaShop\Core\Domain\Language\Command\AddLanguageCommand;
@@ -107,7 +106,14 @@ abstract class ApiTestCase extends ApiPlatformTestCase
      */
     public function getProtectedEndpoints(): iterable
     {
-        return new EmptyIterator();
+        // Before we could return a EmptyIterator but now PHPUnit forces at least one element in the iterable
+        yield 'infos endpoint' => [
+            'GET',
+            '/api-client/infos',
+            'application/json',
+            // The endpoint is protected when you have no token, however it doesn't require any particular scope
+            false,
+        ];
     }
 
     /**

@@ -4924,5 +4924,10 @@
       <title>Modify customer groups grid template data</title>
       <description>This hook allows to modify data which is about to be used in template for customer groups grid</description>
     </hook>
+    <hook id="actionPDFInvoiceRender">
+      <name>actionPDFInvoiceRender</name>
+      <title>PDF Invoice - Render</title>
+      <description>This hook is called when a PDF invoice is rendered from the Front Office and the Back Office</description>
+    </hook>
   </entities>
 </entity_hook>

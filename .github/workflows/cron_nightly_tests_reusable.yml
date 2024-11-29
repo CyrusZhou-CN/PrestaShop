@@ -48,6 +48,7 @@ jobs:
         BRANCH:
           - ${{ inputs.BRANCH }}
         CAMPAIGN:
+          - 'audit'
           - 'cldr'
           - 'sanity'
           - 'sanity:productV2'
@@ -100,6 +101,8 @@ jobs:
         exclude:
           ## 1.7.8.x
           - BRANCH: 1.7.8.x
+            CAMPAIGN: 'audit'
+          - BRANCH: 1.7.8.x
             CAMPAIGN: 'cldr'
           - BRANCH: 1.7.8.x
             CAMPAIGN: 'functional:BO:advanced-parameters:11-12'
@@ -137,6 +140,8 @@ jobs:
             CAMPAIGN: 'sanity:productV2'
           ## 8.0.x
           - BRANCH: 8.0.x
+            CAMPAIGN: 'audit'
+          - BRANCH: 8.0.x
             CAMPAIGN: 'cldr'
           - BRANCH: 8.0.x
             CAMPAIGN: 'functional:BO:advanced-parameters:11-12'
@@ -172,6 +177,8 @@ jobs:
             CAMPAIGN: 'modules:30-39'
           ## 8.1.x
           - BRANCH: 8.1.x
+            CAMPAIGN: 'audit'
+          - BRANCH: 8.1.x
             CAMPAIGN: 'functional:BO:advanced-parameters:11-12'
           - BRANCH: 8.1.x
             CAMPAIGN: 'functional:FO:01-03'
@@ -192,6 +199,8 @@ jobs:
           - BRANCH: 8.1.x
             CAMPAIGN: 'modules:30-39'
           ## 8.2.x
+          - BRANCH: 8.2.x
+            CAMPAIGN: 'audit'
           - BRANCH: 8.2.x
             CAMPAIGN: 'functional:BO:advanced-parameters:11-12'
           - BRANCH: 8.2.x

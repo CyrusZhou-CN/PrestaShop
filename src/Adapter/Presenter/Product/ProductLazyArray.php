@@ -35,6 +35,7 @@ use Db;
 use Language;
 use Link;
 use Manufacturer;
+use Pack;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\Decimal\Operation\Rounding;
 use PrestaShop\PrestaShop\Adapter\Configuration;
@@ -949,6 +950,28 @@ class ProductLazyArray extends AbstractLazyArray
             $this->product['unit_price'] = '';
             $this->product['unit_price_full'] = '';
         }
+
+        // Assign no-pack prices in case of products that are packs
+        if ($this->product['pack']) {
+            $rawNoPackPrice = Pack::noPackPrice((int) $this->product['id_product']);
+            $this->product['nopackprice'] = $rawNoPackPrice;
+            $this->product['nopackprice_to_display'] = $this->priceFormatter->format($rawNoPackPrice);
+        } else {
+            $this->product['nopackprice'] = null;
+            $this->product['nopackprice_to_display'] = null;
+        }
+    }
+
+    /**
+     * @return float
+     */
+    #[LazyArrayAttribute(arrayAccess: true)]
+    public function getRoundedDisplayPrice()
+    {
+        return Tools::ps_round(
+            $this->product['price_amount'],
+            Context::getContext()->currency->precision
+        );
     }
 
     /**

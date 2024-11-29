@@ -30,7 +30,7 @@ namespace Tests\Unit\Core\Form\IdentifiableObject\CommandBuilder\Product;
 use PHPUnit\Framework\TestCase;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
 
-abstract class AbstractMultiShopCommandsBuilderTest extends TestCase
+abstract class AbstractMultiShopCommandsBuilderTestCase extends TestCase
 {
     protected const SHOP_ID = 1;
 

@@ -2,12 +2,12 @@
 import testContext from '@utils/testContext';
 
 // Import pages
-import brandsPage from '@pages/BO/catalog/brands';
 import suppliersPage from '@pages/BO/catalog/suppliers';
 import viewSupplierPage from '@pages/BO/catalog/suppliers/view';
 
 import {expect} from 'chai';
 import {
+  boBrandsPage,
   boDashboardPage,
   boLoginPage,
   boSuppliersCreate,
@@ -68,17 +68,17 @@ describe('BO - Catalog - Brands & Suppliers : CRUD supplier', async () => {
       boDashboardPage.catalogParentLink,
       boDashboardPage.brandsAndSuppliersLink,
     );
-    await brandsPage.closeSfToolBar(page);
+    await boBrandsPage.closeSfToolBar(page);
 
-    const pageTitle = await brandsPage.getPageTitle(page);
-    expect(pageTitle).to.contains(brandsPage.pageTitle);
+    const pageTitle = await boBrandsPage.getPageTitle(page);
+    expect(pageTitle).to.contains(boBrandsPage.pageTitle);
   });
 
   // Go to suppliers page
   it('should go to Suppliers page', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'goToSuppliersPage', baseContext);
 
-    await brandsPage.goToSubTabSuppliers(page);
+    await boBrandsPage.goToSubTabSuppliers(page);
 
     const pageTitle = await suppliersPage.getPageTitle(page);
     expect(pageTitle).to.contains(suppliersPage.pageTitle);

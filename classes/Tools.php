@@ -1569,12 +1569,13 @@ class ToolsCore
     }
 
     /**
-     * returns the rounded value of $value to specified precision, according to your configuration;.
+     * Returns the rounded value of $value to specified precision, according to your configuration.
      *
-     * @note : PHP 5.3.0 introduce a 3rd parameter mode in round function
+     * Warning - this method accepts our own PS rounding constants with different integer values.
      *
      * @param float $value
      * @param int $precision
+     * @param int<0,5>|null $round_mode
      *
      * @return float
      */
@@ -1596,14 +1597,23 @@ class ToolsCore
             case PS_ROUND_HALF_DOWN:
             case PS_ROUND_HALF_EVEN:
             case PS_ROUND_HALF_ODD:
-                return Tools::math_round($value, $precision, $round_mode);
             case PS_ROUND_HALF_UP:
             default:
-                return Tools::math_round($value, $precision, PS_ROUND_HALF_UP);
+                // PHP rounding mode is Prestashop rounding mode - 1, see config/defines.inc.php
+                /* @phpstan-ignore-next-line */
+                return round($value, $precision, $round_mode - 1);
         }
     }
 
     /**
+     * This method is a wrapper for PHP round method. It doesn't do much now, but it
+     * was needed in the past, because PHP did not support rounding modes like it does
+     * not. There was a huge logic here.
+     *
+     * Warning - this method accepts our own PS rounding methods with different integer values.
+     *
+     * @deprecated since 9.0.0 and will be removed in 10.0.0. Use ps_round or round directly.
+     *
      * @param int|float $value
      * @param int|float $places
      * @param int<2,5> $mode (PS_ROUND_HALF_UP|PS_ROUND_HALF_DOWN|PS_ROUND_HALF_EVEN|PS_ROUND_HALF_ODD)
@@ -1612,60 +1622,7 @@ class ToolsCore
      */
     public static function math_round($value, $places, $mode = PS_ROUND_HALF_UP)
     {
-        // If PHP_ROUND_HALF_UP exist (PHP 5.3) use it and pass correct mode value (PrestaShop define - 1)
-        if (defined('PHP_ROUND_HALF_UP')) {
-            return round($value, $places, $mode - 1);
-        }
-
-        $precision_places = 14 - floor(log10(abs($value)));
-        $f1 = 10.0 ** (float) abs($places);
-
-        /* If the decimal precision guaranteed by FP arithmetic is higher than
-        * the requested places BUT is small enough to make sure a non-zero value
-        * is returned, pre-round the result to the precision */
-        if ($precision_places > $places && $precision_places - $places < 15) {
-            $f2 = 10.0 ** (float) abs($precision_places);
-
-            if ($precision_places >= 0) {
-                $tmp_value = $value * $f2;
-            } else {
-                $tmp_value = $value / $f2;
-            }
-
-            /* preround the result (tmp_value will always be something * 1e14,
-            * thus never larger than 1e15 here) */
-            $tmp_value = Tools::round_helper($tmp_value, $mode);
-            /* now correctly move the decimal point */
-            $f2 = 10.0 ** (float) abs($places - $precision_places);
-            /* because places < precision_places */
-            $tmp_value = $tmp_value / $f2;
-        } else {
-            /* adjust the value */
-            if ($places >= 0) {
-                $tmp_value = $value * $f1;
-            } else {
-                $tmp_value = $value / $f1;
-            }
-
-            /* This value is beyond our precision, so rounding it is pointless */
-            if (abs($tmp_value) >= 1e15) {
-                return $value;
-            }
-        }
-
-        /* round the temp value */
-        $tmp_value = Tools::round_helper($tmp_value, $mode);
-
-        /* see if it makes sense to use simple division to round the value */
-        if (abs($places) < 23) {
-            if ($places > 0) {
-                $tmp_value /= $f1;
-            } else {
-                $tmp_value *= $f1;
-            }
-        }
-
-        return $tmp_value;
+        return Tools::ps_round($value, $places, $mode);
     }
 
     /**

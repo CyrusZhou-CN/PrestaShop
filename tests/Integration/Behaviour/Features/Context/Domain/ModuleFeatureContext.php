@@ -37,8 +37,10 @@ use PrestaShop\PrestaShop\Core\Domain\Module\Command\InstallModuleCommand;
 use PrestaShop\PrestaShop\Core\Domain\Module\Command\ResetModuleCommand;
 use PrestaShop\PrestaShop\Core\Domain\Module\Command\UninstallModuleCommand;
 use PrestaShop\PrestaShop\Core\Domain\Module\Command\UpdateModuleStatusCommand;
+use PrestaShop\PrestaShop\Core\Domain\Module\Command\UpgradeModuleCommand;
 use PrestaShop\PrestaShop\Core\Domain\Module\Command\UploadModuleCommand;
 use PrestaShop\PrestaShop\Core\Domain\Module\Exception\AlreadyInstalledModuleException;
+use PrestaShop\PrestaShop\Core\Domain\Module\Exception\ModuleAlreadyUpToDateException;
 use PrestaShop\PrestaShop\Core\Domain\Module\Exception\ModuleException;
 use PrestaShop\PrestaShop\Core\Domain\Module\Exception\ModuleNotFoundException;
 use PrestaShop\PrestaShop\Core\Domain\Module\Exception\ModuleNotInstalledException;
@@ -84,6 +86,14 @@ class ModuleFeatureContext extends AbstractDomainFeatureContext
     public function assertModuleNotInstalled(): void
     {
         $this->assertLastErrorIs(ModuleNotInstalledException::class);
+    }
+
+    /**
+     * @Then I should have an exception that module is already up to date
+     */
+    public function assertModuleAlreadyUpToDate(): void
+    {
+        $this->assertLastErrorIs(ModuleAlreadyUpToDateException::class);
     }
 
     /**
@@ -217,6 +227,20 @@ class ModuleFeatureContext extends AbstractDomainFeatureContext
             $this->setLastException($e);
         }
 
+        // Clean the cache
+        Module::resetStaticCache();
+    }
+
+    /**
+     * @When I upgrade module :technicalName
+     */
+    public function upgradeModule(string $technicalName): void
+    {
+        try {
+            $this->getCommandBus()->handle(new UpgradeModuleCommand($technicalName));
+        } catch (ModuleException $e) {
+            $this->setLastException($e);
+        }
         // Clean the cache
         Module::resetStaticCache();
     }

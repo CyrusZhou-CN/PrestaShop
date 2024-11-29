@@ -45,7 +45,7 @@ type GlobalBrowser = {
   sandboxArgs: Array<string>
   acceptDownloads: boolean
   config: GlobalBrowserConfig
-  interceptErrors: any
+  captureErrors: boolean
 }
 
 type GlobalPSConfig = {

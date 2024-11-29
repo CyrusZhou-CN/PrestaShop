@@ -195,6 +195,7 @@ describe('BO - Catalog - Products : Details tab', async () => {
     it('should add 2 features', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'addFirstFeature', baseContext);
 
+      await boProductsCreateTabDetailsPage.deleteFeatures(page, newProductData.features.length);
       await boProductsCreateTabDetailsPage.setFeature(page, editProductData.features);
 
       const message = await createProductPage.saveProduct(page);
@@ -264,7 +265,7 @@ describe('BO - Catalog - Products : Details tab', async () => {
     it('should delete the created features', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'deleteFeatures', baseContext);
 
-      await boProductsCreateTabDetailsPage.deleteFeatures(page, editProductData.features.concat(productFeaturesFr));
+      await boProductsCreateTabDetailsPage.deleteFeatures(page, editProductData.features.concat(productFeaturesFr).length);
 
       const message = await createProductPage.saveProduct(page);
       expect(message).to.eq(createProductPage.successfulUpdateMessage);

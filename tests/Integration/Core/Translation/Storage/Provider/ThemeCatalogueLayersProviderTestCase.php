@@ -44,7 +44,7 @@ use Symfony\Component\Translation\MessageCatalogue;
 /**
  * Test the provider of frontOffice translations
  */
-class ThemeCatalogueLayersProviderTest extends AbstractCatalogueLayersProviderTest
+class ThemeCatalogueLayersProviderTestCase extends AbstractCatalogueLayersProviderTestCase
 {
     /**
      * @var MockObject|ThemeExtractor

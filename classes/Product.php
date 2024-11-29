@@ -5525,7 +5525,6 @@ class ProductCore extends ObjectModel
         // Pack management
         $row['pack'] = (!isset($row['cache_is_pack']) ? Pack::isPack($row['id_product']) : (int) $row['cache_is_pack']);
         $row['packItems'] = $row['pack'] ? Pack::getItemTable($row['id_product'], $id_lang) : [];
-        $row['nopackprice'] = $row['pack'] ? Pack::noPackPrice($row['id_product']) : 0;
 
         if (!isset($row['attributes'])) {
             $attributes = Product::getAttributesParams($row['id_product'], $row['id_product_attribute']);

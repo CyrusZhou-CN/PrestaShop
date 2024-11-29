@@ -184,12 +184,18 @@ define('_PS_TRANS_PATTERN_', '(.*[^\\\\])');
 define('PS_TAX_EXC', 1);
 define('PS_TAX_INC', 0);
 
-/* Rounding */
+// Rounding
+// Note - since PHP 8.4, there is also a new rounding modes in round()
+// PHP_ROUND_CEILING, PHP_ROUND_FLOOR, PHP_ROUND_TOWARD_ZERO, PHP_ROUND_AWAY_FROM_ZERO
 define('PS_ROUND_UP', 0);
 define('PS_ROUND_DOWN', 1);
+// PHP value PHP_ROUND_HALF_UP is 1
 define('PS_ROUND_HALF_UP', 2);
+// PHP value PHP_ROUND_HALF_DOWN is 2
 define('PS_ROUND_HALF_DOWN', 3);
+// PHP value PHP_ROUND_HALF_EVEN is 3
 define('PS_ROUND_HALF_EVEN', 4);
+// PHP value PHP_ROUND_HALF_ODD is 4
 define('PS_ROUND_HALF_ODD', 5);
 
 /* SQL Replication management */

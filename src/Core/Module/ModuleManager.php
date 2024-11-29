@@ -298,7 +298,7 @@ class ModuleManager implements ModuleManagerInterface
 
         $module = $this->moduleRepository->getModule($name);
 
-        if ($keepData && method_exists($module, 'reset')) {
+        if ($keepData && method_exists($module->getInstance(), 'reset')) {
             $reset = $module->onReset();
             $this->dispatch(ModuleManagementEvent::RESET, $module);
         } else {

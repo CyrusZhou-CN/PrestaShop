@@ -3,13 +3,13 @@ import testContext from '@utils/testContext';
 
 // Import pages
 // Import BO pages
-import brandsPage from '@pages/BO/catalog/brands';
 import suppliersPage from '@pages/BO/catalog/suppliers';
 // Import FO pages
 import {siteMapPage} from '@pages/FO/classic/siteMap';
 
 import {expect} from 'chai';
 import {
+  boBrandsPage,
   boDashboardPage,
   boLoginPage,
   boShopParametersPage,
@@ -88,14 +88,14 @@ describe('BO - Shop Parameters - General : Enable/Disable display suppliers', as
             boShopParametersPage.brandsAndSuppliersLink,
           );
 
-          const pageTitle = await brandsPage.getPageTitle(page);
-          expect(pageTitle).to.contains(brandsPage.pageTitle);
+          const pageTitle = await boBrandsPage.getPageTitle(page);
+          expect(pageTitle).to.contains(boBrandsPage.pageTitle);
         });
 
         it('should go to \'Suppliers\' tab', async function () {
           await testContext.addContextItem(this, 'testIdentifier', `goToSuppliersTab_${index}`, baseContext);
 
-          await brandsPage.goToSubTabSuppliers(page);
+          await boBrandsPage.goToSubTabSuppliers(page);
 
           const pageTitle = await suppliersPage.getPageTitle(page);
           expect(pageTitle).to.contains(suppliersPage.pageTitle);

@@ -89,8 +89,10 @@
     "test:modules:30-39": "TEST_PATH='modules/3*/**/*' npm run test:specific",
     "// Regression tests": "Scripts to run regression tests",
     "test:regression": "TEST_PATH='regression/**/*' npm run test:specific",
+    "// Audit": "Scripts to run audit tests",
+    "test:audit": "TEST_PATH='audit/**/*' npm run test:specific",
     "// All tests": "Scripts to run all campaigns",
-    "test:all": "ts-mocha --file utils/globals.ts --file utils/setup.ts campaigns/cldr/* campaigns/functional/* campaigns/modules/* campaigns/regression/* campaigns/sanity/*"
+    "test:all": "ts-mocha --file utils/globals.ts --file utils/setup.ts campaigns/audit/* campaigns/cldr/* campaigns/functional/* campaigns/modules/* campaigns/regression/* campaigns/sanity/*"
   },
   "repository": {
     "type": "git",

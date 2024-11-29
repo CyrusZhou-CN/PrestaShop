@@ -53,7 +53,7 @@ global.BROWSER = {
     timeout: 0,
     slowMo: process.env.SLOW_MO ? parseInt(process.env.SLOW_MO, 10) : 5,
   },
-  interceptErrors: process.env.INTERCEPT_ERRORS ? JSON.parse(process.env.INTERCEPT_ERRORS) : false,
+  captureErrors: process.env.INTERCEPT_ERRORS ? JSON.parse(process.env.INTERCEPT_ERRORS) : false,
 };
 
 global.GENERATE_FAILED_STEPS = process.env.GENERATE_FAILED_STEPS ? JSON.parse(process.env.GENERATE_FAILED_STEPS) : false;
@@ -77,4 +77,10 @@ global.keycloakConfig = {
   keycloakAdminPass: process.env.KEYCLOAK_ADMIN_PASS || 'admin',
   keycloakClientId: process.env.KEYCLOAK_CLIENT_ID || 'prestashop-keycloak',
   keycloakClientSecret: process.env.KEYCLOAK_CLIENT_SECRET || 'O2kKN0fprCK2HWP6PS6reVbZThWf5LFw',
+};
+
+global.browserErrors = {
+  responses: [],
+  js: [],
+  console: [],
 };

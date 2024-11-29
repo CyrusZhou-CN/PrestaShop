@@ -29,13 +29,14 @@ namespace Tests\Integration\Core\Translation\Storage\Provider;
 
 use PrestaShop\PrestaShop\Core\Language\LanguageRepositoryInterface;
 use PrestaShop\PrestaShop\Core\Translation\Storage\Provider\CoreCatalogueLayersProvider;
-use PrestaShop\PrestaShop\Core\Translation\Storage\Provider\Definition\BackofficeProviderDefinition;
+use PrestaShop\PrestaShop\Core\Translation\Storage\Provider\Definition\FrontofficeProviderDefinition;
 use PrestaShop\PrestaShop\Core\Translation\TranslationRepositoryInterface;
+use Symfony\Component\Translation\MessageCatalogue;
 
 /**
- * Test the provider of backOffice translations
+ * Test the provider of frontOffice translations
  */
-class BackofficeCatalogueLayersProviderTest extends AbstractCatalogueLayersProviderTest
+class FrontofficeCatalogueLayersProviderTestCase extends AbstractCatalogueLayersProviderTestCase
 {
     /**
      * Test it loads a XLIFF catalogue from the locale's `translations` directory
@@ -46,16 +47,15 @@ class BackofficeCatalogueLayersProviderTest extends AbstractCatalogueLayersProvi
         $catalogue = $this->getFileTranslatedCatalogue('fr-FR');
 
         $expected = [
-            'AdminActions' => [
-                'count' => 90,
+            'ShopNotificationsWarning' => [
+                'count' => 8,
                 'translations' => [
-                    'Save and stay' => 'Enregistrer et rester',
-                    'Uninstall' => 'Désinstaller',
+                    'You do not have any vouchers.' => 'Vous ne possédez pas de bon de réduction.',
+                    'You cannot place a new order from your country (%s).' => 'Vous ne pouvez pas créer de nouvelle commande depuis votre pays (%s).',
                 ],
             ],
         ];
 
-        // verify all catalogues are loaded
         $this->assertResultIsAsExpected($expected, $catalogue);
     }
 
@@ -68,35 +68,34 @@ class BackofficeCatalogueLayersProviderTest extends AbstractCatalogueLayersProvi
         $catalogue = $this->getDefaultCatalogue('fr-FR');
 
         $expected = [
-            'AdminActions' => [
-                'count' => 91,
+            'ShopNotificationsWarning' => [
+                'count' => 8,
                 'translations' => [
-                    'Save and stay' => '',
-                    'Uninstall' => '',
+                    'You do not have any vouchers.' => '',
+                    'You cannot place a new order from your country (%s).' => '',
                 ],
             ],
         ];
 
-        // verify all catalogues are loaded
         $this->assertResultIsAsExpected($expected, $catalogue);
     }
 
-    public function testItLoadsCustomizedTranslationsFromDatabase(): void
+    public function testItLoadsCustomizedTranslationsWithNoThemeFromDatabase(): void
     {
         $databaseContent = [
             [
                 'lang' => 'fr-FR',
                 'key' => 'Uninstall',
-                'translation' => 'Traduction customisée',
-                'domain' => 'AdminActions',
+                'translation' => 'Uninstall Traduction customisée',
+                'domain' => 'ShopNotificationsWarning',
                 'theme' => null,
             ],
             [
                 'lang' => 'fr-FR',
-                'key' => 'Some made up text',
-                'translation' => 'Un texte inventé',
-                'domain' => 'ShopActions',
-                'theme' => 'classic',
+                'key' => 'Install',
+                'translation' => 'Install Traduction customisée',
+                'domain' => 'ModulesWirepaymentShop',
+                'theme' => null,
             ],
         ];
 
@@ -104,11 +103,11 @@ class BackofficeCatalogueLayersProviderTest extends AbstractCatalogueLayersProvi
         $catalogue = $this->getUserTranslatedCatalogue('fr-FR', $databaseContent);
 
         $expected = [
-            'AdminActions' => [
+            'ShopNotificationsWarning' => [
                 'count' => 1,
                 'translations' => [
-                    'Save and stay' => 'Save and stay',
-                    'Uninstall' => 'Traduction customisée',
+                    'You do not have any vouchers.' => 'You do not have any vouchers.',
+                    'Uninstall' => 'Uninstall Traduction customisée',
                 ],
             ],
         ];
@@ -117,14 +116,60 @@ class BackofficeCatalogueLayersProviderTest extends AbstractCatalogueLayersProvi
         $this->assertResultIsAsExpected($expected, $catalogue);
     }
 
+    public function testItDoesntLoadsCustomizedTranslationsWithThemeDefinedFromDatabase(): void
+    {
+        $databaseContent = [
+            [
+                'lang' => 'fr-FR',
+                'key' => 'Uninstall',
+                'translation' => 'Uninstall Traduction customisée',
+                'domain' => 'ShopNotificationsWarning',
+                'theme' => 'classic',
+            ],
+            [
+                'lang' => 'fr-FR',
+                'key' => 'Install',
+                'translation' => 'Install Traduction customisée',
+                'domain' => 'ModulesWirepaymentShop',
+                'theme' => 'classic',
+            ],
+            [
+                'lang' => 'fr-FR',
+                'key' => 'Some made up text 1',
+                'translation' => 'Un texte inventé 1',
+                'domain' => 'AdminActions',
+                'theme' => 'classic',
+            ],
+            [
+                'lang' => 'fr-FR',
+                'key' => 'Some made up text 2',
+                'translation' => 'Un texte inventé 2',
+                'domain' => 'ModuleWirepaymentShop',
+                'theme' => 'otherTheme',
+            ],
+        ];
+
+        // load catalogue from database translations
+        $catalogue = $this->getUserTranslatedCatalogue('fr-FR', $databaseContent);
+
+        $this->assertInstanceOf(MessageCatalogue::class, $catalogue);
+
+        // Check integrity of translations
+        $messages = $catalogue->all();
+        $domains = $catalogue->getDomains();
+        sort($domains);
+
+        // If the theme name is null, the translations which have theme = 'classic' are taken
+        $this->assertEmpty($domains);
+        $this->assertEmpty($messages);
+    }
+
     /**
      * @param array $databaseContent
-     *
-     * @return CoreCatalogueLayersProvider
      */
     protected function getProvider(array $databaseContent = []): CoreCatalogueLayersProvider
     {
-        $providerDefinition = new BackofficeProviderDefinition();
+        $providerDefinition = new FrontofficeProviderDefinition();
 
         return new CoreCatalogueLayersProvider(
             new MockDatabaseTranslationLoader(

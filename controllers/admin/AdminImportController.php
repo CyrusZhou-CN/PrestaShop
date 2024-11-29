@@ -142,6 +142,7 @@ class AdminImportControllerCore extends AdminController
                     'minimal_quantity' => ['label' => $this->trans('Minimal quantity', [], 'Admin.Advparameters.Feature')],
                     'low_stock_threshold' => ['label' => $this->trans('Low stock level', [], 'Admin.Catalog.Feature')],
                     'low_stock_alert' => ['label' => $this->trans('Receive a low stock alert by email', [], 'Admin.Catalog.Feature')],
+                    'location' => ['label' => $this->trans('Stock location', [], 'Admin.Catalog.Feature')],
                     'weight' => ['label' => $this->trans('Impact on weight', [], 'Admin.Catalog.Feature')],
                     'default_on' => ['label' => $this->trans('Default (0 = No, 1 = Yes)', [], 'Admin.Advparameters.Feature')],
                     'available_date' => ['label' => $this->trans('Combination availability date', [], 'Admin.Advparameters.Feature')],
@@ -169,6 +170,7 @@ class AdminImportControllerCore extends AdminController
                     'minimal_quantity' => 1,
                     'low_stock_threshold' => null,
                     'low_stock_alert' => false,
+                    'location' => '',
                     'weight' => 0,
                     'default_on' => null,
                     'available_date' => date('Y-m-d'),
@@ -257,6 +259,7 @@ class AdminImportControllerCore extends AdminController
                     'minimal_quantity' => ['label' => $this->trans('Minimal quantity', [], 'Admin.Advparameters.Feature')],
                     'low_stock_threshold' => ['label' => $this->trans('Low stock level', [], 'Admin.Catalog.Feature')],
                     'low_stock_alert' => ['label' => $this->trans('Receive a low stock alert by email', [], 'Admin.Catalog.Feature')],
+                    'location' => ['label' => $this->trans('Stock location', [], 'Admin.Catalog.Feature')],
                     'visibility' => ['label' => $this->trans('Visibility', [], 'Admin.Catalog.Feature')],
                     'additional_shipping_cost' => ['label' => $this->trans('Additional shipping cost', [], 'Admin.Advparameters.Feature')],
                     'unity' => ['label' => $this->trans('Unit for the price per unit', [], 'Admin.Advparameters.Feature')],
@@ -318,6 +321,7 @@ class AdminImportControllerCore extends AdminController
                     'minimal_quantity' => 1,
                     'low_stock_threshold' => null,
                     'low_stock_alert' => false,
+                    'location' => '',
                     'price' => 0,
                     'id_tax_rules_group' => 0,
                     'description_short' => [(int) Configuration::get('PS_LANG_DEFAULT') => ''],
@@ -806,7 +810,7 @@ class AdminImportControllerCore extends AdminController
         $html .= '</tr></thead><tbody>';
 
         AdminImportController::setLocale();
-        for ($current_line = 0; $current_line < 10 && $line = fgetcsv($handle, MAX_LINE_SIZE, $glue); ++$current_line) {
+        for ($current_line = 0; $current_line < 10 && $line = fgetcsv($handle, MAX_LINE_SIZE, $glue, '"', ''); ++$current_line) {
             /* UTF-8 conversion */
             if ($this->convert) {
                 $line = $this->utf8EncodeArray($line);
@@ -909,7 +913,7 @@ class AdminImportControllerCore extends AdminController
             return [];
         }
 
-        $tab = fgetcsv($fd, MAX_LINE_SIZE, $separator);
+        $tab = fgetcsv($fd, MAX_LINE_SIZE, $separator, '"', '');
         fclose($fd);
         if ($uniqid_path !== false && file_exists($uniqid_path)) {
             @unlink($uniqid_path);
@@ -1117,7 +1121,7 @@ class AdminImportControllerCore extends AdminController
         }
 
         $line_count = 0;
-        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator)) && (!$limit || $current_line < $limit); ++$current_line) {
+        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator, '"', '')) && (!$limit || $current_line < $limit); ++$current_line) {
             ++$line_count;
             if ($this->convert) {
                 $line = $this->utf8EncodeArray($line);
@@ -1420,7 +1424,7 @@ class AdminImportControllerCore extends AdminController
         }
 
         $line_count = 0;
-        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator)) && (!$limit || $current_line < $limit); ++$current_line) {
+        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator, '"', '')) && (!$limit || $current_line < $limit); ++$current_line) {
             ++$line_count;
             if ($this->convert) {
                 $line = $this->utf8EncodeArray($line);
@@ -2091,9 +2095,15 @@ class AdminImportControllerCore extends AdminController
                 if ($shop_is_feature_active) {
                     foreach ($shops as $shop) {
                         StockAvailable::setQuantity((int) $product->id, 0, (int) $product->quantity, (int) $shop);
+                        if (strlen($product->location) > 0) {
+                            StockAvailable::setLocation((int) $product->id, pSQL($product->location), (int) $shop);
+                        }
                     }
                 } else {
                     StockAvailable::setQuantity((int) $product->id, 0, (int) $product->quantity, (int) $this->context->shop->id);
+                    if (strlen($product->location) > 0) {
+                        StockAvailable::setLocation((int) $product->id, pSQL($product->location), (int) $this->context->shop->id);
+                    }
                 }
             }
 
@@ -2166,7 +2176,7 @@ class AdminImportControllerCore extends AdminController
         $shop_is_feature_active = Shop::isFeatureActive();
 
         $line_count = 0;
-        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator)) && (!$limit || $current_line < $limit); ++$current_line) {
+        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator, '"', '')) && (!$limit || $current_line < $limit); ++$current_line) {
             ++$line_count;
 
             if ($this->convert) {
@@ -2569,9 +2579,15 @@ class AdminImportControllerCore extends AdminController
                 if ($shop_is_feature_active) {
                     foreach ($id_shop_list as $shop) {
                         StockAvailable::setQuantity((int) $product->id, $id_product_attribute, (int) $info['quantity'], (int) $shop);
+                        if (strlen($info['location']) > 0) {
+                            StockAvailable::setLocation((int) $product->id, pSQL($info['location']), (int) $shop, $id_product_attribute);
+                        }
                     }
                 } else {
-                    StockAvailable::setQuantity((int) $product->id, $id_product_attribute, (int) $info['quantity'], $this->context->shop->id);
+                    StockAvailable::setQuantity((int) $product->id, $id_product_attribute, (int) $info['quantity'], (int) $this->context->shop->id);
+                    if (strlen($info['location']) > 0) {
+                        StockAvailable::setLocation((int) $product->id, pSQL($info['location']), (int) $this->context->shop->id, $id_product_attribute);
+                    }
                 }
             }
 
@@ -2611,7 +2627,7 @@ class AdminImportControllerCore extends AdminController
         $force_ids = Tools::getValue('forceIDs');
 
         $line_count = 0;
-        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator)) && (!$limit || $current_line < $limit); ++$current_line) {
+        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator, '"', '')) && (!$limit || $current_line < $limit); ++$current_line) {
             ++$line_count;
             if ($this->convert) {
                 $line = $this->utf8EncodeArray($line);
@@ -2873,7 +2889,7 @@ class AdminImportControllerCore extends AdminController
         $force_ids = Tools::getValue('forceIDs');
 
         $line_count = 0;
-        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator)) && (!$limit || $current_line < $limit); ++$current_line) {
+        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator, '"', '')) && (!$limit || $current_line < $limit); ++$current_line) {
             ++$line_count;
             if ($this->convert) {
                 $line = $this->utf8EncodeArray($line);
@@ -3191,7 +3207,7 @@ class AdminImportControllerCore extends AdminController
         $force_ids = Tools::getValue('forceIDs');
 
         $line_count = 0;
-        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator)) && (!$limit || $current_line < $limit); ++$current_line) {
+        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator, '"', '')) && (!$limit || $current_line < $limit); ++$current_line) {
             ++$line_count;
             if ($this->convert) {
                 $line = $this->utf8EncodeArray($line);
@@ -3306,7 +3322,7 @@ class AdminImportControllerCore extends AdminController
         $force_ids = Tools::getValue('forceIDs');
 
         $line_count = 0;
-        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator)) && (!$limit || $current_line < $limit); ++$current_line) {
+        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator, '"', '')) && (!$limit || $current_line < $limit); ++$current_line) {
             ++$line_count;
             if ($this->convert) {
                 $line = $this->utf8EncodeArray($line);
@@ -3414,7 +3430,7 @@ class AdminImportControllerCore extends AdminController
         $force_ids = Tools::getValue('forceIDs');
 
         $line_count = 0;
-        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator)) && (!$limit || $current_line < $limit); ++$current_line) {
+        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator, '"', '')) && (!$limit || $current_line < $limit); ++$current_line) {
             ++$line_count;
             if ($this->convert) {
                 $line = $this->utf8EncodeArray($line);
@@ -3492,7 +3508,7 @@ class AdminImportControllerCore extends AdminController
         $regenerate = Tools::getValue('regenerate');
 
         $line_count = 0;
-        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator)) && (!$limit || $current_line < $limit); ++$current_line) {
+        for ($current_line = 0; ($line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator, '"', '')) && (!$limit || $current_line < $limit); ++$current_line) {
             ++$line_count;
             if ($this->convert) {
                 $line = $this->utf8EncodeArray($line);
@@ -3693,7 +3709,7 @@ class AdminImportControllerCore extends AdminController
         if (!is_resource($handle)) {
             return false;
         }
-        $tmp = fgetcsv($handle, MAX_LINE_SIZE, $glue);
+        $tmp = fgetcsv($handle, MAX_LINE_SIZE, $glue, '"', '');
         AdminImportController::rewindBomAware($handle);
 
         return count($tmp);
@@ -3732,7 +3748,7 @@ class AdminImportControllerCore extends AdminController
             $toSkip += $offset;
         }
         for ($i = 0; $i < $toSkip; ++$i) {
-            $line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator);
+            $line = fgetcsv($handle, MAX_LINE_SIZE, $this->separator, '"', '');
             if ($line === false) {
                 return false; // reached end of file
             }
@@ -4047,7 +4063,7 @@ class AdminImportControllerCore extends AdminController
                     $handle = $this->openCsvFile(0);
                     if ($handle) {
                         $count = 0;
-                        while (fgetcsv($handle, MAX_LINE_SIZE, $this->separator)) {
+                        while (fgetcsv($handle, MAX_LINE_SIZE, $this->separator, '"', '')) {
                             ++$count;
                         }
                         $results['totalCount'] = $count;

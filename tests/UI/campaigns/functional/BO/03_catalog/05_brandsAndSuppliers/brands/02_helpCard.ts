@@ -1,11 +1,9 @@
 // Import utils
 import testContext from '@utils/testContext';
 
-// Import pages
-import brandsPage from '@pages/BO/catalog/brands';
-
 import {expect} from 'chai';
 import {
+  boBrandsPage,
   boDashboardPage,
   boLoginPage,
   type BrowserContext,
@@ -47,26 +45,26 @@ describe('BO - Catalog - Brands & suppliers : Help card on brands page', async (
       boDashboardPage.catalogParentLink,
       boDashboardPage.brandsAndSuppliersLink,
     );
-    await brandsPage.closeSfToolBar(page);
+    await boBrandsPage.closeSfToolBar(page);
 
-    const pageTitle = await brandsPage.getPageTitle(page);
-    expect(pageTitle).to.contains(brandsPage.pageTitle);
+    const pageTitle = await boBrandsPage.getPageTitle(page);
+    expect(pageTitle).to.contains(boBrandsPage.pageTitle);
   });
 
   it('should open the help side bar and check the document language', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'openHelpSidebar', baseContext);
 
-    const isHelpSidebarVisible = await brandsPage.openHelpSideBar(page);
+    const isHelpSidebarVisible = await boBrandsPage.openHelpSideBar(page);
     expect(isHelpSidebarVisible).to.eq(true);
 
-    const documentURL = await brandsPage.getHelpDocumentURL(page);
+    const documentURL = await boBrandsPage.getHelpDocumentURL(page);
     expect(documentURL).to.contains('country=en');
   });
 
   it('should close the help side bar', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'closeHelpSidebar', baseContext);
 
-    const isHelpSidebarClosed = await brandsPage.closeHelpSideBar(page);
+    const isHelpSidebarClosed = await boBrandsPage.closeHelpSideBar(page);
     expect(isHelpSidebarClosed).to.eq(true);
   });
 });

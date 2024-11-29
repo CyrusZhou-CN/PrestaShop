@@ -24,32 +24,11 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-declare(strict_types=1);
+namespace PrestaShop\PrestaShop\Core\Domain\Module\CommandHandler;
 
-namespace Tests\Unit\Core\Form\IdentifiableObject\CommandBuilder\Product\Combination;
+use PrestaShop\PrestaShop\Core\Domain\Module\Command\UpgradeModuleCommand;
 
-use PrestaShop\PrestaShop\Core\Domain\Product\Combination\ValueObject\CombinationId;
-use Tests\Unit\Core\Form\IdentifiableObject\CommandBuilder\Product\AbstractMultiShopCommandsBuilderTest;
-
-/**
- * Base class to test a combination command builder
- */
-abstract class AbstractCombinationCommandBuilderTest extends AbstractMultiShopCommandsBuilderTest
+interface UpgradeModuleHandlerInterface
 {
-    /**
-     * @var CombinationId
-     */
-    private $combinationId;
-
-    /**
-     * @return CombinationId
-     */
-    protected function getCombinationId(): CombinationId
-    {
-        if (null === $this->combinationId) {
-            $this->combinationId = new CombinationId(43);
-        }
-
-        return $this->combinationId;
-    }
+    public function handle(UpgradeModuleCommand $command): void;
 }

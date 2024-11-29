@@ -29,14 +29,13 @@ namespace Tests\Integration\Core\Translation\Storage\Provider;
 
 use PrestaShop\PrestaShop\Core\Language\LanguageRepositoryInterface;
 use PrestaShop\PrestaShop\Core\Translation\Storage\Provider\CoreCatalogueLayersProvider;
-use PrestaShop\PrestaShop\Core\Translation\Storage\Provider\Definition\MailsProviderDefinition;
+use PrestaShop\PrestaShop\Core\Translation\Storage\Provider\Definition\BackofficeProviderDefinition;
 use PrestaShop\PrestaShop\Core\Translation\TranslationRepositoryInterface;
-use Symfony\Component\Translation\MessageCatalogue;
 
 /**
- * Test the provider of frontOffice translations
+ * Test the provider of backOffice translations
  */
-class MailsCatalogueLayersProviderTest extends AbstractCatalogueLayersProviderTest
+class BackofficeCatalogueLayersProviderTestCase extends AbstractCatalogueLayersProviderTestCase
 {
     /**
      * Test it loads a XLIFF catalogue from the locale's `translations` directory
@@ -47,10 +46,11 @@ class MailsCatalogueLayersProviderTest extends AbstractCatalogueLayersProviderTe
         $catalogue = $this->getFileTranslatedCatalogue('fr-FR');
 
         $expected = [
-            'EmailsSubject' => [
-                'count' => 24,
+            'AdminActions' => [
+                'count' => 90,
                 'translations' => [
-                    'Log: You have a new alert from your shop' => 'Log : Vous avez un nouveau message d\'alerte dans votre boutique',
+                    'Save and stay' => 'Enregistrer et rester',
+                    'Uninstall' => 'Désinstaller',
                 ],
             ],
         ];
@@ -68,10 +68,11 @@ class MailsCatalogueLayersProviderTest extends AbstractCatalogueLayersProviderTe
         $catalogue = $this->getDefaultCatalogue('fr-FR');
 
         $expected = [
-            'EmailsSubject' => [
-                'count' => 24,
+            'AdminActions' => [
+                'count' => 91,
                 'translations' => [
-                    'Log: You have a new alert from your shop' => '',
+                    'Save and stay' => '',
+                    'Uninstall' => '',
                 ],
             ],
         ];
@@ -80,69 +81,21 @@ class MailsCatalogueLayersProviderTest extends AbstractCatalogueLayersProviderTe
         $this->assertResultIsAsExpected($expected, $catalogue);
     }
 
-    public function testItDoesntLoadsCustomizedTranslationsWithThemeDefinedFromDatabase(): void
+    public function testItLoadsCustomizedTranslationsFromDatabase(): void
     {
         $databaseContent = [
             [
                 'lang' => 'fr-FR',
                 'key' => 'Uninstall',
-                'translation' => 'Uninstall Traduction customisée',
-                'domain' => 'EmailsSubject',
-                'theme' => 'classic',
-            ],
-            [
-                'lang' => 'fr-FR',
-                'key' => 'Install',
-                'translation' => 'Install Traduction customisée',
-                'domain' => 'EmailsSubject',
-                'theme' => 'classic',
-            ],
-        ];
-
-        // load catalogue from database translations
-        $catalogue = $this->getUserTranslatedCatalogue('fr-FR', $databaseContent);
-
-        $this->assertInstanceOf(MessageCatalogue::class, $catalogue);
-
-        // Check integrity of translations
-        $messages = $catalogue->all();
-        $domains = $catalogue->getDomains();
-        sort($domains);
-
-        // If the theme name is null, the translations which have theme = 'classic' are taken
-        $this->assertEmpty($domains);
-        $this->assertEmpty($messages);
-    }
-
-    public function testItLoadsCustomizedTranslationsWithNoThemeFromDatabase(): void
-    {
-        $databaseContent = [
-            [
-                'lang' => 'fr-FR',
-                'key' => 'Uninstall',
-                'translation' => 'Uninstall Traduction customisée',
-                'domain' => 'EmailsSubject',
-                'theme' => null,
-            ],
-            [
-                'lang' => 'fr-FR',
-                'key' => 'Install',
-                'translation' => 'Install Traduction customisée',
-                'domain' => 'EmailsSubject',
-                'theme' => null,
-            ],
-            [
-                'lang' => 'fr-FR',
-                'key' => 'Some made up text 1',
-                'translation' => 'Un texte inventé 1',
+                'translation' => 'Traduction customisée',
                 'domain' => 'AdminActions',
-                'theme' => 'classic',
+                'theme' => null,
             ],
             [
                 'lang' => 'fr-FR',
-                'key' => 'Some made up text 2',
-                'translation' => 'Un texte inventé 2',
-                'domain' => 'ModuleWirepaymentShop',
+                'key' => 'Some made up text',
+                'translation' => 'Un texte inventé',
+                'domain' => 'ShopActions',
                 'theme' => 'classic',
             ],
         ];
@@ -151,11 +104,11 @@ class MailsCatalogueLayersProviderTest extends AbstractCatalogueLayersProviderTe
         $catalogue = $this->getUserTranslatedCatalogue('fr-FR', $databaseContent);
 
         $expected = [
-            'EmailsSubject' => [
-                'count' => 2,
+            'AdminActions' => [
+                'count' => 1,
                 'translations' => [
-                    'Uninstall' => 'Uninstall Traduction customisée',
-                    'Install' => 'Install Traduction customisée',
+                    'Save and stay' => 'Save and stay',
+                    'Uninstall' => 'Traduction customisée',
                 ],
             ],
         ];
@@ -171,7 +124,7 @@ class MailsCatalogueLayersProviderTest extends AbstractCatalogueLayersProviderTe
      */
     protected function getProvider(array $databaseContent = []): CoreCatalogueLayersProvider
     {
-        $providerDefinition = new MailsProviderDefinition();
+        $providerDefinition = new BackofficeProviderDefinition();
 
         return new CoreCatalogueLayersProvider(
             new MockDatabaseTranslationLoader(

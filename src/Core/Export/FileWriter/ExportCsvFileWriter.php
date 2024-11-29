@@ -66,10 +66,10 @@ final class ExportCsvFileWriter implements FileWriterInterface
             );
         }
 
-        $exportFile->fputcsv($data->getTitles(), $separator);
+        $exportFile->fputcsv($data->getTitles(), $separator, '"', '');
 
         foreach ($data->getRows() as $row) {
-            $exportFile->fputcsv($row, $separator);
+            $exportFile->fputcsv($row, $separator, '"', '');
         }
 
         return $exportFile;

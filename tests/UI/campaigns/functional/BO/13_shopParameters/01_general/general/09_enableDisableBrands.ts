@@ -2,11 +2,11 @@
 import testContext from '@utils/testContext';
 
 // Import BO pages
-import brandsPage from '@pages/BO/catalog/brands';
 import {siteMapPage} from '@pages/FO/classic/siteMap';
 
 import {expect} from 'chai';
 import {
+  boBrandsPage,
   boDashboardPage,
   boLoginPage,
   boShopParametersPage,
@@ -85,14 +85,14 @@ describe('BO - Shop Parameters - General : Enable/Disable display brands', async
             boShopParametersPage.brandsAndSuppliersLink,
           );
 
-          const pageTitle = await brandsPage.getPageTitle(page);
-          expect(pageTitle).to.contains(brandsPage.pageTitle);
+          const pageTitle = await boBrandsPage.getPageTitle(page);
+          expect(pageTitle).to.contains(boBrandsPage.pageTitle);
         });
 
         it(`should check that the message alert contains '${test.args.action}'`, async function () {
           await testContext.addContextItem(this, 'testIdentifier', `checkAlertContains_${test.args.action}`, baseContext);
 
-          const text = await brandsPage.getAlertInfoBlockParagraphContent(page);
+          const text = await boBrandsPage.getAlertInfoBlockParagraphContent(page);
           expect(text).to.contains(test.args.action.toLowerCase());
         });
       }
@@ -101,7 +101,7 @@ describe('BO - Shop Parameters - General : Enable/Disable display brands', async
         await testContext.addContextItem(this, 'testIdentifier', `goToFO_${test.args.action}`, baseContext);
 
         // View shop
-        page = await brandsPage.viewMyShop(page);
+        page = await boBrandsPage.viewMyShop(page);
 
         // Change FO language
         await foClassicHomePage.changeLanguage(page, 'en');
@@ -128,8 +128,8 @@ describe('BO - Shop Parameters - General : Enable/Disable display brands', async
 
           page = await siteMapPage.closePage(browserContext, page, 0);
 
-          const pageTitle = await brandsPage.getPageTitle(page);
-          expect(pageTitle).to.contains(brandsPage.pageTitle);
+          const pageTitle = await boBrandsPage.getPageTitle(page);
+          expect(pageTitle).to.contains(boBrandsPage.pageTitle);
         });
       }
     });

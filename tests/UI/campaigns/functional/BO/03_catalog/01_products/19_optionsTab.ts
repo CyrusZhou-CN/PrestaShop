@@ -123,7 +123,7 @@ describe('BO - Catalog - Products : Options tab', async () => {
     it('should choose \'Clothes\' as default category', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'chooseDefaultCategory', baseContext);
 
-      await boProductsCreateTabDescriptionPage.chooseDefaultCategory(page, 2);
+      await boProductsCreateTabDescriptionPage.chooseDefaultCategory(page, 'Clothes');
 
       const createProductMessage = await createProductPage.saveProduct(page);
       expect(createProductMessage).to.equal(createProductPage.successfulUpdateMessage);

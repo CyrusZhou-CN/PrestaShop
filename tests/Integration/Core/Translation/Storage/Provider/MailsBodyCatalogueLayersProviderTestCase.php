@@ -36,7 +36,7 @@ use Symfony\Component\Translation\MessageCatalogue;
 /**
  * Test the provider of frontOffice translations
  */
-class MailsBodyCatalogueLayersProviderTest extends AbstractCatalogueLayersProviderTest
+class MailsBodyCatalogueLayersProviderTestCase extends AbstractCatalogueLayersProviderTestCase
 {
     /**
      * Test it loads a XLIFF catalogue from the locale's `translations` directory

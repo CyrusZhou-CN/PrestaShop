@@ -33,7 +33,7 @@ use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductId;
 /**
  * Base class to test a product command builder
  */
-abstract class AbstractProductCommandBuilderTest extends AbstractMultiShopCommandsBuilderTest
+abstract class AbstractProductCommandBuilderTestCase extends AbstractMultiShopCommandsBuilderTestCase
 {
     /**
      * @var ProductId

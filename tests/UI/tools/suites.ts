@@ -51,6 +51,7 @@ const campaignsNightly: string[] = [
   'modules:20-29',
   'modules:30-39',
   'regression',
+  'audit',
 ];
 
 let countTestsAll: number = 0;

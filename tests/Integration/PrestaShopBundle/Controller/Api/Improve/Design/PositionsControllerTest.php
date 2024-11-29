@@ -94,7 +94,7 @@ class PositionsControllerTest extends TestCase
 
         // Mock Congiguration
         $configurationMock = $this->getMockBuilder(Configuration::class)
-            ->setMethods(['get'])
+            ->onlyMethods(['get'])
             ->disableOriginalConstructor()
             ->disableAutoload()
             ->getMock();

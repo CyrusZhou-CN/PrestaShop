@@ -125,7 +125,7 @@ class DoctrineGridDataFactoryTest extends TestCase
     private function createQueryParserMock(): QueryParserInterface
     {
         $queryParser = $this->getMockBuilder(QueryParserInterface::class)
-            ->setMethods(['parse'])
+            ->onlyMethods(['parse'])
             ->getMockForAbstractClass();
 
         $queryParser->method('parse')->willReturn('SELECT * FROM ps_test WHERE id = 1');
