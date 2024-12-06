@@ -37,18 +37,14 @@
           <div class="col-xxl-7">
             <h2 class="mb-0">
               <i class="material-icons">account_box</i>
-
               {{ orderForViewing.customer.gender }}
               {{ orderForViewing.customer.firstName }}
               {{ orderForViewing.customer.lastName }}
-
-              <strong class="text-muted ml-2">#{{ orderForViewing.customer.id }}</strong>
             </h2>
-
           </div>
           <div id="viewFullDetails" class="col-xxl-5 text-xxl-right">
-            <a class="d-print-none" href="{{ path('admin_customers_view', {customerId: orderForViewing.customer.id}) }}">
-              {{ 'View full details'|trans({}, 'Admin.Actions') }}
+            <a class="d-print-none btn btn-primary btn-sm" href="{{ path('admin_customers_view', {customerId: orderForViewing.customer.id}) }}">
+              {{ 'View details'|trans({}, 'Admin.Actions') }}
             </a>
           </div>
         {% else %}
@@ -68,62 +64,27 @@
 
     </div>
     {% if orderForViewing.customer is not null and orderForViewing.customer.id != 0 %}
-      <div class="row mt-3">
-        <div id="customerEmail" class="col-xxl-6">
-          <p class="mb-1">
-            <strong>{{ 'Email:'|trans({}, 'Admin.Global') }}</strong>
-          </p>
-          <p>
-            <a href="mailto:{{ orderForViewing.customer.email }}">
-              {{ orderForViewing.customer.email }}
-            </a>
-          </p>
-
+      <div class="info-block mt-2">
+        <p class="mb-0"><strong>{{ 'ID:'|trans({}, 'Admin.Global') }}</strong> {{ orderForViewing.customer.id }}</p>
+        <p class="mb-0"><strong>{{ 'Email:'|trans({}, 'Admin.Global') }}</strong> <a href="mailto:{{ orderForViewing.customer.email }}">{{ orderForViewing.customer.email }}</a></p>
+        <p class="mb-0"><strong>{{ 'Customer type:'|trans({}, 'Admin.Global') }}</strong>
           {% if orderForViewing.customer.isGuest is same as(false) %}
-            <p class="mb-1">
-              <strong>{{ 'Account registered:'|trans({}, 'Admin.Orderscustomers.Feature') }}</strong>
-            </p>
-            <p>{{ orderForViewing.customer.accountRegistrationDate|date_format_full }}</p>
+            {{ 'Registered customer'|trans({}, 'Admin.Global') }}
+          {% else %}
+            {{ 'Guest customer'|trans({}, 'Admin.Global') }}
           {% endif %}
-
-          {% if orderForViewing.customer.siret is not empty %}
-            <p class="mb-1">
-              <strong>{{ 'SIRET'|trans({}, 'Admin.Orderscustomers.Feature') }}</strong>
-            </p>
-            <p>{{ orderForViewing.customer.siret }}</p>
-          {% endif %}
-
-          {% if orderForViewing.customer.ape is not empty %}
-            <p class="mb-1 d-block d-md-none">
-              <strong>{{ 'APE'|trans({}, 'Admin.Orderscustomers.Feature') }}</strong>
-            </p>
-            <p class="d-block d-md-none">{{ orderForViewing.customer.ape }}</p>
-          {% endif %}
-        </div>
-        <div id="validatedOrders" class="col-xxl-6">
-          <p class="mb-1">
-            <strong>{{ 'Validated orders placed:'|trans({}, 'Admin.Orderscustomers.Feature') }}</strong>
-          </p>
-          <p>
-            <span class="badge rounded badge-dark">{{ orderForViewing.customer.validOrdersPlaced }}</span>
-          </p>
-
-          {% if orderForViewing.customer.isGuest is same as(false) %}
-            <p class="mb-1">
-              <strong>{{ 'Total spent since registration:'|trans({}, 'Admin.Orderscustomers.Feature') }}</strong>
-            </p>
-            <p>
-              <span class="badge rounded badge-dark">{{ orderForViewing.customer.totalSpentSinceRegistration }}</span>
-            </p>
-          {% endif %}
-
-          {% if orderForViewing.customer.ape is not empty %}
-            <p class="mb-1 d-none d-md-block">
-              <strong>{{ 'APE'|trans({}, 'Admin.Orderscustomers.Feature') }}</strong>
-            </p>
-            <p class="d-none d-md-block">{{ orderForViewing.customer.ape }}</p>
-          {% endif %}
-        </div>
+        </p>
+        {% if orderForViewing.customer.isGuest is same as(false) %}
+          <p class="mb-0"><strong>{{ 'Account registered:'|trans({}, 'Admin.Orderscustomers.Feature') }}</strong> {{ orderForViewing.customer.accountRegistrationDate|date_format_full }}</p>
+          <p class="mb-0"><strong>{{ 'Total spent since registration:'|trans({}, 'Admin.Orderscustomers.Feature') }}</strong> {{ orderForViewing.customer.totalSpentSinceRegistration }}</p>
+          <p class="mb-0"><strong>{{ 'Validated orders placed:'|trans({}, 'Admin.Orderscustomers.Feature') }}</strong> {{ orderForViewing.customer.validOrdersPlaced }}</p>
+        {% endif %}
+        {% if orderForViewing.customer.siret is not empty %}
+        <p class="mb-0"><strong>{{ 'SIRET'|trans({}, 'Admin.Orderscustomers.Feature') }}</strong> {{ orderForViewing.customer.siret }}</p>
+        {% endif %}
+        {% if orderForViewing.customer.ape is not empty %}
+        <p class="mb-0"><strong>{{ 'APE'|trans({}, 'Admin.Orderscustomers.Feature') }}</strong> {{ orderForViewing.customer.ape }}</p>
+        {% endif %}
       </div>
     {% endif %}
     <div class="info-block mt-2">
@@ -203,7 +164,7 @@
 
           <div class="col-md-6">
             <h3 class="mb-0{{ not isPrivateNoteOpen ? ' d-print-none' : '' }}">
-              {{ 'Private note'|trans({}, 'Admin.Orderscustomers.Feature') }}
+              {{ 'Customer private note'|trans({}, 'Admin.Orderscustomers.Feature') }}
             </h3>
           </div>
           <div class="col-md-6 text-right d-print-none">

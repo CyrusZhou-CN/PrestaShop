@@ -26,6 +26,8 @@ class LinkList extends BOBasePage {
 
   private readonly actionsColumn: (hookName: string, row: number) => string;
 
+  private readonly editRowLink: (hookName: string, row: number) => string;
+
   private readonly dropdownToggleButton: (hookName: string, row: number) => string;
 
   private readonly dropdownToggleMenu: (hookName: string, row: number) => string;
@@ -59,6 +61,7 @@ class LinkList extends BOBasePage {
     this.tableRow = (hookName: string, row: number) => `${this.gridTable(hookName)} tbody tr:nth-child(${row})`;
     this.tableColumn = (hookName: string, row: number, column: string) => `${this.tableRow(hookName, row)} td.column-${column}`;
     this.actionsColumn = (hookName: string, row: number) => `${this.tableRow(hookName, row)} td.column-actions`;
+    this.editRowLink = (hookName: string, row: number) => `${this.actionsColumn(hookName, row)} a.grid--row-link`;
     this.dropdownToggleButton = (hookName: string, row: number) => `${this.actionsColumn(hookName, row)} a.dropdown-toggle`;
     this.dropdownToggleMenu = (hookName: string, row: number) => `${this.actionsColumn(hookName, row)} div.dropdown-menu`;
     this.deleteRowLink = (hookName: string, row: number) => `${this.dropdownToggleMenu(hookName, row)} a.grid-delete-row-link`;
@@ -78,6 +81,15 @@ class LinkList extends BOBasePage {
    */
   async goToNewLinkWidgetPage(page: Page): Promise<void> {
     await this.clickAndWaitForURL(page, this.newBlockLink);
+  }
+
+  /**
+   * Go to edit Block page
+   * @param page {Page} Browser tab
+   * @return {Promise<void>}
+   */
+  async goToEditLinkWidgetPage(page: Page, hookName: string, row: number): Promise<void> {
+    await page.locator(this.editRowLink(hookName, row)).click();
   }
 
   /* Table methods */
