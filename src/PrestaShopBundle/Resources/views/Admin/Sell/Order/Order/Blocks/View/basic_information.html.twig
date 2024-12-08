@@ -23,7 +23,7 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * #}
 
-<div class="card">
+<div class="card" id="orderBasicInfo">
   <div class="card-header">
     <h3 class="card-header-title">
       {{ 'Basic information'|trans({}, 'Admin.Global') }}
@@ -32,7 +32,7 @@
   <div class="card-body">
     <div class="row mb-1">
       <div class="col-xxl-4 text-xxl-right font-weight-bold">{{ 'ID'|trans({}, 'Admin.Global') }}</div>
-      <div class="col-xxl-8">{{ orderForViewing.id }}</div>
+      <div class="col-xxl-8" id="orderId">{{ orderForViewing.id }}</div>
     </div>
     <div class="row mb-1">
       <div class="col-xxl-4 text-xxl-right font-weight-bold">{{ 'Order reference'|trans({}, 'Admin.Global') }}</div>
