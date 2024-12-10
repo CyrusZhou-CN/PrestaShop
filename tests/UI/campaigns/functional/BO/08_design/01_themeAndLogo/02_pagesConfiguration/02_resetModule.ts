@@ -65,7 +65,7 @@ describe('BO - Design - Theme & Logo : Reset module', async () => {
   it('should reset the module', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'resetModule', baseContext);
 
-    const successMessage = await boThemePagesConfigurationPage.setActionInModule(page, dataModules.mainMenu, 'reset');
+    const successMessage = await boThemePagesConfigurationPage.setActionInModule(page, dataModules.psMainMenu, 'reset');
     expect(successMessage).to.eq(boThemePagesConfigurationPage.successMessage);
   });
 });

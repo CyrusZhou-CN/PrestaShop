@@ -71,18 +71,18 @@ describe('BO - Design - Theme & Logo - Advanced Customization', async () => {
       );
     });
 
-    it(`should search for module ${dataModules.themeCustomization.name}`, async function () {
+    it(`should search for module ${dataModules.psThemeCusto.name}`, async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'searchForModule', baseContext);
 
-      const isModuleVisible = await boModuleManagerPage.searchModule(page, dataModules.themeCustomization);
-      expect(isModuleVisible, `The module ${dataModules.themeCustomization.name} is not installed`).to.eq(true);
+      const isModuleVisible = await boModuleManagerPage.searchModule(page, dataModules.psThemeCusto);
+      expect(isModuleVisible, `The module ${dataModules.psThemeCusto.name} is not installed`).to.eq(true);
     });
 
-    it(`should check the status of the module ${dataModules.themeCustomization.name}`, async function () {
+    it(`should check the status of the module ${dataModules.psThemeCusto.name}`, async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkStatusModule', baseContext);
 
-      const isModuleEnabled = await boModuleManagerPage.isModuleStatus(page, dataModules.themeCustomization.name, 'enable');
-      expect(isModuleEnabled, `The module ${dataModules.themeCustomization.name} is disabled`).to.eq(true);
+      const isModuleEnabled = await boModuleManagerPage.isModuleStatus(page, dataModules.psThemeCusto.name, 'enable');
+      expect(isModuleEnabled, `The module ${dataModules.psThemeCusto.name} is disabled`).to.eq(true);
     });
   });
 

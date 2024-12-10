@@ -42,6 +42,16 @@ $smarty->force_compile = Configuration::get('PS_SMARTY_FORCE_COMPILE') == _PS_SM
 $smarty->compile_check = (Configuration::get('PS_SMARTY_FORCE_COMPILE') >= _PS_SMARTY_CHECK_COMPILE_) ? Smarty::COMPILECHECK_ON : Smarty::COMPILECHECK_OFF;
 $smarty->debug_tpl = _PS_ALL_THEMES_DIR_ . 'debug.tpl';
 
+// Register core classes used in smarty templates or else we cannot use the constant classes
+$smarty->registerClass('Context', '\Context');
+$smarty->registerClass('ImageManager', '\ImageManager');
+$smarty->registerClass('Module', '\Module');
+$smarty->registerClass('Product', '\Product');
+$smarty->registerClass('Profile', '\Profile');
+$smarty->registerClass('Shop', '\Shop');
+$smarty->registerClass('Tab', '\Tab');
+$smarty->registerClass('Tools', '\Tools');
+
 /* Use this constant if you want to load smarty without all PrestaShop functions */
 if (defined('_PS_SMARTY_FAST_LOAD_') && _PS_SMARTY_FAST_LOAD_) {
     return;

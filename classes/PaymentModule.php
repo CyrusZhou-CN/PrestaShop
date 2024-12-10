@@ -572,8 +572,8 @@ abstract class PaymentModuleCore extends Module
                 'orderStatus' => $order_status,
             ]);
 
-            foreach ($this->context->cart->getProducts() as $product) {
-                if ($order_status->logable) {
+            if ($order_status->logable) {
+                foreach ($this->context->cart->getProducts() as $product) {
                     ProductSale::addProductSale((int) $product['id_product'], (int) $product['cart_quantity']);
                 }
             }
@@ -1149,7 +1149,7 @@ abstract class PaymentModuleCore extends Module
             ];
 
             // If the reduction is not applicable to this order, then continue with the next one
-            if (!$values['tax_excl']) {
+            if (!$values['tax_excl'] && empty($cartRule->gift_product)) {
                 continue;
             }
 

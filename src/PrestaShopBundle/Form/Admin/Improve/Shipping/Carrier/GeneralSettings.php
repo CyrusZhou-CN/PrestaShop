@@ -101,8 +101,8 @@ class GeneralSettings extends TranslatorAwareType
                         'mimeTypes' => [
                             'image/jpeg',
                         ],
-                        'mimeTypesMessage' => $this->trans('Please upload a valid jpeg file', 'Admin.Carriers.Form.LogoUpload'),
-                        'maxSizeMessage' => $this->trans('The file is too large. Allowed maximum size is 8MB.', 'Admin.Carriers.Form.LogoUpload'),
+                        'mimeTypesMessage' => $this->trans('Please upload a valid jpeg file', 'Admin.Shipping.Feature'),
+                        'maxSizeMessage' => $this->trans('The file is too large. Allowed maximum size is 8MB.', 'Admin.Shipping.Feature'),
                     ]),
                 ],
             ])

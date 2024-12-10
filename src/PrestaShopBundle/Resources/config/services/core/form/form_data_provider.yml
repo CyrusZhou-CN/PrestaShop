@@ -260,3 +260,7 @@ services:
   PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataProvider\CarrierFormDataProvider:
     autowire: true
     public: false
+
+  PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataProvider\AliasFormDataProvider:
+    autowire: true
+    public: false

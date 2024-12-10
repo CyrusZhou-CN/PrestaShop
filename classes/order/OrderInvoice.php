@@ -743,7 +743,7 @@ class OrderInvoiceCore extends ObjectModel
             return 0;
         }
 
-        return round($this->total_paid_tax_incl + $this->getSiblingTotal() - $this->getTotalPaid(), 2);
+        return round($this->total_paid_tax_incl + (float) $this->getSiblingTotal() - $this->getTotalPaid(), 2);
     }
 
     /**

@@ -63,3 +63,7 @@ services:
   PrestaShopBundle\Command\UpdateLicensesCommand:
     tags:
       - 'console.command'
+
+  PrestaShopBundle\Command\APIClientCommand:
+    autowire: true
+    autoconfigure: true

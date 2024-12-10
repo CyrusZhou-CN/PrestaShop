@@ -52,6 +52,7 @@ return (new PhpCsFixer\Config())
         'single_line_throw' => false,
         'no_alias_language_construct_call' => false,
         'no_null_property_initialization' => false,
+        'nullable_type_declaration_for_default_null_value' => true,
         'global_namespace_import' => [
             'import_classes' => true,
             'import_constants' => false,

@@ -22,7 +22,7 @@ import {
 
 const baseContext: string = 'audit_FO_classic_connected';
 
-describe('FO - Pages in connected mode', async () => {
+describe('Check FO connected pages', async () => {
   let browserContext: BrowserContext;
   let page: Page;
 
