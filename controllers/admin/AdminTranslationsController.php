@@ -1742,7 +1742,7 @@ class AdminTranslationsControllerCore extends AdminController
                         $stringToTranslate = $matches[2][$key];
                         $prefix_key = $matches[$domainKey][$key];
 
-                        if ($prefix_key && $stringToTranslate) {
+                        if ($prefix_key) {
                             if (isset($GLOBALS[$name_var][$prefix_key . md5($stringToTranslate)])) {
                                 $tabs_array[$prefix_key][$stringToTranslate]['trad'] = stripslashes(html_entity_decode($GLOBALS[$name_var][$prefix_key . md5($stringToTranslate)], ENT_COMPAT, 'UTF-8'));
                             } else {
@@ -1783,7 +1783,7 @@ class AdminTranslationsControllerCore extends AdminController
                     $stringToTranslate = $matches[2][$key];
                     $prefix_key = $matches[$domainKey][$key];
 
-                    if ($prefix_key && $stringToTranslate) {
+                    if ($prefix_key) {
                         if (isset($GLOBALS[$name_var][$prefix_key . md5($stringToTranslate)])) {
                             $tabs_array[$prefix_key][$stringToTranslate]['trad'] = stripslashes(html_entity_decode($GLOBALS[$name_var][$prefix_key . md5($stringToTranslate)], ENT_COMPAT, 'UTF-8'));
                         } else {

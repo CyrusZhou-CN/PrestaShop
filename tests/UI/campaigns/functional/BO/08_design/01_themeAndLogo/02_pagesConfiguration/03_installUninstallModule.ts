@@ -65,14 +65,14 @@ describe('BO - Design - Theme & Logo : Install/Uninstall module', async () => {
   it('should uninstall the module', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'uninstallModule', baseContext);
 
-    const successMessage = await boThemePagesConfigurationPage.setActionInModule(page, dataModules.mainMenu, 'uninstall');
+    const successMessage = await boThemePagesConfigurationPage.setActionInModule(page, dataModules.psMainMenu, 'uninstall');
     expect(successMessage).to.eq(boThemePagesConfigurationPage.successMessage);
   });
 
   it('should install the module', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'installModule', baseContext);
 
-    const successMessage = await boThemePagesConfigurationPage.setActionInModule(page, dataModules.mainMenu, 'install');
+    const successMessage = await boThemePagesConfigurationPage.setActionInModule(page, dataModules.psMainMenu, 'install');
     expect(successMessage).to.eq(boThemePagesConfigurationPage.successMessage);
   });
 });

@@ -30,14 +30,14 @@ import {
 
 const baseContext: string = 'audit_FO_hummingbird_guest';
 
-describe('FO - Pages in guest mode', async () => {
+describe('Check FO public pages', async () => {
   let browserContext: BrowserContext;
   let page: Page;
 
   // Pre-condition : Enable Hummingbird
   enableHummingbird(`${baseContext}_preTest_0`);
 
-  describe('Pages in guest mode', async () => {
+  describe('Check FO public pages', async () => {
     before(async function () {
       utilsPlaywright.setErrorsCaptured(true);
 

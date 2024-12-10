@@ -602,7 +602,7 @@ class ImageManagerCore
     /**
      * Create an image with GD extension from a given type.
      *
-     * @param string $type
+     * @param int $type
      * @param string $filename
      *
      * @return false|resource

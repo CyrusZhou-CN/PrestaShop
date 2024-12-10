@@ -241,7 +241,7 @@ class EmployeeController extends PrestaShopAdminController
         #[Autowire(service: 'prestashop.core.form.identifiable_object.handler.employee_form_handler')]
         FormHandlerInterface $formHandler,
     ): Response {
-        $employeeForm = $formBuilder->getForm();
+        $employeeForm = $formBuilder->getForm($request->request->all('employee'));
         $employeeForm->handleRequest($request);
 
         try {

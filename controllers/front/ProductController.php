@@ -284,7 +284,7 @@ class ProductControllerCore extends ProductPresentingFrontControllerCore
             && preg_match('~^.*(?<!\/content)\/([0-9]+)\-(.*[^\.])|(.*)id_(category|product)=([0-9]+)(.*)$~', $_SERVER['HTTP_REFERER'], $regs)) {
             // If the previous page was a category and is a parent category of the product use this category as parent category
             $id_object = false;
-            if (isset($regs[1]) && is_numeric($regs[1])) {
+            if (is_numeric($regs[1])) {
                 $id_object = (int) $regs[1];
             } elseif (isset($regs[5]) && is_numeric($regs[5])) {
                 $id_object = (int) $regs[5];

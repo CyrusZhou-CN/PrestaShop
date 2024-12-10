@@ -154,15 +154,6 @@ describe('FO - Menu and navigation : Filter products', async () => {
       expect(productsNumber).to.be.above(1);
     });
 
-    it('should check the products list', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkProductsList', baseContext);
-
-      for (let i = 1; i <= productsNumber; i++) {
-        const productURL = await foHummingbirdCategoryPage.getProductHref(page, i);
-        expect(productURL).to.contain.oneOf(['accessories', 'art', 'stationery']);
-      }
-    });
-
     it('should clear all filters', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'clearAllFilters', baseContext);
 

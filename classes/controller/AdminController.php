@@ -736,6 +736,7 @@ class AdminControllerCore extends Controller
                         /** @var bool|string $val */
                         $filter_value = '';
                         if (isset($t['type']) && $t['type'] == 'bool') {
+                            // @phpstan-ignore-next-line
                             $filter_value = ((bool) $val) ? $this->trans('Yes', [], 'Admin.Global') : $this->trans('No', [], 'Admin.Global');
                         } elseif (isset($t['type']) && $t['type'] == 'date' || isset($t['type']) && $t['type'] == 'datetime') {
                             $date = json_decode($val, true);

@@ -23,14 +23,14 @@ import {
 
 const baseContext: string = 'audit_FO_hummingbird_connected';
 
-describe('FO - Pages in connected mode', async () => {
+describe('Check FO connected pages', async () => {
   let browserContext: BrowserContext;
   let page: Page;
 
   // Pre-condition : Enable Hummingbird
   enableHummingbird(`${baseContext}_preTest_0`);
 
-  describe('Pages in connected mode', async () => {
+  describe('Check FO connected pages', async () => {
     before(async function () {
       utilsPlaywright.setErrorsCaptured(true);
 

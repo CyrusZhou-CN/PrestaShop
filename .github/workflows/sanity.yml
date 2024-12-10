@@ -60,6 +60,19 @@ jobs:
           - php: 8.3
             browser: chromium
             db: mariadb
+          ## 8.4
+          - php: 8.4
+            browser: chromium
+            db: mysql
+          - php: 8.4
+            browser: firefox
+            db: mysql
+          - php: 8.4
+            browser: webkit
+            db: mysql
+          - php: 8.4
+            browser: chromium
+            db: mariadb
       fail-fast: false
 
     steps:

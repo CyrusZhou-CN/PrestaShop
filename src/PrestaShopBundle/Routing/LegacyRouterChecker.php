@@ -149,8 +149,7 @@ class LegacyRouterChecker
                 return Permission::UPDATE;
             case str_starts_with($action, 'delete'):
                 return Permission::DELETE;
-            case null === $action: // In legacy empty action is usually the listing which a specific case for the view
-            case $action === '':
+            case $action === '': // In legacy empty action is usually the listing which a specific case for the view
             case str_starts_with($action, 'export'):
             case str_starts_with($action, 'details'):
             case str_starts_with($action, 'view'):
@@ -160,7 +159,7 @@ class LegacyRouterChecker
         }
     }
 
-    private function getLegacyAction(Request $request, string $table): ?string
+    private function getLegacyAction(Request $request, string $table): string
     {
         // Get action from legacy parameters set on the route when we are in a Symfony page
         $legacyParameters = $this->legacyParametersConverter->getParameters(

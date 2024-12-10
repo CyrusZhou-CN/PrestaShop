@@ -29,7 +29,7 @@ import {
 
 const baseContext: string = 'audit_FO_classic_guest';
 
-describe('FO - Pages in guest mode', async () => {
+describe('Check FO public pages', async () => {
   let browserContext: BrowserContext;
   let page: Page;
 

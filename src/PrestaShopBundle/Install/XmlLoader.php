@@ -273,7 +273,7 @@ class XmlLoader
         $xml = $this->fileLoader->load($entity);
 
         // Read list of fields
-        if (!$xml instanceof SimpleXMLElement && !empty($xml->fields)) {
+        if (!$xml instanceof SimpleXMLElement) {
             throw new PrestashopInstallerException('List of fields not found for entity ' . $entity);
         }
 

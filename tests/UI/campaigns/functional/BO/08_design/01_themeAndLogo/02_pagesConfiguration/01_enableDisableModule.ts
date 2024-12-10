@@ -79,7 +79,11 @@ describe('BO - Design - Theme & Logo : Enable/disable module', async () => {
     it(`should ${test.args.title}`, async function () {
       await testContext.addContextItem(this, 'testIdentifier', test.args.action, baseContext);
 
-      const successMessage = await boThemePagesConfigurationPage.setActionInModule(page, dataModules.mainMenu, test.args.action);
+      const successMessage = await boThemePagesConfigurationPage.setActionInModule(
+        page,
+        dataModules.psMainMenu,
+        test.args.action,
+      );
       expect(successMessage).to.eq(boThemePagesConfigurationPage.successMessage);
     });
   });

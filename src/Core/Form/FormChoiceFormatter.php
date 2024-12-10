@@ -50,13 +50,25 @@ class FormChoiceFormatter
      */
     public static function formatFormChoices(array $rawChoices, string $idKey, string $nameKey, bool $sortByName = true): array
     {
+        // Remove items with duplicate name and ID
+        $tmp = [];
+        foreach ($rawChoices as $k => $rawChoice) {
+            if (!empty($tmp[$rawChoice[$idKey]]) && $tmp[$rawChoice[$idKey]] == $rawChoice[$nameKey]) {
+                unset($rawChoices[$k]);
+                continue;
+            }
+            $tmp[$rawChoice[$idKey]] = $rawChoice[$nameKey];
+        }
+        unset($tmp);
+
         // Final array with choices
         $finalChoices = [];
 
         // A slim array with just they keys we processed, so we know what are duplicates
+        // We can't use $finalChoices, because once we have the first two duplicates renamed, the third dupe won't match
         $alreadyProcessedKeys = [];
 
-        foreach ($rawChoices as $rawChoiceKey => $rawChoice) {
+        foreach ($rawChoices as $k => $rawChoice) {
             // If we already came across this exact value name before, we will
             // append the option ID before the name.
             if (in_array($rawChoice[$nameKey], $alreadyProcessedKeys)) {
@@ -81,7 +93,7 @@ class FormChoiceFormatter
             $alreadyProcessedKeys[] = $rawChoice[$nameKey];
 
             // And save some memory, we don't need it anymore
-            unset($rawChoices[$rawChoiceKey]);
+            unset($rawChoices[$k]);
         }
 
         // Order data by displayed value, if desired
