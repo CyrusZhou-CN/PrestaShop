@@ -216,7 +216,7 @@ abstract class ModuleCore implements ModuleInterface
     /**
      * @var array array of arrays representing tabs added by this module
      *
-     * @see PrestaShop\PrestaShop\Adapter\Module\Tab\RegisterTabs($module)
+     * @see PrestaShop\PrestaShop\Adapter\Module\Tab\ModuleTabRegister->registerTabs($module)
      */
     protected $tabs = [];
 
