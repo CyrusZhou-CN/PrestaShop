@@ -1,11 +1,7 @@
-// Import utils
+import {expect} from 'chai';
 import testContext from '@utils/testContext';
-
-// Import pages
-// Import BO pages
 import seoAndUrlsPage from '@pages/BO/shopParameters/trafficAndSeo/seoAndUrls';
 
-import {expect} from 'chai';
 import {
   boDashboardPage,
   boLoginPage,
@@ -21,7 +17,6 @@ describe('BO - Shop Parameters - Traffic & SEO : Enable/Disable friendly URL', a
   let browserContext: BrowserContext;
   let page: Page;
 
-  // before and after functions
   before(async function () {
     browserContext = await utilsPlaywright.createBrowserContext(this.browser);
     page = await utilsPlaywright.newTab(browserContext);
@@ -65,7 +60,6 @@ describe('BO - Shop Parameters - Traffic & SEO : Enable/Disable friendly URL', a
   it('should go to FO and check the URL', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'checkDisabledFriendlyUrlFO', baseContext);
 
-    // Go to FO
     page = await seoAndUrlsPage.viewMyShop(page);
 
     const url = await foClassicHomePage.getCurrentURL(page);
@@ -75,7 +69,6 @@ describe('BO - Shop Parameters - Traffic & SEO : Enable/Disable friendly URL', a
   it('should go back to BO', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'goBackToBO', baseContext);
 
-    // Go back to BO
     page = await foClassicHomePage.closePage(browserContext, page, 0);
 
     const pageTitle = await seoAndUrlsPage.getPageTitle(page);
@@ -97,6 +90,6 @@ describe('BO - Shop Parameters - Traffic & SEO : Enable/Disable friendly URL', a
     await foClassicHomePage.changeLanguage(page, 'en');
 
     const url = await foClassicHomePage.getCurrentURL(page);
-    expect(url).to.contains('/en/');
+    expect(url).to.not.contains('index.php');
   });
 });

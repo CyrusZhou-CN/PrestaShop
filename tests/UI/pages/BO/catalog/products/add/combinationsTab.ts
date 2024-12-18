@@ -335,7 +335,7 @@ class CombinationsTab extends BOBasePage {
     this.denyOrderRadioButton = '#product_combinations_availability_out_of_stock_type_0 +i';
     this.allowOrderRadioButton = '#product_combinations_availability_out_of_stock_type_1 +i';
     this.useDefaultBehaviourRadioButton = '#product_combinations_availability_out_of_stock_type_2 +i';
-    this.editDefaultBehaviourLink = '#product_combinations_availability a[href*=configuration_fieldset_stock]';
+    this.editDefaultBehaviourLink = '#product_combinations_availability a.btn-link[href*=configuration_fieldset_stock]';
     this.labelWhenInStock = '#product_combinations_availability_available_now_label_1';
     this.labelWhenOutOfStock = '#product_combinations_availability_available_later_label_1';
   }

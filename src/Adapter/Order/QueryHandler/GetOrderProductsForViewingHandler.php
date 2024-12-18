@@ -230,7 +230,10 @@ final class GetOrderProductsForViewingHandler extends AbstractOrderHandler imple
                     null,
                     '',
                     $packItemType,
-                    (bool) Product::isAvailableWhenOutOfStock(StockAvailable::outOfStock($pack_item['id_product']))
+                    (bool) Product::isAvailableWhenOutOfStock(StockAvailable::outOfStock($pack_item['id_product'])),
+                    [],
+                    null,
+                    $pack_item['mpn']
                 );
             }
 
@@ -261,7 +264,8 @@ final class GetOrderProductsForViewingHandler extends AbstractOrderHandler imple
                 $productType,
                 (bool) Product::isAvailableWhenOutOfStock(StockAvailable::outOfStock($product['product_id'])),
                 $packItems,
-                $product['customizations']
+                $product['customizations'],
+                $product['product_mpn']
             );
         }
 

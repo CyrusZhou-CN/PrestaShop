@@ -62,10 +62,10 @@ class CustomerBlock extends ViewOrderBasePage {
 
     // Customer block
     this.customerInfoBlock = '#customerInfo';
-    this.customerIDStrong = `${this.customerInfoBlock} .row h2 strong.text-muted`;
+    this.customerIDStrong = '#customerId';
     this.ViewAllDetailsLink = '#viewFullDetails a';
     this.customerEmailLink = '#customerEmail a';
-    this.validatedOrders = '#validatedOrders span.badge';
+    this.validatedOrders = '#validatedOrders';
     this.shippingAddressBlock = '#addressShipping';
     this.shippingAddressToolTipLink = `${this.shippingAddressBlock} .tooltip-link`;
     this.editShippingAddressButton = '#js-delivery-address-edit-btn';
@@ -93,7 +93,7 @@ class CustomerBlock extends ViewOrderBasePage {
    * @returns {Promise<Frame>}
    */
   async getAddressFrame(page: Page): Promise<Frame> {
-    const addressFrame: Frame|null = await page.frame({url: /sell\/addresses\/order/gmi});
+    const addressFrame: Frame | null = await page.frame({url: /sell\/addresses\/order/gmi});
 
     if (addressFrame === null) {
       throw new Error('Create product frame was not found');
@@ -107,7 +107,7 @@ class CustomerBlock extends ViewOrderBasePage {
    * @param page {Frame|Page} Browser tab
    * @returns {Promise<string>}
    */
-  async getCustomerInfoBlock(page: Frame|Page): Promise<string> {
+  async getCustomerInfoBlock(page: Frame | Page): Promise<string> {
     return this.getTextContent(page, this.customerInfoBlock);
   }
 
@@ -117,10 +117,7 @@ class CustomerBlock extends ViewOrderBasePage {
    * @returns {Promise<number>}
    */
   async getCustomerID(page: Page): Promise<number> {
-    return parseInt(
-      (await this.getTextContent(page, this.customerIDStrong)).replace('#', ''),
-      10,
-    );
+    return this.getNumberFromText(page, this.customerIDStrong);
   }
 
   /**
@@ -165,7 +162,7 @@ class CustomerBlock extends ViewOrderBasePage {
    * @returns {Promise<number>}
    */
   getValidatedOrdersNumber(page: Page): Promise<number> {
-    return this.getNumberFromText(page, `${this.validatedOrders}.badge-dark`);
+    return this.getNumberFromText(page, this.validatedOrders);
   }
 
   /**

@@ -39,6 +39,12 @@
           {{ product.reference }}
         </p>
       {% endif %}
+      {% if product.mpn is not empty %}
+        <p class="mb-0 productSupplierReference">
+          {{ 'MPN:'|trans({}, 'Admin.Orderscustomers.Feature') }}
+          {{ product.mpn }}
+        </p>
+      {% endif %}
       {% if product.supplierReference is not empty %}
         <p class="mb-0 productSupplierReference">
           {{ 'Supplier reference:'|trans({}, 'Admin.Orderscustomers.Feature') }}

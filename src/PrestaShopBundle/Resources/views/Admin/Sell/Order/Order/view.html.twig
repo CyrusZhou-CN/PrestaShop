@@ -57,6 +57,7 @@
 
     <div class="product-row row">
       <div class="col-md-4 left-column">
+        {{ include('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/basic_information.html.twig') }}
         {{ include('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/customer.html.twig') }}
         {{ renderhook('displayAdminOrderSide', {id_order: orderForViewing.id}) }}
         {{ include('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/messages.html.twig') }}

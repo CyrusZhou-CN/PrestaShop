@@ -374,6 +374,18 @@ abstract class ModuleCore implements ModuleInterface
     {
         Hook::exec('actionModuleInstallBefore', ['object' => $this]);
 
+        PrestaShopLogger::addLog(
+            Context::getContext()->getTranslator()->trans(
+                'Starting module install: %s v%s',
+                [$this->name, $this->version],
+                'Admin.Modules.Notification'
+            ),
+            PrestaShopLogger::LOG_SEVERITY_LEVEL_INFORMATIVE,
+            null,
+            'Module',
+            null,
+            true
+        );
         if ($this->_errors) {
             return false;
         }
@@ -478,6 +490,18 @@ abstract class ModuleCore implements ModuleInterface
 
         // Adding Restrictions for client groups
         Group::addRestrictionsForModule($this->id, Shop::getShops(true, null, true));
+        PrestaShopLogger::addLog(
+            Context::getContext()->getTranslator()->trans(
+                'Module installed successfully: %s v%s',
+                [$this->name, $this->version],
+                'Admin.Modules.Notification'
+            ),
+            PrestaShopLogger::LOG_SEVERITY_LEVEL_INFORMATIVE,
+            null,
+            'Module',
+            null,
+            true
+        );
         Hook::exec('actionModuleInstallAfter', ['object' => $this]);
 
         if (Module::$update_translations_after_install) {
@@ -566,6 +590,34 @@ abstract class ModuleCore implements ModuleInterface
             $module->database_version = $moduleVersion;
         }
 
+        if ($module->database_version == $module->version) {
+            PrestaShopLogger::addLog(
+                Context::getContext()->getTranslator()->trans(
+                    'Starting module install: %s v%s',
+                    [$module->name, $module->version],
+                    'Admin.Modules.Notification'
+                ),
+                PrestaShopLogger::LOG_SEVERITY_LEVEL_INFORMATIVE,
+                null,
+                'Module',
+                null,
+                true
+            );
+        } else {
+            PrestaShopLogger::addLog(
+                Context::getContext()->getTranslator()->trans(
+                    'Starting module upgrade: %s v%s to v%s',
+                    [$module->name, $module->database_version, $module->version],
+                    'Admin.Modules.Notification'
+                ),
+                PrestaShopLogger::LOG_SEVERITY_LEVEL_INFORMATIVE,
+                null,
+                'Module',
+                null,
+                true
+            );
+        }
+
         /*
          * Init default upgrade data.
          *
@@ -638,6 +690,18 @@ abstract class ModuleCore implements ModuleInterface
         // Update module version in DB with the last succeed upgrade
         if ($upgrade['upgraded_to']) {
             Module::upgradeModuleVersion($this->name, $upgrade['upgraded_to']);
+            PrestaShopLogger::addLog(
+                Context::getContext()->getTranslator()->trans(
+                    'Module upgraded successfully: %s to v%s',
+                    [$this->name, $upgrade['upgraded_to']],
+                    'Admin.Modules.Notification'
+                ),
+                PrestaShopLogger::LOG_SEVERITY_LEVEL_INFORMATIVE,
+                null,
+                'Module',
+                null,
+                true
+            );
         }
         $this->setUpgradeMessage($upgrade);
 
@@ -801,6 +865,18 @@ abstract class ModuleCore implements ModuleInterface
     {
         Hook::exec('actionModuleUninstallBefore', ['object' => $this]);
 
+        PrestaShopLogger::addLog(
+            Context::getContext()->getTranslator()->trans(
+                'Starting module uninstall: %s v%s',
+                [$this->name, $this->version],
+                'Admin.Modules.Notification'
+            ),
+            PrestaShopLogger::LOG_SEVERITY_LEVEL_INFORMATIVE,
+            null,
+            'Module',
+            null,
+            true
+        );
         // Check if module instance is valid
         if (!Validate::isUnsignedId($this->id)) {
             $this->_errors[] = Context::getContext()->getTranslator()->trans('The module is not installed.', [], 'Admin.Modules.Notification');
@@ -857,7 +933,18 @@ abstract class ModuleCore implements ModuleInterface
         if (Db::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'module` WHERE `id_module` = ' . (int) $this->id)) {
             Cache::clean('Module::isInstalled' . $this->name);
             Cache::clean('Module::getModuleIdByName_' . pSQL($this->name));
-
+            PrestaShopLogger::addLog(
+                Context::getContext()->getTranslator()->trans(
+                    'Module uninstalled successfully: %s v%s',
+                    [$this->name, $this->version],
+                    'Admin.Modules.Notification'
+                ),
+                PrestaShopLogger::LOG_SEVERITY_LEVEL_INFORMATIVE,
+                null,
+                'Module',
+                null,
+                true
+            );
             Hook::exec('actionModuleUninstallAfter', ['object' => $this]);
 
             return true;

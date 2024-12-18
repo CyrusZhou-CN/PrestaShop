@@ -256,7 +256,7 @@ describe('FO - Product page - Product page : Out of stock behaviour', async () =
       expect(isAddToCartButtonEnabled).to.equal(false);
 
       const productAvailability = await foHummingbirdProductPage.getProductAvailabilityLabel(page);
-      expect(productAvailability).to.contains('Out-of-Stock');
+      expect(productAvailability).to.contains('Out of stock');
     });
 
     it('should go back to BO', async function () {

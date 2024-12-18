@@ -280,7 +280,7 @@ describe('BO - Catalog - Products : Stocks tab', async () => {
       expect(isAddToCartButtonEnabled).to.be.equal(false);
 
       const productAvailability = await foClassicProductPage.getProductAvailabilityLabel(page);
-      expect(productAvailability).to.be.contains('Out-of-Stock');
+      expect(productAvailability).to.be.contains('OUT OF STOCK');
     });
 
     it('should go back to BO', async function () {
