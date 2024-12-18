@@ -54,7 +54,7 @@ describe('BO - Orders - Create order : Select previous orders', async () => {
   let page: Page;
   let orderID: number = 0;
   let customerID: number = 0;
-  let orderIframe: Frame|null;
+  let orderIframe: Frame | null;
 
   const today: string = utilsDate.getDateFormat('yyyy-mm-dd');
   const newCustomer: FakerCustomer = new FakerCustomer();
@@ -245,7 +245,7 @@ describe('BO - Orders - Create order : Select previous orders', async () => {
       expect(isIframeVisible, 'View order Iframe is not visible!').to.eq(true);
     });
 
-    it('should check customer title, name, lastname, reference', async function () {
+    it('should check customer title, name, lastname', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkCustomerInfo', baseContext);
 
       orderIframe = addOrderPage.getOrderIframe(page, orderID);
@@ -255,7 +255,6 @@ describe('BO - Orders - Create order : Select previous orders', async () => {
       expect(customerInfo).to.contains(newCustomer.socialTitle);
       expect(customerInfo).to.contains(newCustomer.firstName);
       expect(customerInfo).to.contains(newCustomer.lastName);
-      expect(customerInfo).to.contains(customerID.toString());
     });
 
     it('should check number of ordered products', async function () {

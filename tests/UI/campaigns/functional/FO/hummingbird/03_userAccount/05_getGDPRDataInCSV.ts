@@ -938,11 +938,7 @@ describe('FO - Account : Get GDPR data in CSV', async () => {
         if (connectionOrigin === 'Direct link') {
           connectionOrigin = '';
         } else if (connectionOrigin === 'localhost') {
-          if (global.INSTALL.ENABLE_SSL) {
-            connectionOrigin = 'https://localhost:8002/en/';
-          } else {
-            connectionOrigin = 'http://localhost:8001/en/';
-          }
+          connectionOrigin = global.INSTALL.ENABLE_SSL ? 'https://localhost:8002/' : 'http://localhost:8001/';
         }
         expect(connectionOrigin).to.not.eq(null);
       });

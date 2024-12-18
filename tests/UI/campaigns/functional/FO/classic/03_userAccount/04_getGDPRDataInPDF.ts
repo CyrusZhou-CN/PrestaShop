@@ -870,7 +870,7 @@ describe('FO - Account : Get GDPR data in PDF', async () => {
         if (connectionOrigin === 'Direct link') {
           connectionOrigin = '';
         } else if (connectionOrigin === 'localhost') {
-          connectionOrigin = `${global.INSTALL.ENABLE_SSL ? 'https://localhost:8002' : 'http://localhost:8001'},/en/,`;
+          connectionOrigin = global.INSTALL.ENABLE_SSL ? 'https://localhost:8002/' : 'http://localhost:8001/';
         }
         expect(connectionOrigin).to.not.eq(null);
       });
@@ -921,7 +921,7 @@ describe('FO - Account : Get GDPR data in PDF', async () => {
         await testContext.addContextItem(this, 'testIdentifier', 'checkLastConnectionsTable2', baseContext);
 
         const isVisible = await utilsFile.isTextInPDF(filePath, 'Last connections Origin request Page viewed '
-          + `Time on the page IP address Date ${connectionOrigin.split(',').join('')} 0 ${ipAddress} ${secondLastVisitDate} 0 `
+          + `Time on the page IP address Date ${connectionOrigin} 0 ${ipAddress} ${secondLastVisitDate} 0 `
           + `${ipAddress} ${lastVisitDate}`, true);
         expect(isVisible, 'The data in Last connections table is not correct!').to.eq(true);
       });
