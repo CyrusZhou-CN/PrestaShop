@@ -199,15 +199,15 @@ describe('API : PATCH /product/{productId}', async () => {
       {
         propertyName: 'names',
         propertyValue: {
-          [dataLanguages.english.id]: patchProduct.name,
-          [dataLanguages.french.id]: patchProduct.nameFR,
+          [dataLanguages.english.locale]: patchProduct.name,
+          [dataLanguages.french.locale]: patchProduct.nameFR,
         },
       },
       {
         propertyName: 'descriptions',
         propertyValue: {
-          [dataLanguages.english.id]: patchProduct.description,
-          [dataLanguages.french.id]: patchProduct.descriptionFR,
+          [dataLanguages.english.locale]: patchProduct.description,
+          [dataLanguages.french.locale]: patchProduct.descriptionFR,
         },
       },
     ].forEach((data: { propertyName: string, propertyValue: boolean|string|object}) => {
@@ -248,8 +248,8 @@ describe('API : PATCH /product/{productId}', async () => {
             const valuePropertyEN = await createProductsPage.getProductName(page, dataLanguages.english.isoCode);
             const valuePropertyFR = await createProductsPage.getProductName(page, dataLanguages.french.isoCode);
             expect({
-              [dataLanguages.english.id]: valuePropertyEN,
-              [dataLanguages.french.id]: valuePropertyFR,
+              [dataLanguages.english.locale]: valuePropertyEN,
+              [dataLanguages.french.locale]: valuePropertyFR,
             }).to.deep.equal(data.propertyValue);
           } else if (data.propertyName === 'descriptions') {
             const valuePropertyEN = await boProductsCreateTabDescriptionPage.getValue(
@@ -263,8 +263,8 @@ describe('API : PATCH /product/{productId}', async () => {
               dataLanguages.french.id.toString(),
             );
             expect({
-              [dataLanguages.english.id]: valuePropertyEN,
-              [dataLanguages.french.id]: valuePropertyFR,
+              [dataLanguages.english.locale]: valuePropertyEN,
+              [dataLanguages.french.locale]: valuePropertyFR,
             }).to.deep.equal(data.propertyValue);
           }
         });

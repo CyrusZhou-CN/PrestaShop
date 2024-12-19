@@ -61,7 +61,7 @@ class LegacyUrlListener
 
         try {
             $convertedUrl = $this->converter->convertByRequest($event->getRequest());
-        } catch (CoreException $e) {
+        } catch (CoreException) {
             return;
         }
 

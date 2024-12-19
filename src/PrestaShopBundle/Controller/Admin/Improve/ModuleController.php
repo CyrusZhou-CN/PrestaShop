@@ -430,7 +430,7 @@ class ModuleController extends ModuleAbstractController
                     'Admin.Modules.Notification',
                 );
             }
-        } catch (SourceHandlerNotFoundException $e) {
+        } catch (SourceHandlerNotFoundException) {
             $installationResponse['status'] = false;
             $installationResponse['msg'] = $this->trans(
                 'Installation of module %module% failed. %error%',
@@ -447,7 +447,7 @@ class ModuleController extends ModuleAbstractController
         } catch (Exception $e) {
             try {
                 $moduleManager->disable($moduleName);
-            } catch (Exception $subE) {
+            } catch (Exception) {
             }
             $installationResponse['status'] = false;
             $installationResponse['msg'] = $this->trans(

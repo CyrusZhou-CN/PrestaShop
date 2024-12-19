@@ -211,7 +211,7 @@ class SqlManagerController extends PrestaShopAdminController
 
                 return $this->redirectToRoute('admin_sql_requests_index');
             }
-        } catch (SqlRequestNotFoundException $e) {
+        } catch (SqlRequestNotFoundException) {
             $this->addFlash(
                 'error',
                 $this->trans('The object cannot be loaded (or found).', [], 'Admin.Notifications.Error')

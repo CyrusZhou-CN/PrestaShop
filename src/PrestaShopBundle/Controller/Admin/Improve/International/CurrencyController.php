@@ -289,7 +289,7 @@ class CurrencyController extends PrestaShopAdminController
         try {
             /** @var ReferenceCurrency $referenceCurrency */
             $referenceCurrency = $this->dispatchQuery(new GetReferenceCurrency($currencyIsoCode));
-        } catch (CurrencyException $e) {
+        } catch (CurrencyException) {
             return new JsonResponse([
                 'error' => $this->trans(
                     'Cannot find reference data for currency %isoCode%',
@@ -306,7 +306,7 @@ class CurrencyController extends PrestaShopAdminController
             $exchangeRate = $this->dispatchQuery(new GetCurrencyExchangeRate($currencyIsoCode));
             $computingPrecision = new ComputingPrecision();
             $exchangeRateValue = $exchangeRate->getValue()->round($computingPrecision->getPrecision(2));
-        } catch (ExchangeRateNotFoundException $e) {
+        } catch (ExchangeRateNotFoundException) {
             $exchangeRateValue = ExchangeRate::DEFAULT_RATE;
         }
 

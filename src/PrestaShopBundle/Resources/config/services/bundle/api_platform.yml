@@ -6,6 +6,7 @@ services:
   # Configuration to automatically inject normalizers into DomainSerializer
   PrestaShopBundle\ApiPlatform\Normalizer\:
     resource: "../../../../ApiPlatform/Normalizer/*"
+    autowire: true
     tags: [ 'prestashop.api.normalizers' ]
 
   # This is a custom serializer used by our custom providers/processors for ApiPlatform

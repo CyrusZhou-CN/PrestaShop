@@ -130,7 +130,7 @@ class ThemeExporter
 
         try {
             $themeCatalogue = $this->themeProvider->getThemeCatalogue();
-        } catch (Exception $exception) {
+        } catch (Exception) {
             $themeCatalogue = new MessageCatalogue($locale, []);
         }
         $databaseCatalogue = $this->themeProvider->getDatabaseCatalogue($themeName);

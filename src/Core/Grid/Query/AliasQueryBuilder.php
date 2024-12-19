@@ -76,7 +76,7 @@ class AliasQueryBuilder extends AbstractDoctrineQueryBuilder
      */
     public function getCountQueryBuilder(SearchCriteriaInterface $searchCriteria): QueryBuilder
     {
-        return $this->getAliasQueryBuilder($searchCriteria)->select('COUNT(a.id_alias)');
+        return $this->getAliasQueryBuilder($searchCriteria)->select('COUNT(DISTINCT(a.search))');
     }
 
     /**

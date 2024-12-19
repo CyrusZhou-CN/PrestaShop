@@ -21,58 +21,32 @@ jobs:
     strategy:
       matrix:
         include:
-          ## 8.1
+          ## Check all PHP versions
           - php: 8.1
             browser: chromium
             db: mysql
-          - php: 8.1
-            browser: firefox
-            db: mysql
-          - php: 8.1
-            browser: webkit
-            db: mysql
-          - php: 8.1
-            browser: chromium
-            db: mariadb
-          ## 8.2
           - php: 8.2
             browser: chromium
             db: mysql
-          - php: 8.2
-            browser: firefox
-            db: mysql
-          - php: 8.2
-            browser: webkit
-            db: mysql
-          - php: 8.2
-            browser: chromium
-            db: mariadb
-          ## 8.3
           - php: 8.3
             browser: chromium
             db: mysql
-          - php: 8.3
-            browser: firefox
-            db: mysql
-          - php: 8.3
-            browser: webkit
-            db: mysql
-          - php: 8.3
-            browser: chromium
-            db: mariadb
-          ## 8.4
           - php: 8.4
             browser: chromium
             db: mysql
+
+          ## Check all browsers (except Chrome)
           - php: 8.4
             browser: firefox
             db: mysql
-          - php: 8.4
-            browser: webkit
-            db: mysql
-          - php: 8.4
-            browser: chromium
-            db: mariadb
+          ## @todo : https://github.com/PrestaShop/PrestaShop/issues/37680
+          # - php: 8.4
+          #   browser: webkit
+          #   db: mysql
+
+          ## Check all DB supported
+          # MySQL is checked in sanity
+          # MariaDB is check in nightly
       fail-fast: false
 
     steps:
@@ -99,10 +73,6 @@ jobs:
 
       - name: Run Tests
         uses: ./.github/actions/ui-test
-        env:
-          ## Improve Webkit stability
-          ## Link : https://github.com/microsoft/playwright/issues/23899
-          GDK_BACKEND: x11
         with:
           TEST_CAMPAIGN: ${{ env.TEST_CAMPAIGN }}
           BROWSER: ${{ matrix.browser }}

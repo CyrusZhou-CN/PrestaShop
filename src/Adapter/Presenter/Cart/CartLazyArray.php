@@ -209,7 +209,7 @@ class CartLazyArray extends AbstractLazyArray
             'type' => 'shipping',
             'label' => $this->translator->trans('Shipping', [], 'Shop.Theme.Checkout'),
             'amount' => $shippingCost,
-            'value' => $this->getShippingDisplayValue($this->cart, $shippingCost),
+            'value' => $this->getShippingDisplayValue($shippingCost),
         ];
         $subtotals['tax'] = null;
         if (Configuration::get('PS_TAX_DISPLAY')) {
@@ -374,12 +374,11 @@ class CartLazyArray extends AbstractLazyArray
      * If the shipping cost is 0, then we must check if this is because of a free carrier and thus display 'Free' or
      * simply because the system was unable to determine shipping cost at this point and thus send an empty string to hide the shipping line.
      *
-     * @param Cart $cart
      * @param float $shippingCost
      *
      * @return string
      */
-    private function getShippingDisplayValue($cart, $shippingCost): string
+    private function getShippingDisplayValue($shippingCost): string
     {
         $shippingDisplayValue = '';
 

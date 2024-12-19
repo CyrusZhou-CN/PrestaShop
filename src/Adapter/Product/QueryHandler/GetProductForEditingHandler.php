@@ -505,7 +505,7 @@ class GetProductForEditingHandler implements GetProductForEditingHandlerInterfac
     {
         try {
             $stockAvailable = $this->stockAvailableRepository->getForProduct(new ProductId($product->id), new ShopId($product->getShopId()));
-        } catch (StockAvailableNotFoundException $e) {
+        } catch (StockAvailableNotFoundException) {
             $stockAvailable = $this->stockAvailableRepository->createStockAvailable(new ProductId($product->id), new ShopId($product->getShopId()));
         }
 
@@ -535,7 +535,7 @@ class GetProductForEditingHandler implements GetProductForEditingHandlerInterfac
     {
         try {
             $virtualProductFile = $this->virtualProductFileRepository->findByProductId(new ProductId($product->id));
-        } catch (VirtualProductFileNotFoundException $e) {
+        } catch (VirtualProductFileNotFoundException) {
             return null;
         }
 

@@ -723,7 +723,7 @@ class ProductRepository extends AbstractMultiShopObjectModelRepository
 
         try {
             $accessories = Product::getAccessoriesLight($languageId->getValue(), $productIdValue);
-        } catch (PrestaShopException $e) {
+        } catch (PrestaShopException) {
             throw new CoreException(sprintf(
                 'Error occurred when fetching related products for product #%d',
                 $productIdValue
@@ -911,16 +911,14 @@ class ProductRepository extends AbstractMultiShopObjectModelRepository
         $dbSearchPhrase = sprintf('%%%s%%', $searchPhrase);
         $qb->setParameter('dbSearchPhrase', $dbSearchPhrase);
 
-        if (!empty($filters)) {
-            foreach ($filters as $type => $filter) {
-                switch ($type) {
-                    case 'filteredTypes':
-                        $qb->andWhere('p.product_type not in(:filter)')
-                            ->setParameter('filter', implode(', ', $filter));
-                        break;
-                    default:
-                        break;
-                }
+        foreach ($filters as $type => $filter) {
+            switch ($type) {
+                case 'filteredTypes':
+                    $qb->andWhere('p.product_type not in(:filter)')
+                        ->setParameter('filter', implode(', ', $filter));
+                    break;
+                default:
+                    break;
             }
         }
 

@@ -41,29 +41,6 @@ class AdminSearchConfControllerCore extends AdminController
 
         parent::__construct();
 
-        // Alias fields
-        $this->addRowAction('edit');
-        $this->addRowAction('delete');
-
-        if (!Tools::getValue('realedit')) {
-            $this->deleted = false;
-        }
-
-        $this->bulk_actions = [
-            'delete' => [
-                'text' => $this->trans('Delete selected', [], 'Admin.Actions'),
-                'confirm' => $this->trans('Delete selected items?', [], 'Admin.Notifications.Info'),
-                'icon' => 'icon-trash',
-            ],
-        ];
-
-        $this->fields_list = [
-            'alias' => ['title' => $this->trans('Aliases', [], 'Admin.Shopparameters.Feature')],
-            // Search is a noum here.
-            'search' => ['title' => $this->trans('Search', [], 'Admin.Shopparameters.Feature')],
-            'active' => ['title' => $this->trans('Status', [], 'Admin.Global'), 'class' => 'fixed-width-sm', 'align' => 'center', 'active' => 'status', 'type' => 'bool', 'orderby' => false],
-        ];
-
         $params = [
             'action' => 'searchCron',
             'ajax' => 1,

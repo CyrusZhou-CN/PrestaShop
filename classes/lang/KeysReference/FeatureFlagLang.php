@@ -85,9 +85,6 @@ trans('Enable / Disable the customer group page.', 'Admin.Advparameters.Help');
 trans('Store', 'Admin.Advparameters.Feature');
 trans('Enable / Disable the store page.', 'Admin.Advparameters.Help');
 
-trans('Search configuration', 'Admin.Advparameters.Feature');
-trans('Enable / Disable the search configuration page.', 'Admin.Advparameters.Help');
-
 trans('Merchandise return', 'Admin.Advparameters.Feature');
 trans('Enable / Disable the merchandise return page.', 'Admin.Advparameters.Help');
 

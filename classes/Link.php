@@ -944,6 +944,7 @@ class LinkCore
             if (strpos($idImage, '-')) {
                 $idImage = explode('-', $idImage)[1];
                 if (_PS_MODE_DEV_) {
+                    // @deprecated
                     trigger_error(
                         'Passing image identifier in the old format is deprecated, use only image ID. This fallback will be removed in next major.',
                         E_USER_DEPRECATED

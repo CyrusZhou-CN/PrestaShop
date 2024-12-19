@@ -290,7 +290,7 @@ class XmlLoader
 
                 try {
                     $xml_langs[$id_lang] = $this->fileLoader->load($entity, $iso);
-                } catch (PrestashopInstallerException $e) {
+                } catch (PrestashopInstallerException) {
                     $xml_langs[$id_lang] = null;
                 }
             }
@@ -1063,7 +1063,7 @@ class XmlLoader
 
         $dependencies = [];
         foreach ($entities as $entity => $info) {
-            foreach ($info['fields'] as $field => $info_field) {
+            foreach ($info['fields'] as $info_field) {
                 if (isset($info_field['relation']) && $info_field['relation'] != $entity) {
                     if (!isset($dependencies[$info_field['relation']])) {
                         $dependencies[$info_field['relation']] = [];

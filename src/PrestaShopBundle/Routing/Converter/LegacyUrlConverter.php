@@ -235,7 +235,7 @@ final class LegacyUrlConverter
                 $this->router->match($urlPath);
                 throw new AlreadyConvertedException(sprintf('%s is already a converted url', $url));
             }
-        } catch (ExceptionInterface $e) {
+        } catch (ExceptionInterface) {
         }
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2665f8f54a56c2e57c743d33a485c655",
+    "content-hash": "bb4cd98f4dd02775fc3dd857d4a724d9",
     "packages": [
         {
             "name": "api-platform/core",
@@ -5202,16 +5202,16 @@
         },
         {
             "name": "prestashop/ps_apiresources",
-            "version": "dev-dev",
+            "version": "dev-localized-values",
             "source": {
                 "type": "git",
-                "url": "https://github.com/PrestaShop/ps_apiresources.git",
-                "reference": "d75f2b0f485cc844052a453c65e71e3eae793155"
+                "url": "https://github.com/jolelievre/ps_apiresources.git",
+                "reference": "9808ef6ad7bfe78e41c94ff67b91dd178b317ec8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShop/ps_apiresources/zipball/d75f2b0f485cc844052a453c65e71e3eae793155",
-                "reference": "d75f2b0f485cc844052a453c65e71e3eae793155",
+                "url": "https://api.github.com/repos/jolelievre/ps_apiresources/zipball/9808ef6ad7bfe78e41c94ff67b91dd178b317ec8",
+                "reference": "9808ef6ad7bfe78e41c94ff67b91dd178b317ec8",
                 "shasum": ""
             },
             "require": {
@@ -5223,7 +5223,6 @@
                 "phpunit/phpunit": "^10",
                 "prestashop/php-dev-tools": "^4.3"
             },
-            "default-branch": true,
             "type": "prestashop-module",
             "autoload": {
                 "psr-4": {
@@ -5265,9 +5264,9 @@
             "description": "PrestaShop - API Resources",
             "homepage": "https://github.com/PrestaShop/ps_apiresources",
             "support": {
-                "source": "https://github.com/PrestaShop/ps_apiresources/tree/dev"
+                "source": "https://github.com/jolelievre/ps_apiresources/tree/localized-values"
             },
-            "time": "2024-11-25T14:30:45+00:00"
+            "time": "2024-12-16T11:32:20+00:00"
         },
         {
             "name": "prestashop/ps_banner",

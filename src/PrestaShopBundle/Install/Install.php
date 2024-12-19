@@ -318,7 +318,7 @@ class Install extends AbstractInstall
 
         try {
             $sql_loader->parse_file(_PS_INSTALL_DATA_PATH_ . 'db_structure.sql');
-        } catch (PrestashopInstallerException $e) {
+        } catch (PrestashopInstallerException) {
             $this->setError($this->translator->trans('Database structure file not found', [], 'Install'));
 
             return false;

@@ -192,7 +192,7 @@ final class SecurityAttributeLinterCommand extends Command
     {
         $listing = [];
 
-        foreach ($this->adminRouteProvider->getRoutes() as $routeName => $route) {
+        foreach ($this->adminRouteProvider->getRoutes() as $route) {
             /* @var Route $route */
             try {
                 $attributes = $this->securityAttributeLinter->getRouteSecurityAttributes($route);
@@ -205,7 +205,7 @@ final class SecurityAttributeLinterCommand extends Command
                         self::parseExpression($attribute->getAttribute()),
                     ];
                 }
-            } catch (LinterException $e) {
+            } catch (LinterException) {
                 $listing[] = [
                     $route->getDefault('_controller'),
                     implode(', ', $route->getMethods()),
@@ -236,7 +236,7 @@ final class SecurityAttributeLinterCommand extends Command
             }
             try {
                 $this->securityAttributeLinter->lint($routeName, $route);
-            } catch (LinterException $e) {
+            } catch (LinterException) {
                 $notConfiguredRoutes[] = $routeName;
             }
         }

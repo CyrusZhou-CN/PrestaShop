@@ -63,7 +63,7 @@ final class EditManufacturerHandler extends AbstractManufacturerHandler implemen
             if (null !== $command->getAssociatedShops()) {
                 $this->associateWithShops($manufacturer, $command->getAssociatedShops());
             }
-        } catch (PrestaShopException $e) {
+        } catch (PrestaShopException) {
             throw new ManufacturerException(sprintf('Cannot update manufacturer with id "%s"', $manufacturer->id));
         }
     }

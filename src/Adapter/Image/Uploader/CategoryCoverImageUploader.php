@@ -127,7 +127,7 @@ final class CategoryCoverImageUploader extends AbstractImageUploader implements 
 
         $configuredImageFormats = $this->imageFormatConfiguration->getGenerationFormats();
         $imagesTypes = ImageType::getImagesTypes('categories');
-        foreach ($imagesTypes as $k => $imageType) {
+        foreach ($imagesTypes as $imageType) {
             foreach ($configuredImageFormats as $imageFormat) {
                 $generated = ImageManager::resize(
                     _PS_CAT_IMG_DIR_ . $id . '.jpg',
