@@ -51,6 +51,7 @@ use PrestaShopBundle\ApiPlatform\Normalizer\CQRSApiNormalizer;
 use PrestaShopBundle\ApiPlatform\Normalizer\DecimalNumberNormalizer;
 use PrestaShopBundle\ApiPlatform\Provider\QueryProvider;
 use PrestaShopBundle\ApiPlatform\Serializer\DomainSerializer;
+use PrestaShopBundle\Entity\Repository\LangRepository;
 use RuntimeException;
 
 class QueryProviderTest extends TestCase
@@ -78,7 +79,7 @@ class QueryProviderTest extends TestCase
      */
     public function setUp(): void
     {
-        $denormalizers = new ArrayIterator([new DecimalNumberNormalizer(), new CQRSApiNormalizer()]);
+        $denormalizers = new ArrayIterator([new DecimalNumberNormalizer(), new CQRSApiNormalizer($this->createMock(LangRepository::class))]);
         $this->serializer = new DomainSerializer($denormalizers);
         $this->queryBus = $this->createMock(CommandBusInterface::class);
         $this->queryBus

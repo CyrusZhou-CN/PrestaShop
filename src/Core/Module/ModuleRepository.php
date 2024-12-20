@@ -250,7 +250,7 @@ class ModuleRepository implements ModuleRepositoryInterface
         if ($isValid) {
             try {
                 $tmpModule = ModuleLegacy::getInstanceByName($moduleName);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 return $attributes;
             }
             foreach (self::MODULE_ATTRIBUTES as $attribute) {
@@ -352,7 +352,7 @@ class ModuleRepository implements ModuleRepositoryInterface
     {
         try {
             $modulesFromHook = $this->getModulesFromHook();
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return $module;
         }
 

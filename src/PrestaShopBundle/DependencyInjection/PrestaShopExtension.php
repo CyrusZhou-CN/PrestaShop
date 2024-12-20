@@ -96,7 +96,7 @@ class PrestaShopExtension extends Extension implements PrependExtensionInterface
                 CookieOptions::SAMESITE_STRICT => Cookie::SAMESITE_STRICT,
                 default => Cookie::SAMESITE_LAX,
             };
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             $cookieLifetimeBo = CookieOptions::MAX_COOKIE_VALUE;
             $cookieSamesite = 'lax';
         }

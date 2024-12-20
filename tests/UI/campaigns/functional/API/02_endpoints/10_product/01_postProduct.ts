@@ -150,12 +150,12 @@ describe('API : POST /product', async () => {
           type: createProduct.type,
           active: createProduct.status,
           names: {
-            [dataLanguages.english.id]: createProduct.name,
-            [dataLanguages.french.id]: createProduct.nameFR,
+            [dataLanguages.english.locale]: createProduct.name,
+            [dataLanguages.french.locale]: createProduct.nameFR,
           },
           descriptions: {
-            [dataLanguages.english.id]: createProduct.description,
-            [dataLanguages.french.id]: createProduct.descriptionFR,
+            [dataLanguages.english.locale]: createProduct.description,
+            [dataLanguages.french.locale]: createProduct.descriptionFR,
           },
         },
       });
@@ -183,8 +183,8 @@ describe('API : POST /product', async () => {
 
       expect(jsonResponse.productId).to.be.gt(0);
       expect(jsonResponse.type).to.equal(createProduct.type);
-      expect(jsonResponse.names[dataLanguages.english.id]).to.equal(createProduct.name);
-      expect(jsonResponse.names[dataLanguages.french.id]).to.equal(createProduct.nameFR);
+      expect(jsonResponse.names[dataLanguages.english.locale]).to.equal(createProduct.name);
+      expect(jsonResponse.names[dataLanguages.french.locale]).to.equal(createProduct.nameFR);
       // @todo : https://github.com/PrestaShop/PrestaShop/issues/35619
       //expect(jsonResponse.descriptions[dataLanguages.english.id]).to.equal(createProduct.description);
       //expect(jsonResponse.descriptions[dataLanguages.french.id]).to.equal(createProduct.descriptionFR);
@@ -246,28 +246,28 @@ describe('API : POST /product', async () => {
       await testContext.addContextItem(this, 'testIdentifier', 'checkResponseNamesEN', baseContext);
 
       const value = await createProductsPage.getProductName(page, dataLanguages.english.isoCode);
-      expect(value).to.equal(jsonResponse.names[dataLanguages.english.id]);
+      expect(value).to.equal(jsonResponse.names[dataLanguages.english.locale]);
     });
 
     it('should check the JSON Response : `names` (FR)', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkResponseNamesFR', baseContext);
 
       const value = await createProductsPage.getProductName(page, dataLanguages.french.isoCode);
-      expect(value).to.equal(jsonResponse.names[dataLanguages.french.id]);
+      expect(value).to.equal(jsonResponse.names[dataLanguages.french.locale]);
     });
 
     it('should check the JSON Response : `description` (EN)', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkResponseDescriptionsEN', baseContext);
 
       const value = await boProductsCreateTabDescriptionPage.getValue(page, 'description', dataLanguages.english.id.toString());
-      expect(value).to.equal(jsonResponse.descriptions[dataLanguages.english.id]);
+      expect(value).to.equal(jsonResponse.descriptions[dataLanguages.english.locale]);
     });
 
     it('should check the JSON Response : `description` (FR)', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkResponseDescriptionsFR', baseContext);
 
       const value = await boProductsCreateTabDescriptionPage.getValue(page, 'description', dataLanguages.french.id.toString());
-      expect(value).to.equal(jsonResponse.descriptions[dataLanguages.french.id]);
+      expect(value).to.equal(jsonResponse.descriptions[dataLanguages.french.locale]);
     });
   });
 

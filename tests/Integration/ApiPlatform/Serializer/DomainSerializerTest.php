@@ -47,16 +47,51 @@ use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductType;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
 use PrestaShopBundle\ApiPlatform\Serializer\DomainSerializer;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\Integration\Utility\LanguageTrait;
+use Tests\Resources\ApiPlatform\Resources\LocalizedResource;
+use Tests\Resources\Resetter\LanguageResetter;
 
 class DomainSerializerTest extends KernelTestCase
 {
-    /**
-     * @dataProvider getExpectedDenormalizedData
-     */
-    public function testDenormalize($dataToDenormalize, $denormalizedObject, ?array $normalizationMapping = []): void
+    use LanguageTrait;
+
+    protected const EN_LANG_ID = 1;
+
+    protected static ?int $frenchLangId = null;
+
+    public static function tearDownAfterClass(): void
+    {
+        parent::tearDownAfterClass();
+        self::$frenchLangId = null;
+        LanguageResetter::resetLanguages();
+    }
+
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        self::$frenchLangId = null;
+        LanguageResetter::resetLanguages();
+    }
+
+    protected static function getFrenchId(): int
+    {
+        if (empty(self::$frenchLangId)) {
+            self::$frenchLangId = self::addLanguageByLocale('fr-FR');
+        }
+
+        return self::$frenchLangId;
+    }
+
+    public function testDenormalize(): void
     {
         $serializer = self::getContainer()->get(DomainSerializer::class);
-        self::assertEquals($denormalizedObject, $serializer->denormalize($dataToDenormalize, get_class($denormalizedObject), null, [DomainSerializer::NORMALIZATION_MAPPING => $normalizationMapping]));
+
+        // We don't use @dataProvider because the class DB setup was messy, so we do it manually
+        foreach ($this->getExpectedDenormalizedData() as $denormalizedData) {
+            list($dataToDenormalize, $denormalizedObject) = $denormalizedData;
+            $normalizationMapping = $denormalizedData[2] ?? [];
+            self::assertEquals($denormalizedObject, $serializer->denormalize($dataToDenormalize, get_class($denormalizedObject), null, [DomainSerializer::NORMALIZATION_MAPPING => $normalizationMapping]));
+        }
     }
 
     public function testDenormalizeWithEmptyValues(): void
@@ -68,11 +103,52 @@ class DomainSerializerTest extends KernelTestCase
 
     public function getExpectedDenormalizedData()
     {
-        yield [
+        $localizedResource = new LocalizedResource([
+            'en-US' => 'english link',
+            'fr-FR' => 'lien français',
+        ]);
+
+        // This property has no context attributes, so it remains indexed by IDs
+        $localizedResource->names = [
+            self::EN_LANG_ID => 'english name',
+            self::getFrenchId() => 'nom français',
+        ];
+        $localizedResource->descriptions = [
+            'en-US' => 'english description',
+            'fr-FR' => 'description française',
+        ];
+        $localizedResource->titles = [
+            'en-US' => 'english title',
+            'fr-FR' => 'titre français',
+        ];
+
+        yield 'api resource with localized properties should have indexes based on locale values instead of integers' => [
+            [
+                'localizedLinks' => [
+                    self::EN_LANG_ID => 'english link',
+                    self::getFrenchId() => 'lien français',
+                ],
+                'names' => [
+                    self::EN_LANG_ID => 'english name',
+                    self::getFrenchId() => 'nom français',
+                ],
+                'descriptions' => [
+                    self::EN_LANG_ID => 'english description',
+                    self::getFrenchId() => 'description française',
+                ],
+                'titles' => [
+                    self::EN_LANG_ID => 'english title',
+                    self::getFrenchId() => 'titre français',
+                ],
+            ],
+            $localizedResource,
+        ];
+
+        yield 'command with various property types all in constructor' => [
             [
                 'localizedNames' => [
-                    1 => 'test1',
-                    2 => 'test2',
+                    self::EN_LANG_ID => 'test en',
+                    self::getFrenchId() => 'test fr',
                 ],
                 'reductionPercent' => 10.3,
                 'displayPriceTaxExcluded' => true,
@@ -81,8 +157,8 @@ class DomainSerializerTest extends KernelTestCase
             ],
             new AddCustomerGroupCommand(
                 [
-                    1 => 'test1',
-                    2 => 'test2',
+                    self::EN_LANG_ID => 'test en',
+                    self::getFrenchId() => 'test fr',
                 ],
                 new DecimalNumber('10.3'),
                 true,
@@ -96,7 +172,7 @@ class DomainSerializerTest extends KernelTestCase
         $editCartRuleCommand->setCode('test code');
         $editCartRuleCommand->setMinimumAmount('10', 1, true, true);
         $editCartRuleCommand->setCustomerId(1);
-        $editCartRuleCommand->setLocalizedNames([1 => 'test1', 2 => 'test2']);
+        $editCartRuleCommand->setLocalizedNames([self::EN_LANG_ID => 'test en', self::getFrenchId() => 'test fr']);
         $editCartRuleCommand->setHighlightInCart(true);
         $editCartRuleCommand->setAllowPartialUse(true);
         $editCartRuleCommand->setPriority(1);
@@ -105,7 +181,7 @@ class DomainSerializerTest extends KernelTestCase
         $editCartRuleCommand->setTotalQuantity(100);
         $editCartRuleCommand->setQuantityPerUser(1);
         $editCartRuleCommand->setCartRuleAction(new CartRuleAction(true));
-        yield [
+        yield 'object with complex setter methods based on multiple properties or sub types' => [
             [
                 'cartRuleId' => 1,
                 'description' => 'test description',
@@ -113,8 +189,8 @@ class DomainSerializerTest extends KernelTestCase
                 'minimumAmount' => ['minimumAmount' => '10', 'currencyId' => 1, 'taxIncluded' => true, 'shippingIncluded' => true],
                 'customerId' => 1,
                 'localizedNames' => [
-                    1 => 'test1',
-                    2 => 'test2',
+                    self::EN_LANG_ID => 'test en',
+                    self::getFrenchId() => 'test fr',
                 ],
                 'highlightInCart' => true,
                 'allowPartialUse' => true,
@@ -136,7 +212,7 @@ class DomainSerializerTest extends KernelTestCase
         ];
 
         $customerGroupQuery = new GetCustomerGroupForEditing(51);
-        yield 'value object with wrong parameter converted via mapping' => [
+        yield 'value object with wrong parameter name converted via mapping' => [
             [
                 'groupId' => 51,
             ],
@@ -224,21 +300,10 @@ class DomainSerializerTest extends KernelTestCase
         $hook->name = 'testHook';
         $hook->title = 'testHookTitle';
         $hook->description = '';
-        yield [
+        yield 'denormalize an APIPlatform DTO with specified mapping' => [
             [
                 'id_hook' => 1,
-                'active' => 1,
-                'name' => 'testHook',
-                'title' => 'testHookTitle',
-                'description' => '',
-            ],
-            $hook,
-            ['[id_hook]' => '[id]'],
-        ];
-        yield [
-            [
-                'id_hook' => 1,
-                'active' => '1',
+                'active' => true,
                 'name' => 'testHook',
                 'title' => 'testHookTitle',
                 'description' => '',
@@ -248,13 +313,16 @@ class DomainSerializerTest extends KernelTestCase
         ];
     }
 
-    /**
-     * @dataProvider getNormalizationData
-     */
-    public function testNormalize($dataToNormalize, $expectedNormalizedData, ?array $normalizationMapping = []): void
+    public function testNormalize(): void
     {
         $serializer = self::getContainer()->get(DomainSerializer::class);
-        self::assertEquals($expectedNormalizedData, $serializer->normalize($dataToNormalize, null, [DomainSerializer::NORMALIZATION_MAPPING => $normalizationMapping]));
+
+        // We don't use @dataProvider because the class DB setup was messy, so we do it manually
+        foreach ($this->getNormalizationData() as $normalizationData) {
+            list($dataToNormalize, $expectedNormalizedData) = $normalizationData;
+            $normalizationMapping = $normalizationData[2] ?? [];
+            self::assertEquals($expectedNormalizedData, $serializer->normalize($dataToNormalize, null, [DomainSerializer::NORMALIZATION_MAPPING => $normalizationMapping]));
+        }
     }
 
     public function testNormalizeWithEmptyValues(): void
@@ -266,8 +334,46 @@ class DomainSerializerTest extends KernelTestCase
 
     public function getNormalizationData(): iterable
     {
+        $localizedResource = new LocalizedResource([
+            'fr-FR' => 'http://mylink.fr',
+            'en-US' => 'http://mylink.com',
+        ]);
+        $localizedResource->names = [
+            self::getFrenchId() => 'Nom français',
+            self::EN_LANG_ID => 'English name',
+        ];
+        $localizedResource->descriptions = [
+            'fr-FR' => 'Description française',
+            'en-US' => 'French description',
+        ];
+        $localizedResource->titles = [
+            'fr-FR' => 'Titre français',
+            'en-US' => 'French title',
+        ];
+        yield 'normalize localized resource' => [
+            $localizedResource,
+            [
+                'names' => [
+                    self::getFrenchId() => 'Nom français',
+                    self::EN_LANG_ID => 'English name',
+                ],
+                'descriptions' => [
+                    self::getFrenchId() => 'Description française',
+                    self::EN_LANG_ID => 'French description',
+                ],
+                'titles' => [
+                    self::getFrenchId() => 'Titre français',
+                    self::EN_LANG_ID => 'French title',
+                ],
+                'localizedLinks' => [
+                    self::getFrenchId() => 'http://mylink.fr',
+                    self::EN_LANG_ID => 'http://mylink.com',
+                ],
+            ],
+        ];
+
         $createdApiClient = new CreatedApiClient(42, 'my_secret');
-        yield 'normalize command result that contains a ValueObject' => [
+        yield 'normalize command result that contains a ValueObject, returned as an integer not an array' => [
             $createdApiClient,
             [
                 'apiClientId' => 42,
@@ -276,7 +382,7 @@ class DomainSerializerTest extends KernelTestCase
         ];
 
         $groupId = new GroupId(42);
-        yield 'normalize GroupId value object' => [
+        yield 'normalize GroupId value object returned as array' => [
             $groupId,
             [
                 'groupId' => 42,
@@ -284,7 +390,7 @@ class DomainSerializerTest extends KernelTestCase
         ];
 
         $productId = new ProductId(42);
-        yield 'normalize ProductId value object' => [
+        yield 'normalize ProductId value object returned as array' => [
             $productId,
             [
                 'productId' => 42,

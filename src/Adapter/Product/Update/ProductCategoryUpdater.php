@@ -228,7 +228,7 @@ class ProductCategoryUpdater
             foreach ($categoryIds as $categoryId) {
                 $this->categoryRepository->assertCategoryExists($categoryId);
             }
-        } catch (CategoryNotFoundException $e) {
+        } catch (CategoryNotFoundException) {
             throw new CannotUpdateProductException(
                 sprintf('Failed to update product categories. Some of categories doesn\'t exist.'),
                 CannotUpdateProductException::FAILED_UPDATE_CATEGORIES

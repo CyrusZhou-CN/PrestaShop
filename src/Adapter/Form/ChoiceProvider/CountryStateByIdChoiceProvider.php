@@ -62,7 +62,7 @@ final class CountryStateByIdChoiceProvider implements ConfigurableFormChoiceProv
                 'id_state',
                 'name'
             );
-        } catch (PrestaShopException $e) {
+        } catch (PrestaShopException) {
             throw new CoreException(sprintf('An error occurred when getting states for country id "%s"', $countryId));
         }
 

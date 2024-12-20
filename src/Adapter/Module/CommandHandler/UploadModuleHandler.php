@@ -48,7 +48,7 @@ class UploadModuleHandler implements UploadModuleHandlerInterface
     {
         try {
             $technicalName = $this->moduleManager->upload($command->getSource());
-        } catch (Throwable $th) {
+        } catch (Throwable) {
             throw new CannotUploadModuleException('Technical error occurred while uploading module.');
         }
 

@@ -173,8 +173,8 @@ describe('API : GET /product/{productId}/images', async () => {
           expect(jsonResponse[i].imageId).to.be.gt(0);
           expect(jsonResponse[i].imageUrl).to.be.a('string');
           expect(jsonResponse[i].thumbnailUrl).to.be.a('string');
-          expect(jsonResponse[i].legends[dataLanguages.english.id]).to.be.a('string');
-          expect(jsonResponse[i].legends[dataLanguages.french.id]).to.be.a('string');
+          expect(jsonResponse[i].legends[dataLanguages.english.locale]).to.be.a('string');
+          expect(jsonResponse[i].legends[dataLanguages.french.locale]).to.be.a('string');
           expect(jsonResponse[i].cover).to.be.a('boolean');
           expect(jsonResponse[i].position).to.be.a('number');
           expect(jsonResponse[i].shopIds).to.be.a('array');
@@ -226,8 +226,8 @@ describe('API : GET /product/{productId}/images', async () => {
 
           expect(productImageInformation.id).to.equal(jsonResponse[idxItem].imageId);
 
-          expect(productImageInformation.caption.en).to.equal(jsonResponse[idxItem].legends[dataLanguages.english.id]);
-          expect(productImageInformation.caption.fr).to.equal(jsonResponse[idxItem].legends[dataLanguages.french.id]);
+          expect(productImageInformation.caption.en).to.equal(jsonResponse[idxItem].legends[dataLanguages.english.locale]);
+          expect(productImageInformation.caption.fr).to.equal(jsonResponse[idxItem].legends[dataLanguages.french.locale]);
 
           expect(productImageInformation.isCover).to.equal(jsonResponse[idxItem].cover);
 

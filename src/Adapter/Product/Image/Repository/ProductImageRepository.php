@@ -683,7 +683,7 @@ class ProductImageRepository extends AbstractMultiShopObjectModelRepository
     {
         try {
             $results = ImageType::getImagesTypes('products');
-        } catch (PrestaShopException $e) {
+        } catch (PrestaShopException) {
             throw new CoreException('Error occurred when trying to get product image types');
         }
 

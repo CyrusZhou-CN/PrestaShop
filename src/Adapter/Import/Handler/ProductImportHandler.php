@@ -231,7 +231,7 @@ final class ProductImportHandler extends AbstractImportHandler
         $this->loadSupplier($product, false);
         $this->loadPrice($product);
         $this->loadCategory($product, false);
-        $this->loadMetaData($product, $importConfig);
+        $this->loadMetaData($product);
         $this->fixFloatValues($product);
 
         $productExistsById = $this->entityExists($product, 'product');
@@ -290,8 +290,7 @@ final class ProductImportHandler extends AbstractImportHandler
                 $this->updateAdditionalData($product, $runtimeConfig->shouldValidateData());
                 $this->saveStock(
                     $product,
-                    $runtimeConfig->shouldValidateData(),
-                    $productExistsById || $productExistsByReference
+                    $runtimeConfig->shouldValidateData()
                 );
 
                 $this->linkAccessories($product, $runtimeConfig);
@@ -732,9 +731,8 @@ final class ProductImportHandler extends AbstractImportHandler
      * Load meta data into the product object.
      *
      * @param Product $product
-     * @param ImportConfigInterface $importConfig
      */
-    private function loadMetaData(Product $product, ImportConfigInterface $importConfig)
+    private function loadMetaData(Product $product)
     {
         $linkRewrite = '';
 
@@ -1206,9 +1204,8 @@ final class ProductImportHandler extends AbstractImportHandler
      *
      * @param Product $product
      * @param bool $validateOnly
-     * @param bool $productExists
      */
-    private function saveStock(Product $product, $validateOnly, $productExists)
+    private function saveStock(Product $product, $validateOnly)
     {
         if ($this->isMultistoreEnabled) {
             $shopIds = $product->id_shop_list;

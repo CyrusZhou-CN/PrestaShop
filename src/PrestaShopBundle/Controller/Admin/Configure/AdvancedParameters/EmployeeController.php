@@ -332,7 +332,7 @@ class EmployeeController extends PrestaShopAdminController
 
         try {
             $editableEmployee = $this->dispatchQuery(new GetEmployeeForEditing((int) $employeeId));
-        } catch (EmployeeNotFoundException $e) {
+        } catch (EmployeeNotFoundException) {
             return $this->redirectToRoute('admin_employees_index');
         }
 

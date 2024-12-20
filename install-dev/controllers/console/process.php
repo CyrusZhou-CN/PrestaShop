@@ -135,7 +135,7 @@ class InstallControllerConsoleProcess extends InstallControllerConsole implement
 
         if (in_array('database', $steps)) {
             if (!$this->processGenerateSettingsFile()) {
-                $this->printErrors();
+                $this->printErrors('processGenerateSettingsFile');
             }
 
             if ($this->datas->database_create) {
@@ -150,55 +150,55 @@ class InstallControllerConsoleProcess extends InstallControllerConsole implement
                 $this->datas->database_prefix,
                 $this->datas->database_clear
             )) {
-                $this->printErrors();
+                $this->printErrors('testDatabaseSettings');
             }
 
             // Deferred Kernel Init
             $this->initKernel();
 
             if (!$this->processInstallDatabase()) {
-                $this->printErrors();
+                $this->printErrors('processInstallDatabase');
             }
 
             if (!$this->processInstallDefaultData()) {
-                $this->printErrors();
+                $this->printErrors('processInstallDefaultData');
             }
             if (!$this->processPopulateDatabase()) {
-                $this->printErrors();
+                $this->printErrors('processPopulateDatabase');
             }
 
             if (!$this->processConfigureShop()) {
-                $this->printErrors();
+                $this->printErrors('processConfigureShop');
             }
         }
 
         if (in_array('theme', $steps)) {
             if (!$this->processInstallTheme()) {
-                $this->printErrors();
+                $this->printErrors('processInstallTheme');
             }
         }
 
         if (in_array('modules', $steps)) {
             if (!$this->processInstallModules()) {
-                $this->printErrors();
+                $this->printErrors('processInstallModules');
             }
         }
 
         if (in_array('fixtures', $steps) && $this->datas->fixtures) {
             if (!$this->processInstallFixtures()) {
-                $this->printErrors();
+                $this->printErrors('processInstallFixtures');
             }
         }
 
         if (in_array('postInstall', $steps)) {
             if (!$this->processPostInstall()) {
-                $this->printErrors();
+                $this->printErrors('processPostInstall');
             }
         }
 
         if (in_array('finalize', $steps)) {
             if (!$this->processFinalize()) {
-                $this->printErrors();
+                $this->printErrors('processFinalize');
             }
         }
 

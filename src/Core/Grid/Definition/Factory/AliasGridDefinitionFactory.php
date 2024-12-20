@@ -91,6 +91,9 @@ class AliasGridDefinitionFactory extends AbstractGridDefinitionFactory
             ->add(
                 (new AliasesColumn('aliases'))
                     ->setName($this->trans('Aliases', [], 'Admin.Global'))
+                    ->setOptions([
+                        'sortable' => false,
+                    ])
             )
             ->add(
                 (new ActionColumn('actions'))

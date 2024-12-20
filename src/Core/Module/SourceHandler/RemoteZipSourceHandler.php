@@ -80,7 +80,7 @@ class RemoteZipSourceHandler implements SourceHandlerInterface
 
         try {
             $response = $this->httpClient->request('HEAD', $source);
-        } catch (TransportExceptionInterface $e) {
+        } catch (TransportExceptionInterface) {
             return false;
         }
 

@@ -250,7 +250,7 @@ class TaxController extends PrestaShopAdminController
                 'success',
                 $this->trans('Successful deletion', [], 'Admin.Notifications.Success')
             );
-        } catch (TaxException $e) {
+        } catch (TaxException) {
         }
 
         return $this->redirectToRoute('admin_taxes_index');

@@ -889,7 +889,7 @@ class CmsPageController extends PrestaShopAdminController
     {
         try {
             $cmsPageCategoryParentId = $this->getParentCategoryId($cmsPageCategoryId)->getValue();
-        } catch (CmsPageCategoryException $e) {
+        } catch (CmsPageCategoryException) {
             $cmsPageCategoryParentId = CmsPageCategoryId::ROOT_CMS_PAGE_CATEGORY_ID;
         }
 
@@ -905,7 +905,7 @@ class CmsPageController extends PrestaShopAdminController
     {
         try {
             $cmsCategoryId = $this->dispatchQuery(new GetCmsCategoryIdForRedirection((int) $cmsPageId))->getValue();
-        } catch (CmsPageException $e) {
+        } catch (CmsPageException) {
             $cmsCategoryId = CmsPageCategoryId::ROOT_CMS_PAGE_CATEGORY_ID;
         }
 

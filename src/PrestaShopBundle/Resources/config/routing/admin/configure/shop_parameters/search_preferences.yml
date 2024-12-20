@@ -3,9 +3,8 @@ admin_search_alias_index:
   methods: [ GET ]
   defaults:
     _controller: PrestaShopBundle\Controller\Admin\Configure\ShopParameters\SearchAliasController::indexAction
-    _legacy_controller: AdminSearchConf
-    _legacy_link: AdminSearchConf
-    _legacy_feature_flag: search_conf
+    _legacy_controller: AdminAliases
+    _legacy_link: AdminAliases
 
 admin_search_alias_search:
   path: /
@@ -14,18 +13,16 @@ admin_search_alias_search:
     _controller: PrestaShopBundle\Controller\Admin\CommonController::searchGridAction
     gridDefinitionFactoryServiceId: PrestaShop\PrestaShop\Core\Grid\Definition\Factory\AliasGridDefinitionFactory
     redirectRoute: admin_search_alias_index
-    _legacy_controller: AdminSearchConf
-    _legacy_link: AdminSearchConf:submitFilteralias
-    _legacy_feature_flag: search_conf
+    _legacy_link: AdminAliases:submitFilteralias
+    _legacy_controller: AdminAliases
 
 admin_search_alias_delete:
   path: /{searchTerm}/delete
   methods: [ POST, DELETE ]
   defaults:
     _controller: PrestaShopBundle\Controller\Admin\Configure\ShopParameters\SearchAliasController::deleteAction
-    _legacy_controller: AdminSearchConf
-    _legacy_link: AdminSearchConf:deletealias
-    _legacy_feature_flag: search_conf
+    _legacy_link: AdminAliases:deletealias
+    _legacy_controller: AdminAliases
   requirements:
     searchTerm: \w+
 
@@ -34,28 +31,25 @@ admin_search_alias_bulk_delete:
   methods: [ POST, DELETE ]
   defaults:
     _controller: PrestaShopBundle\Controller\Admin\Configure\ShopParameters\SearchAliasController::bulkDeleteAction
-    _legacy_controller: AdminSearchConf
-    _legacy_link: AdminSearchConf:submitBulkdeletealias
-    _legacy_feature_flag: search_conf
+    _legacy_link: AdminAliases:submitBulkdeletealias
+    _legacy_controller: AdminAliases
 
 admin_search_alias_create:
   path: /new
   methods: [ GET, POST ]
   defaults:
     _controller: PrestaShopBundle\Controller\Admin\Configure\ShopParameters\SearchAliasController::createAction
-    _legacy_controller: AdminSearchConf
-    _legacy_link: AdminSearchConf:addalias
-    _legacy_feature_flag: search_conf
+    _legacy_link: AdminAliases:addalias
+    _legacy_controller: AdminAliases
 
 admin_search_alias_edit:
   path: /{searchTerm}/edit
   methods: [ GET, POST ]
   defaults:
     _controller: PrestaShopBundle\Controller\Admin\Configure\ShopParameters\SearchAliasController::editAction
-    _legacy_controller: AdminSearchConf
-    _legacy_link: AdminSearchConf:updatealias
-    _legacy_feature_flag: search_conf
+    _legacy_link: AdminAliases:updatealias
     _legacy_parameters:
       searchTerm: searchTerm
+    _legacy_controller: AdminAliases
   requirements:
     searchTerm: \w+

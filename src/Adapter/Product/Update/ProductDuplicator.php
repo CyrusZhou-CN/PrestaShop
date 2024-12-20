@@ -374,7 +374,7 @@ class ProductDuplicator extends AbstractMultiShopObjectModelRepository
             $targetShopId = new ShopId($shopId);
             try {
                 $this->stockAvailableRepository->getForProduct($targetProductId, $targetShopId);
-            } catch (StockAvailableNotFoundException $e) {
+            } catch (StockAvailableNotFoundException) {
                 // We create the new StockAvailable for this product and shop, it will then be updated via stock modification
                 $this->stockAvailableRepository->createStockAvailable($targetProductId, $targetShopId);
             }
@@ -384,7 +384,7 @@ class ProductDuplicator extends AbstractMultiShopObjectModelRepository
                 $outOfStock = new OutOfStockType((int) $sourceStock->out_of_stock);
                 $productQuantity = (int) $sourceStock->quantity;
                 $location = $sourceStock->location;
-            } catch (StockAvailableNotFoundException $e) {
+            } catch (StockAvailableNotFoundException) {
                 // The source product may not have any associated StockAvailable (this happens with product created with old versions)
                 $outOfStock = new OutOfStockType(OutOfStockType::OUT_OF_STOCK_DEFAULT);
                 $productQuantity = 0;
@@ -424,7 +424,7 @@ class ProductDuplicator extends AbstractMultiShopObjectModelRepository
             $newCombinationId = new CombinationId($combinationMatching[$oldCombinationId->getValue()]);
             try {
                 $this->stockAvailableRepository->getForCombination($newCombinationId, $targetShopId);
-            } catch (StockAvailableNotFoundException $e) {
+            } catch (StockAvailableNotFoundException) {
                 $this->stockAvailableRepository->createStockAvailable($targetProductId, $targetShopId, $newCombinationId);
             }
 
@@ -433,7 +433,7 @@ class ProductDuplicator extends AbstractMultiShopObjectModelRepository
                 $sourceStock = $this->stockAvailableRepository->getForCombination($oldCombinationId, $targetShopId);
                 $combinationQuantity = (int) $sourceStock->quantity;
                 $location = $sourceStock->location;
-            } catch (StockAvailableNotFoundException $e) {
+            } catch (StockAvailableNotFoundException) {
                 // The source combination may not have any associated StockAvailable (this happens with combinations created with old versions)
                 $combinationQuantity = 0;
                 $location = '';
@@ -493,9 +493,6 @@ class ProductDuplicator extends AbstractMultiShopObjectModelRepository
     private function duplicateSuppliers(int $oldProductId, int $newProductId, array $combinationMatching): void
     {
         $oldSuppliers = $this->getRows('product_supplier', ['id_product' => $oldProductId], CannotDuplicateProductException::FAILED_DUPLICATE_SUPPLIERS);
-        if (empty($oldSuppliers)) {
-            return;
-        }
 
         foreach ($oldSuppliers as $oldSupplier) {
             $newProductSupplier = $this->productSupplierRepository->get(new ProductSupplierId((int) $oldSupplier['id_product_supplier']));
@@ -1036,7 +1033,7 @@ class ProductDuplicator extends AbstractMultiShopObjectModelRepository
 
         try {
             $this->connection->executeStatement($bulkInsertSql);
-        } catch (Exception $e) {
+        } catch (Exception) {
             throw new CannotDuplicateProductException(
                 sprintf('Cannot bulk insert into table %s failed', $table),
                 $errorCode
@@ -1101,7 +1098,7 @@ class ProductDuplicator extends AbstractMultiShopObjectModelRepository
 
         try {
             $rows = $qb->executeQuery()->fetchAllAssociative();
-        } catch (Exception $e) {
+        } catch (Exception) {
             throw new CannotDuplicateProductException(
                 sprintf('Cannot select rows from table %s', $this->dbPrefix . $table),
                 $errorCode

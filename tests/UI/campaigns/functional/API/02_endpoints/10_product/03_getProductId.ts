@@ -266,8 +266,8 @@ describe('API : GET /product/{productId}', async () => {
 
       expect(jsonResponse).to.have.property('names');
       expect(jsonResponse.names).to.be.a('object');
-      expect(jsonResponse.names[dataLanguages.english.id]).to.be.equal(productNameEn);
-      expect(jsonResponse.names[dataLanguages.french.id]).to.be.equal(productNameFr);
+      expect(jsonResponse.names[dataLanguages.english.locale]).to.be.equal(productNameEn);
+      expect(jsonResponse.names[dataLanguages.french.locale]).to.be.equal(productNameFr);
     });
 
     it('should check the JSON Response : `descriptions`', async function () {
@@ -275,8 +275,8 @@ describe('API : GET /product/{productId}', async () => {
 
       expect(jsonResponse).to.have.property('descriptions');
       expect(jsonResponse.descriptions).to.be.a('object');
-      expect(jsonResponse.descriptions[dataLanguages.english.id]).to.be.equal(productDescriptionEn);
-      expect(jsonResponse.descriptions[dataLanguages.french.id]).to.be.equal(productDescriptionFr);
+      expect(jsonResponse.descriptions[dataLanguages.english.locale]).to.be.equal(productDescriptionEn);
+      expect(jsonResponse.descriptions[dataLanguages.french.locale]).to.be.equal(productDescriptionFr);
     });
   });
 

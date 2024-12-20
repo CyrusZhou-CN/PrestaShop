@@ -104,7 +104,7 @@ class PermissionController extends PrestaShopAdminController
 
             $response['success'] = true;
             $responseCode = Response::HTTP_OK;
-        } catch (ProfileException $e) {
+        } catch (ProfileException) {
             $response['success'] = false;
             $responseCode = Response::HTTP_BAD_REQUEST;
         }
@@ -138,7 +138,7 @@ class PermissionController extends PrestaShopAdminController
 
             $response['success'] = true;
             $responseCode = Response::HTTP_OK;
-        } catch (ProfileException $e) {
+        } catch (ProfileException) {
             $response['success'] = false;
             $responseCode = Response::HTTP_BAD_REQUEST;
         }

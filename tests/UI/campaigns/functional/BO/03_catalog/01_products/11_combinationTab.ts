@@ -343,7 +343,7 @@ describe('BO - Catalog - Products : Combination tab', async () => {
       await testContext.addContextItem(this, 'testIdentifier', 'selectCombination4', baseContext);
 
       const availabilityLabel = await foClassicProductPage.getProductAvailabilityLabel(page);
-      expect(availabilityLabel).to.contains('Product available');
+      expect(availabilityLabel).to.contains('Out-of-Stock');
     });
 
     it('should close the page', async function () {

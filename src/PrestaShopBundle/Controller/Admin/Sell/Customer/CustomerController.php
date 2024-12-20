@@ -314,7 +314,7 @@ class CustomerController extends PrestaShopAdminController
         try {
             /** @var ViewableCustomer $customerInformation */
             $customerInformation = $this->dispatchQuery(new GetCustomerForViewing($customerId));
-        } catch (CustomerNotFoundException $e) {
+        } catch (CustomerNotFoundException) {
             $this->addFlash(
                 'error',
                 $this->trans('This customer does not exist.', [], 'Admin.Orderscustomers.Notification')

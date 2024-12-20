@@ -144,7 +144,7 @@ class ThemeController extends PrestaShopAdminController
                     'error',
                     $this->getErrorMessageForException(
                         $e,
-                        $this->getLogoUploadErrorMessages($e)
+                        $this->getLogoUploadErrorMessages()
                     )
                 );
             }
@@ -518,28 +518,23 @@ class ThemeController extends PrestaShopAdminController
     /**
      * Gets exception or exception and its code error mapping.
      *
-     * @param DomainException $exception
-     *
      * @return array
      */
-    private function getLogoUploadErrorMessages(DomainException $exception): array
+    private function getLogoUploadErrorMessages(): array
     {
         $availableLogoFormatsImploded = implode(', .', ShopLogoSettings::AVAILABLE_LOGO_IMAGE_EXTENSIONS);
         $availableMailAndInvoiceFormatsImploded = implode(', .', ShopLogoSettings::AVAILABLE_MAIL_AND_INVOICE_LOGO_IMAGE_EXTENSIONS);
         $availableIconFormat = ShopLogoSettings::AVAILABLE_ICON_IMAGE_EXTENSION;
-
         $logoImageFormatError = $this->trans(
             'Image format not recognized, allowed format(s) is(are): .%s',
             [$availableLogoFormatsImploded],
             'Admin.Notifications.Error',
         );
-
         $mailAndInvoiceImageFormatError = $this->trans(
             'Image format not recognized, allowed formats are: %s',
             [$availableMailAndInvoiceFormatsImploded],
             'Admin.Notifications.Error',
         );
-
         $iconFormatError = $this->trans(
             'Image format not recognized, allowed format(s) is(are): .%s',
             [$availableIconFormat],

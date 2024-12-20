@@ -69,7 +69,7 @@ final class AddSupplierHandler extends AbstractSupplierHandler implements AddSup
             $this->addShopAssociation($supplier, $command);
             $address->id_supplier = $supplier->id;
             $address->update();
-        } catch (PrestaShopException $e) {
+        } catch (PrestaShopException) {
             throw new SupplierException(sprintf('Failed to add new supplier "%s"', $command->getName()));
         }
 

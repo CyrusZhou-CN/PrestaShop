@@ -233,8 +233,8 @@ describe('API : POST /product/image/{imageId}', async () => {
         await testContext.addContextItem(this, 'testIdentifier', 'requestEndpoint', baseContext);
 
         const dataMultipart: any = {};
-        dataMultipart[`legends[${dataLanguages.english.id}]`] = productCaptionUpdatedEN;
-        dataMultipart[`legends[${dataLanguages.french.id}]`] = productCaptionUpdatedFR;
+        dataMultipart[`legends[${dataLanguages.english.locale}]`] = productCaptionUpdatedEN;
+        dataMultipart[`legends[${dataLanguages.french.locale}]`] = productCaptionUpdatedFR;
 
         const apiResponse = await apiContext.post(`product/image/${productImageInformation.id}`, {
           headers: {
@@ -281,10 +281,10 @@ describe('API : POST /product/image/{imageId}', async () => {
 
         expect(jsonResponse.thumbnailUrl).to.be.a('string');
 
-        expect(jsonResponse.legends[dataLanguages.english.id]).to.be.a('string');
-        expect(jsonResponse.legends[dataLanguages.english.id]).to.equals(productCaptionUpdatedEN);
-        expect(jsonResponse.legends[dataLanguages.french.id]).to.be.a('string');
-        expect(jsonResponse.legends[dataLanguages.french.id]).to.equals(productCaptionUpdatedFR);
+        expect(jsonResponse.legends[dataLanguages.english.locale]).to.be.a('string');
+        expect(jsonResponse.legends[dataLanguages.english.locale]).to.equals(productCaptionUpdatedEN);
+        expect(jsonResponse.legends[dataLanguages.french.locale]).to.be.a('string');
+        expect(jsonResponse.legends[dataLanguages.french.locale]).to.equals(productCaptionUpdatedFR);
 
         expect(jsonResponse.cover).to.be.a('boolean');
         expect(jsonResponse.cover).to.be.equals(true);
@@ -314,10 +314,10 @@ describe('API : POST /product/image/{imageId}', async () => {
       it('should check the JSON Response : `legends`', async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'checkResponseLegends', baseContext);
 
-        expect(productImageInformation.caption.en).to.equal(jsonResponse.legends[dataLanguages.english.id]);
+        expect(productImageInformation.caption.en).to.equal(jsonResponse.legends[dataLanguages.english.locale]);
         expect(productImageInformation.caption.en).to.equal(productCaptionUpdatedEN);
 
-        expect(productImageInformation.caption.fr).to.equal(jsonResponse.legends[dataLanguages.french.id]);
+        expect(productImageInformation.caption.fr).to.equal(jsonResponse.legends[dataLanguages.french.locale]);
         expect(productImageInformation.caption.fr).to.equal(productCaptionUpdatedFR);
       });
 

@@ -244,8 +244,8 @@ describe('API : GET /customers/group/{customerGroupId}', async () => {
 
       expect(jsonResponse).to.have.property('localizedNames');
       expect(jsonResponse.localizedNames).to.be.a('object');
-      expect(jsonResponse.localizedNames[dataLanguages.english.id]).to.be.equal(nameEn);
-      expect(jsonResponse.localizedNames[dataLanguages.french.id]).to.be.equal(nameFr);
+      expect(jsonResponse.localizedNames[dataLanguages.english.locale]).to.be.equal(nameEn);
+      expect(jsonResponse.localizedNames[dataLanguages.french.locale]).to.be.equal(nameFr);
     });
 
     it('should check the JSON Response : `reductionPercent`', async function () {

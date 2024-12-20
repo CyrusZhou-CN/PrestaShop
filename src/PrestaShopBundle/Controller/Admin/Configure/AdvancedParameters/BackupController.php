@@ -158,7 +158,7 @@ class BackupController extends PrestaShopAdminController
             );
 
             return $this->redirectToRoute('admin_backups_index', ['download_filename' => $backup->getFileName()]);
-        } catch (DirectoryIsNotWritableException $e) {
+        } catch (DirectoryIsNotWritableException) {
             $this->addFlash(
                 'error',
                 $this->trans(
@@ -167,7 +167,7 @@ class BackupController extends PrestaShopAdminController
                     'Admin.Advparameters.Notification'
                 )
             );
-        } catch (BackupException $e) {
+        } catch (BackupException) {
             $this->addFlash('error', $this->trans('The backup file does not exist', [], 'Admin.Advparameters.Notification'));
         }
 

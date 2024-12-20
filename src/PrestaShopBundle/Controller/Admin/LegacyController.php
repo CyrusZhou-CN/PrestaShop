@@ -250,11 +250,11 @@ class LegacyController extends PrestaShopAdminController
         $tabId = !empty($adminController->id) && $adminController->id > 0 ? $adminController->id : null;
 
         // When the action is read/view and the controller has overridden the viewAccess method we should rely on the custom implementation
-        if ($action === Permission::READ && $this->isMethodOverridden($adminController, 'viewAccess')) {
+        if ($action === Permission::READ && $this->isMethodOverridden($adminController)) {
             $isAllowed = $adminController->viewAccess();
         } elseif (!empty($tabId) && !empty($controllerName) && !empty($action)) { // Permission can only be checked when the controller is associated to a tab (therefore a permission)
             // Some legacy controller override the getTabSlug method thus the subject does not follow the usual convention based on class name
-            if ($this->isMethodOverridden($adminController, 'getTabSlug')) {
+            if ($this->isMethodOverridden($adminController)) {
                 $tabSlug = $adminController->getTabSlug();
                 // Remove the prefix tab to be compliant with isGranted expected subject format
                 $grantSubject = str_replace(Permission::PREFIX_TAB, '', $tabSlug);
@@ -277,7 +277,7 @@ class LegacyController extends PrestaShopAdminController
         }
     }
 
-    private function isMethodOverridden(AdminController $adminController, string $methodName): bool
+    private function isMethodOverridden(AdminController $adminController): bool
     {
         try {
             $reflector = new ReflectionMethod($adminController, 'getTabSlug');

@@ -194,7 +194,7 @@ class UpdateLicensesCommand extends Command
                         if (count($nodes)) {
                             $this->addLicenseToNode($nodes[0], $file);
                         }
-                    } catch (\PhpParser\Error $exception) {
+                    } catch (\PhpParser\Error) {
                         $output->writeln('Syntax error on file ' . $file->getRelativePathname() . '. Continue ...');
                     }
 

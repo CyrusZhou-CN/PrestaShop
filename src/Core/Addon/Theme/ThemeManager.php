@@ -296,7 +296,7 @@ class ThemeManager implements AddonManagerInterface
         $moduleManagerBuilder = ModuleManagerBuilder::getInstance();
         $moduleManager = $moduleManagerBuilder->build();
 
-        foreach ($modules as $key => $moduleName) {
+        foreach ($modules as $moduleName) {
             if ($moduleManager->isInstalled($moduleName) && $moduleManager->isEnabled($moduleName)) {
                 $moduleManager->disable($moduleName);
             }
@@ -505,7 +505,7 @@ class ThemeManager implements AddonManagerInterface
             // retrieve Lang doctrine entity
             try {
                 $lang = $translationService->findLanguageByLocale($locale);
-            } catch (Exception $exception) {
+            } catch (Exception) {
                 PrestaShopLogger::addLog('ThemeManager->importTranslationToDatabase() - Locale ' . $locale . ' does not exists');
 
                 continue;
@@ -528,7 +528,7 @@ class ThemeManager implements AddonManagerInterface
 
                 // do the import
                 $this->handleImport($translationService, $messageCatalog, $allDomains, $lang, $locale, $themeName);
-            } catch (FileNotFoundException $e) {
+            } catch (FileNotFoundException) {
                 // if the directory is there but there are no files, do nothing
             }
         }

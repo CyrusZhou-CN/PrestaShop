@@ -912,7 +912,7 @@ class OrderController extends PrestaShopAdminController
                 );
 
                 $this->addFlash('success', $this->trans('Successful update', [], 'Admin.Notifications.Success'));
-            } catch (TransistEmailSendingException $e) {
+            } catch (TransistEmailSendingException) {
                 $this->addFlash(
                     'error',
                     $this->trans(
@@ -1262,7 +1262,7 @@ class OrderController extends PrestaShopAdminController
                     'success',
                     $this->trans('Comment successfully added.', [], 'Admin.Notifications.Success')
                 );
-            } catch (CannotSendEmailException $exception) {
+            } catch (CannotSendEmailException) {
                 $this->addFlash(
                     'success',
                     $this->trans('Comment successfully added.', [], 'Admin.Notifications.Success')

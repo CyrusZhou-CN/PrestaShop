@@ -225,10 +225,10 @@ describe('API : POST /product/{productId}/image', async () => {
 
         expect(jsonResponse.thumbnailUrl).to.be.a('string');
 
-        expect(jsonResponse.legends[dataLanguages.english.id]).to.be.a('string');
-        expect(jsonResponse.legends[dataLanguages.english.id]).to.equals('');
-        expect(jsonResponse.legends[dataLanguages.french.id]).to.be.a('string');
-        expect(jsonResponse.legends[dataLanguages.french.id]).to.equals('');
+        expect(jsonResponse.legends[dataLanguages.english.locale]).to.be.a('string');
+        expect(jsonResponse.legends[dataLanguages.english.locale]).to.equals('');
+        expect(jsonResponse.legends[dataLanguages.french.locale]).to.be.a('string');
+        expect(jsonResponse.legends[dataLanguages.french.locale]).to.equals('');
 
         expect(jsonResponse.cover).to.be.a('boolean');
         expect(jsonResponse.cover).to.be.equals(true);
@@ -262,8 +262,8 @@ describe('API : POST /product/{productId}/image', async () => {
       it('should check the JSON Response : `legends`', async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'checkResponseLegends', baseContext);
 
-        expect(productImageInformation.caption.en).to.equal(jsonResponse.legends[dataLanguages.english.id]);
-        expect(productImageInformation.caption.fr).to.equal(jsonResponse.legends[dataLanguages.french.id]);
+        expect(productImageInformation.caption.en).to.equal(jsonResponse.legends[dataLanguages.english.locale]);
+        expect(productImageInformation.caption.fr).to.equal(jsonResponse.legends[dataLanguages.french.locale]);
       });
 
       it('should check the JSON Response : `cover`', async function () {

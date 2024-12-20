@@ -60,13 +60,6 @@ class WebserviceRequestCore
     public $wsUrl;
 
     /**
-     * PrestaShop Webservice Documentation URL.
-     *
-     * @var string
-     */
-    protected $_docUrl = 'https://devdocs.prestashop-project.org/9/webservice';
-
-    /**
      * Set if the authentication key was checked.
      *
      * @var bool
@@ -732,7 +725,7 @@ class WebserviceRequestCore
             E_RECOVERABLE_ERROR => 'Recoverable error',
         ];
         $type = $errortype[$errno] ?? 'Unknown error';
-        Tools::error_log('[PHP ' . $type . ' #' . $errno . '] ' . $errstr . ' (' . $errfile . ', line ' . $errline . ')');
+        error_log('[PHP ' . $type . ' #' . $errno . '] ' . $errstr . ' (' . $errfile . ', line ' . $errline . ')');
 
         switch ($errno) {
             case E_ERROR:

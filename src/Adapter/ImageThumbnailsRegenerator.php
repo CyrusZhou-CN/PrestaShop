@@ -146,7 +146,7 @@ class ImageThumbnailsRegenerator
                  * They are either ID.jpg or ID_thumb.jpg in case of category thumbnails
                  */
                 if (preg_match('/^[0-9]*(|_thumb)\.jpg$/', $originalImageName)) {
-                    foreach ($type as $k => $imageType) {
+                    foreach ($type as $imageType) {
                         // Customizable writing dir
                         $newDir = $dir;
                         if (!file_exists($newDir)) {

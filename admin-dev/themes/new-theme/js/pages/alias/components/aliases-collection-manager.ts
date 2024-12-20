@@ -38,11 +38,11 @@ export default class AliasesCollectionManager {
   constructor() {
     // Get dom element of the collection
     this.$collection = $(AliasFormMap.aliasesCollection);
-    this.idxAlias = this.$collection.children(AliasFormMap.aliasItem).length;
+    this.idxAlias = this.$collection.children(AliasFormMap.aliasItem).length - 1;
     // Initialize listeners
     this.initListeners();
     // If we have no alias, we add one
-    if (this.$collection.children().length === 0) {
+    if (this.$collection.children(AliasFormMap.aliasItem).length === 0) {
       this.onAddAlias(null, false);
     }
   }
