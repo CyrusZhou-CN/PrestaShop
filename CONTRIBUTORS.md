@@ -169,6 +169,7 @@ GitHub contributors:
 - cirykpopeye
 - Claire Meuriot
 - Clotaire Renaud
+- Clément Hervouet
 - cmouleyre
 - cocoweb
 - Code Utopia
@@ -197,6 +198,7 @@ GitHub contributors:
 - Dan-Orchard
 - danidomen
 - Daniel
+- Daniel Black
 - Daniel Böttner
 - Daniel Hlavacek
 - Daniel Martin
@@ -256,6 +258,7 @@ GitHub contributors:
 - Dream me up
 - DrySs
 - Dylan Paris
+- Dylan Denizon
 - dSevere
 - Dustin
 - Dvir Julius
@@ -400,6 +403,7 @@ GitHub contributors:
 - Ivan Shcherbakov
 - ivancasasempere
 - J. Danse
+- Jackoske
 - Jáchym Toušek
 - Jakub Łach
 - Jan Sýkora
@@ -429,6 +433,7 @@ GitHub contributors:
 - jessylenne
 - jestemradek
 - Jevgenij Visockij
+- Jin JI
 - Joan
 - Joan Juvanteny
 - Jocelyn Fournier
@@ -438,6 +443,7 @@ GitHub contributors:
 - joemartin247
 - Joep Hendrix
 - Johannes Schramm
+- John Aurry
 - John Cocula
 - John Zandbergen
 - Jonadabe
@@ -521,6 +527,7 @@ GitHub contributors:
 - Luc Vigato
 - Luca T.
 - Lucas CERDAN
+- Lucas Dindault
 - Lucas Rolff
 - LucasC
 - Ludovic Cardinale
@@ -600,6 +607,7 @@ GitHub contributors:
 - Maxime Flasquin
 - Maxime Morel-Bailly
 - Maxime Vasse
+- Maxime Poulain
 - mchelh
 - mchojnacki
 - mdomenjoud
@@ -618,6 +626,7 @@ GitHub contributors:
 - Michael Voříšek
 - michaesc
 - Michał Kaleta
+- Michal Macek
 - Michal Špaček
 - Michel Antoine
 - Michel Courtade
@@ -656,6 +665,7 @@ GitHub contributors:
 - Nesrine Abdmouleh
 - nezenmoins
 - Nicklas Holmen
+- Nicko
 - Nicolas Camenisch
 - Nicolás Giacconi
 - Nicolas Lœuillet
@@ -800,12 +810,14 @@ GitHub contributors:
 - Romain 'Maz' BILLOIR
 - Romain BOCHEUX
 - Romain Couderc
+- Romain PIOT
 - Romain Soulard
 - romainberger
 - Roman Daniel Gabriel
 - Roman Gusev
 - Roman Kotyra
 - Roman Ondráček
+- Romuald Fabiani
 - Rúben Martins
 - Rudolf Kastl
 - Rudra Sarkar
@@ -859,6 +871,7 @@ GitHub contributors:
 - Sharak
 - ShepherdV8
 - Shipow
+- Shivam7-1
 - Shudrum
 - sidhujag
 - Simon
@@ -880,6 +893,7 @@ GitHub contributors:
 - Stephane Decisy
 - Steven "SDF" Sulley
 - Steven Sulley
+- Sullivan Monteiro
 - stickyrst
 - Stijn Houben
 - Stijn Stroeve
@@ -908,6 +922,7 @@ GitHub contributors:
 - theodiablo
 - therampagerado
 - Thibaud Chauviere
+- Thibault Blivet
 - Thierry Marianne
 - Thijs Simonis
 - Thoma
@@ -935,6 +950,7 @@ GitHub contributors:
 - TMMeilleur
 - tolispy
 - Tom Combet
+- Tom Girou
 - Tom Panier
 - Tomas
 - Tomas Ilginis

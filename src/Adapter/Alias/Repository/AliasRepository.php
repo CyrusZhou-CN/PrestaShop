@@ -90,7 +90,11 @@ class AliasRepository extends AbstractObjectModelRepository
 
         foreach ($aliases as $searchAlias) {
             // As search term is not a primary key, we need make sure that alias and search combination does not exist
-            if ($this->aliasExists($searchAlias['alias'], $searchTerm)) {
+            // if alias exists for search term, we need to apply new active if needed
+            $aliasIfExists = $this->getAliasIfExists($searchAlias['alias'], $searchTerm);
+            if ($aliasIfExists) {
+                $aliasIfExists->active = $searchAlias['active'];
+                $this->partialUpdate($aliasIfExists, ['active'], CannotAddAliasException::class);
                 continue;
             }
 
@@ -129,9 +133,9 @@ class AliasRepository extends AbstractObjectModelRepository
      * @param string $alias
      * @param string $searchTerm
      *
-     * @return bool
+     * @return Alias|null
      */
-    public function aliasExists(string $alias, string $searchTerm): bool
+    public function getAliasIfExists(string $alias, string $searchTerm): ?Alias
     {
         $qb = $this->connection->createQueryBuilder()
             ->select('a.id_alias')
@@ -141,8 +145,13 @@ class AliasRepository extends AbstractObjectModelRepository
             ->setParameter('search', $searchTerm)
             ->setParameter('alias', $alias)
         ;
+        $alias = $qb->executeQuery()->fetchOne();
 
-        return (bool) $qb->executeQuery()->fetchOne();
+        if ($alias) {
+            return $this->get(new AliasId((int) $alias));
+        }
+
+        return null;
     }
 
     /**

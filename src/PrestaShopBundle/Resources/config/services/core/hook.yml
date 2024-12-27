@@ -27,6 +27,9 @@ services:
     arguments:
       - '@form.factory'
 
+  prestashop.core.hook.extractor.hook_extractor:
+    class: 'PrestaShop\PrestaShop\Core\Hook\Extractor\HookExtractor'
+
   prestashop.core.hook.provider.identifiable_object_hook_by_form_type_provider:
     alias: PrestaShop\PrestaShop\Core\Hook\Provider\IdentifiableObjectHookByFormTypeProvider
     deprecated:

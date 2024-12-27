@@ -343,7 +343,7 @@ class ProductLazyArrayTest extends TestCase
                     'allow_oosp' => OutOfStockType::OUT_OF_STOCK_AVAILABLE,
                 ]
             ),
-            self::PRODUCT_DELIVERY_TIME_OOSBOA,
+            null,
         ];
     }
 

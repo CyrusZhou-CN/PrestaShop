@@ -59,6 +59,7 @@ use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductId;
 use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductType;
 use PrestaShop\PrestaShop\Core\Domain\Shop\Exception\ShopAssociationNotFound;
 use PrestaShop\PrestaShop\Core\Domain\Shop\Exception\ShopGroupAssociationNotFound;
+use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopCollection;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopGroupId;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopId;
@@ -238,6 +239,10 @@ class ProductRepository extends AbstractMultiShopObjectModelRepository
 
         if ($shopConstraint->forAllShops()) {
             return $this->getProductByDefaultShop($productId);
+        }
+
+        if ($shopConstraint instanceof ShopCollection && $shopConstraint->hasShopIds()) {
+            return $this->getProductByShopId($productId, $shopConstraint->getShopIds()[0]);
         }
 
         return $this->getProductByShopId($productId, $shopConstraint->getShopId());
@@ -975,6 +980,10 @@ class ProductRepository extends AbstractMultiShopObjectModelRepository
 
         if ($shopConstraint->forAllShops()) {
             return $this->getAssociatedShopIds($productId);
+        }
+
+        if ($shopConstraint instanceof ShopCollection && $shopConstraint->hasShopIds()) {
+            return $shopConstraint->getShopIds();
         }
 
         return [$shopConstraint->getShopId()];
