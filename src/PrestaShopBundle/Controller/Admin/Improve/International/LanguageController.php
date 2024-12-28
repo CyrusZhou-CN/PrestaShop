@@ -182,18 +182,14 @@ class LanguageController extends PrestaShopAdminController
             }
         }
 
-        /** @var EditableLanguage $editableLanguage */
-        $editableLanguage = $this->dispatchQuery(new GetLanguageForEditing((int) $languageId));
-
         return $this->render('@PrestaShop/Admin/Improve/International/Language/edit.html.twig', [
             'languageForm' => $languageForm->createView(),
-            'editableLanguage' => $editableLanguage,
             'help_link' => $this->generateSidebarLink($request->attributes->get('_legacy_controller')),
             'enableSidebar' => true,
             'layoutTitle' => $this->trans(
                 'Editing language %name%',
                 [
-                    '%name%' => $editableLanguage->getName(),
+                    '%name%' => $languageForm->get('name')->getData(),
                 ],
                 'Admin.Navigation.Menu'
             ),

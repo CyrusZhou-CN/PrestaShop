@@ -42,6 +42,7 @@ use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceExce
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\Filesystem\Filesystem as SfFileSystem;
 use Symfony\Component\Finder\Finder;
+use Twig\Environment;
 
 abstract class ModuleCore implements ModuleInterface
 {
@@ -3540,21 +3541,52 @@ abstract class ModuleCore implements ModuleInterface
      *
      * @param string $serviceName
      *
-     * @return object|false If a container is not available it returns false
+     * @return object|null If a container is not available it returns false
      *
      * @throws ServiceCircularReferenceException When a circular reference is detected
      * @throws ServiceNotFoundException When the service is not defined
      * @throws Exception
      */
-    public function get($serviceName)
+    public function get(string $serviceName): ?object
     {
+        if ($serviceName === 'twig') {
+            trigger_deprecation('prestashop/prestashop', '9.0', 'Load Twig using $this->getTwig().');
+
+            return $this->getTwig();
+        }
+
         try {
             $container = $this->getContainer();
-        } catch (ContainerNotFoundException $e) {
-            return false;
+        } catch (ContainerNotFoundException) {
+            return null;
         }
 
         return $container->get($serviceName);
+    }
+
+    /**
+     * Check if the container has the requested service, it prevents throwing an ecception when
+     * trying to get a service not defined.
+     *
+     * @param string $serviceName
+     *
+     * @return bool
+     */
+    public function has(string $serviceName): bool
+    {
+        if ($serviceName === 'twig') {
+            trigger_deprecation('prestashop/prestashop', '9.0', 'Load Twig using $this->getTwig().');
+
+            return $this->getTwig() !== null;
+        }
+
+        try {
+            $container = $this->getContainer();
+        } catch (ContainerNotFoundException) {
+            return false;
+        }
+
+        return $container->has($serviceName);
     }
 
     /**
@@ -3577,6 +3609,15 @@ abstract class ModuleCore implements ModuleInterface
         }
 
         return $this->container;
+    }
+
+    public function getTwig(): ?Environment
+    {
+        if (method_exists($this->context->controller, 'getTwig')) {
+            return $this->context->controller->getTwig();
+        }
+
+        return null;
     }
 
     /**

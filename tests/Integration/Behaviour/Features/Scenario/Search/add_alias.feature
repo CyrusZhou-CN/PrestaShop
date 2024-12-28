@@ -27,7 +27,7 @@ Feature: Add basic alias from Back Office (BO)
       | large | true   |
       | small | false  |
 
-  Scenario: I add alises for one search term for the second time
+  Scenario: I add aliases for one search term for the second time
     Given following aliases should exist:
       | search | alias  | active |
       | big    | large  | true   |
@@ -45,6 +45,21 @@ Feature: Add basic alias from Back Office (BO)
       | large   | true   |
       | small   | false  |
       | so biig | true   |
+
+  Scenario: I add aliases for one search term for the second time with different active status
+    Given following aliases should exist:
+      | search | alias   | active |
+      | big    | large   | true   |
+      | big    | small   | false  |
+      | big    | so biig | true   |
+    When I add a search term "big" with following aliases:
+      | alias     | active |
+      | so biig   | false  |
+    Then I should have the following aliases for search term "big":
+      | alias   | active |
+      | large   | true   |
+      | small   | false  |
+      | so biig | false  |
 
   Scenario: I add alias already used by another search term
     Given following aliases should exist:

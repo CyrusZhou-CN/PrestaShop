@@ -42,6 +42,7 @@ use Shop;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Tests\Integration\Utility\ContextMockerTrait;
+use Twig\Environment;
 
 abstract class ContextStateTestCase extends TestCase
 {
@@ -131,6 +132,7 @@ abstract class ContextStateTestCase extends TestCase
                 'admin-dev',
                 false,
                 '9.0.0',
+                $this->createMock(Environment::class),
             ])
         ;
 

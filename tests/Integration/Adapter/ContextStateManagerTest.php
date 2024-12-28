@@ -34,6 +34,7 @@ use Shop;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Tests\TestCase\ContextStateTestCase;
+use Twig\Environment;
 
 class ContextStateManagerTest extends ContextStateTestCase
 {
@@ -81,6 +82,7 @@ class ContextStateManagerTest extends ContextStateTestCase
             'admin-dev',
             false,
             '9.0.0',
+            $this->createMock(Environment::class),
         );
 
         $this->legacyControllerContext2 = new LegacyControllerContext(
@@ -100,6 +102,7 @@ class ContextStateManagerTest extends ContextStateTestCase
             'admin-dev',
             false,
             '9.0.0',
+            $this->createMock(Environment::class),
         );
     }
 

@@ -38,6 +38,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Tests\Unit\PrestaShopBundle\EventListener\ContextEventListenerTestCase;
+use Twig\Environment;
 
 class LegacyControllerContextListenerTest extends ContextEventListenerTestCase
 {
@@ -100,6 +101,7 @@ class LegacyControllerContextListenerTest extends ContextEventListenerTestCase
             $this->createMock(LanguageContext::class),
             'admin-dev',
             '9.0.0',
+            $this->createMock(Environment::class)
         );
     }
 }

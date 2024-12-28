@@ -104,7 +104,7 @@ class ProductCategoryUpdater
         $newCategoryIds = $this->formatCategoryIdsList($newCategoryIds, $defaultCategoryId);
         $this->assertCategoriesExists($newCategoryIds);
 
-        // Get curren categories based on the provided shop constraint
+        // Get current categories based on the provided shop constraint
         $this->deleteCategoriesAssociations($productId, $newCategoryIds, $shopConstraint);
         $this->categoryRepository->addProductAssociations($productId, $newCategoryIds);
         $this->updateDefaultCategory($productId, $defaultCategoryId, $shopConstraint);

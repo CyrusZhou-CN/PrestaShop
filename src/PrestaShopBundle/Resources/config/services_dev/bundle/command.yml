@@ -5,6 +5,7 @@ services:
   PrestaShopBundle\Command\AppendConfigurationFileHooksListCommand:
     arguments:
       - '%kernel.environment%'
+      - '@prestashop.core.hook.extractor.hook_extractor'
       - '@prestashop.adapter.legacy.context'
       - '@prestashop.core.hook.provider.grid_definition_hook_by_service_ids_provider'
       - '@prestashop.core.hook.provider.identifiable_object_hook_by_form_type_provider'
