@@ -44,6 +44,8 @@ use Throwable;
  */
 final class SymfonyCacheClearer implements CacheClearerInterface
 {
+    public const MANUAL_REMOVAL_TRIALS = 5;
+
     private bool $clearCacheRequested = false;
 
     public function __construct(
@@ -106,7 +108,7 @@ final class SymfonyCacheClearer implements CacheClearerInterface
                             exec($commandLine, $output, $result);
 
                             if ($result !== 0) {
-                                $this->logger->error('SymfonyCacheClearer: Could not clear cache for ' . $applicationKernel->getAppId() . ' env ' . $environment . 'output: ' . var_export($output, true));
+                                $this->logger->error('SymfonyCacheClearer: Could not clear cache for ' . $applicationKernel->getAppId() . ' env ' . $environment . ' result: ' . $result . ' output: ' . var_export($output, true));
                                 $this->manualClearCache($cacheDir);
                                 $this->unlockOtherCache($kernel, $applicationKernel->getEnvironment(), $applicationKernel->getAppId());
                                 continue;
@@ -136,7 +138,7 @@ final class SymfonyCacheClearer implements CacheClearerInterface
                             exec($commandLine, $output, $result);
 
                             if ($result !== 0) {
-                                $this->logger->error('SymfonyCacheClearer: Could not warm up cache for ' . $applicationKernel->getAppId() . ' env ' . $environment . 'output: ' . var_export($output, true));
+                                $this->logger->error('SymfonyCacheClearer: Could not warm up cache for ' . $applicationKernel->getAppId() . ' env ' . $environment . ' result: ' . $result . ' output: ' . var_export($output, true));
                             } else {
                                 $this->logger->info('SymfonyCacheClearer: Successfully warmed up cache for ' . $applicationKernel->getAppId() . ' env ' . $environment);
                             }
@@ -158,11 +160,22 @@ final class SymfonyCacheClearer implements CacheClearerInterface
 
     protected function manualClearCache(string $cacheDir): void
     {
-        try {
-            $this->logger->info('SymfonyCacheClearer: Trying manual removal of cache folder ' . $cacheDir);
-            $this->filesystem->remove($cacheDir);
-        } catch (Throwable) {
-            // Do nothing just prevent the whole loop from failing
+        for ($i = 0; $i < self::MANUAL_REMOVAL_TRIALS; ++$i) {
+            try {
+                $this->logger->info(sprintf('SymfonyCacheClearer: Trying manual removal %d/%d of cache folder %s', $i + 1, self::MANUAL_REMOVAL_TRIALS, $cacheDir));
+                $this->filesystem->remove($cacheDir);
+                if (!is_dir($cacheDir)) {
+                    break;
+                }
+            } catch (Throwable $e) {
+                $this->logger->error(sprintf('Error while removing cache folder: %s', $e->getMessage()));
+            }
+        }
+
+        if (is_dir($cacheDir)) {
+            $this->logger->error(sprintf('Folder cache %s still present even after %d manual removals', $cacheDir, self::MANUAL_REMOVAL_TRIALS));
+        } else {
+            $this->logger->info(sprintf('Cache folder %s successfully cleared manually', $cacheDir));
         }
     }
 

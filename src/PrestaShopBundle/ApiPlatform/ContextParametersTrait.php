@@ -32,6 +32,8 @@ use PrestaShop\PrestaShop\Core\Context\ApiClientContext;
 use PrestaShop\PrestaShop\Core\Context\CurrencyContext;
 use PrestaShop\PrestaShop\Core\Context\LanguageContext;
 use PrestaShop\PrestaShop\Core\Context\ShopContext;
+use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopCollection;
+use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopId;
 
 trait ContextParametersTrait
 {
@@ -49,6 +51,7 @@ trait ContextParametersTrait
                 'shopConstraint' => [
                     'shopId' => $shopConstraint->getShopId()?->getValue(),
                     'shopGroupId' => $shopConstraint->getShopGroupId()?->getValue(),
+                    'shopIds' => $shopConstraint instanceof ShopCollection ? array_map(fn (ShopId $shopId) => $shopId->getValue(), $shopConstraint->getShopIds()) : null,
                     'isStrict' => $shopConstraint->isStrict(),
                 ],
                 'shopId' => $this->shopContext->getId(),

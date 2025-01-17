@@ -223,8 +223,8 @@ describe('API : GET /languages', async () => {
         const langLanguageCode = await boLanguagesPage.getTextColumnFromTable(page, 1, 'language_code');
         expect(langLanguageCode).to.equal(jsonResponse.items[idxItem].languageCode);
 
-        // @todo : https://github.com/PrestaShop/PrestaShop/issues/35860
-        // Check `jsonResponse.items[idxItem].locale`
+        const langLocale = await boLanguagesPage.getTextColumnFromTable(page, 1, 'locale');
+        expect(langLocale).to.equal(jsonResponse.items[idxItem].locale);
 
         const langDateFormat = await boLanguagesPage.getTextColumnFromTable(page, 1, 'date_format_lite');
         expect(langDateFormat).to.equal(jsonResponse.items[idxItem].dateFormat);

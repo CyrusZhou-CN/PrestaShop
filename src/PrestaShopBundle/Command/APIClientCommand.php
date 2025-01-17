@@ -30,6 +30,7 @@ use Doctrine\ORM\NoResultException;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Domain\ApiClient\Command\AddApiClientCommand;
 use PrestaShop\PrestaShop\Core\Domain\ApiClient\Command\DeleteApiClientCommand;
+use PrestaShop\PrestaShop\Core\Domain\ApiClient\Command\ForceApiClientSecretCommand;
 use PrestaShop\PrestaShop\Core\Domain\ApiClient\ValueObject\CreatedApiClient;
 use PrestaShopBundle\ApiPlatform\Scopes\ApiResourceScopesExtractorInterface;
 use PrestaShopBundle\Entity\Repository\ApiClientRepository;
@@ -74,6 +75,7 @@ class APIClientCommand extends Command
             ->addOption('scopes', null, InputOption::VALUE_REQUIRED, 'Client list of scopes separated by commas', [])
             ->addOption('secret-only', null, InputOption::VALUE_NONE, 'Only output secret value after creation')
             ->addOption('timeout', null, InputOption::VALUE_REQUIRED, 'Timeout in seconds (default: 3600)', 3600)
+            ->addOption('secret', null, InputOption::VALUE_OPTIONAL, 'Force secret value (default: auto generated)', null)
         ;
     }
 
@@ -137,16 +139,27 @@ class APIClientCommand extends Command
 
         /** @var CreatedApiClient $createdApiClient */
         $createdApiClient = $this->commandBus->handle($command);
+        $clientSecret = $createdApiClient->getSecret();
+
+        $forcedSecret = $input->getOption('secret');
+        if (!empty($forcedSecret)) {
+            $command = new ForceApiClientSecretCommand(
+                $createdApiClient->getApiClientId()->getValue(),
+                $forcedSecret,
+            );
+            $this->commandBus->handle($command);
+            $clientSecret = $forcedSecret;
+        }
 
         if ($input->getOption('secret-only')) {
-            $io->writeln($createdApiClient->getSecret());
+            $io->writeln($clientSecret);
         } else {
             $io->success('Successfully create a new API Client #' . $createdApiClient->getApiClientId()->getValue());
             $io->table(
                 ['Client field', 'Value'],
                 [
                     ['Client ID', $clientId],
-                    ['Client secret', $createdApiClient->getSecret()],
+                    ['Client secret', $clientSecret],
                     ['Name', $clientName],
                     ['Description', $clientDescription],
                     ['Timeout', $clientTimeout],

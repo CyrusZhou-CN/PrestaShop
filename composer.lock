@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2665f8f54a56c2e57c743d33a485c655",
+    "content-hash": "4f87d94a9c159f54aacef90733f694c4",
     "packages": [
         {
             "name": "api-platform/core",
@@ -5202,16 +5202,16 @@
         },
         {
             "name": "prestashop/ps_apiresources",
-            "version": "dev-dev",
+            "version": "dev-product-multishop-validation",
             "source": {
                 "type": "git",
-                "url": "https://github.com/PrestaShop/ps_apiresources.git",
-                "reference": "284354c65866a4a22fa15ec0b653f5622742cdac"
+                "url": "https://github.com/jolelievre/ps_apiresources.git",
+                "reference": "bb3093e36d8c8586847426d97a8aaf3478556309"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShop/ps_apiresources/zipball/284354c65866a4a22fa15ec0b653f5622742cdac",
-                "reference": "284354c65866a4a22fa15ec0b653f5622742cdac",
+                "url": "https://api.github.com/repos/jolelievre/ps_apiresources/zipball/bb3093e36d8c8586847426d97a8aaf3478556309",
+                "reference": "bb3093e36d8c8586847426d97a8aaf3478556309",
                 "shasum": ""
             },
             "require": {
@@ -5223,7 +5223,6 @@
                 "phpunit/phpunit": "^10",
                 "prestashop/php-dev-tools": "^4.3"
             },
-            "default-branch": true,
             "type": "prestashop-module",
             "autoload": {
                 "psr-4": {
@@ -5265,9 +5264,9 @@
             "description": "PrestaShop - API Resources",
             "homepage": "https://github.com/PrestaShop/ps_apiresources",
             "support": {
-                "source": "https://github.com/PrestaShop/ps_apiresources/tree/dev"
+                "source": "https://github.com/jolelievre/ps_apiresources/tree/product-multishop-validation"
             },
-            "time": "2024-12-19T17:17:32+00:00"
+            "time": "2024-12-31T17:28:49+00:00"
         },
         {
             "name": "prestashop/ps_banner",

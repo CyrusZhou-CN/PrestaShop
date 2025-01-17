@@ -175,6 +175,7 @@ describe('API : POST /product', async () => {
         'active',
         'names',
         'descriptions',
+        'shopIds',
       );
     });
 
@@ -185,6 +186,7 @@ describe('API : POST /product', async () => {
       expect(jsonResponse.type).to.equal(createProduct.type);
       expect(jsonResponse.names[dataLanguages.english.locale]).to.equal(createProduct.name);
       expect(jsonResponse.names[dataLanguages.french.locale]).to.equal(createProduct.nameFR);
+      expect(jsonResponse.shopIds).to.deep.equal([1]);
       // @todo : https://github.com/PrestaShop/PrestaShop/issues/35619
       //expect(jsonResponse.descriptions[dataLanguages.english.id]).to.equal(createProduct.description);
       //expect(jsonResponse.descriptions[dataLanguages.french.id]).to.equal(createProduct.descriptionFR);

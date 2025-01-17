@@ -234,6 +234,7 @@ describe('API : GET /product/{productId}', async () => {
         'active',
         'names',
         'descriptions',
+        'shopIds',
       );
     });
 
@@ -277,6 +278,16 @@ describe('API : GET /product/{productId}', async () => {
       expect(jsonResponse.descriptions).to.be.a('object');
       expect(jsonResponse.descriptions[dataLanguages.english.locale]).to.be.equal(productDescriptionEn);
       expect(jsonResponse.descriptions[dataLanguages.french.locale]).to.be.equal(productDescriptionFr);
+    });
+
+    it('should check the JSON Response : `shopIds`', async function () {
+      await testContext.addContextItem(this, 'testIdentifier', 'checkResponseShopIds', baseContext);
+
+      expect(jsonResponse).to.have.property('shopIds');
+      expect(jsonResponse.shopIds).to.be.a('array');
+      expect(jsonResponse.shopIds).to.be.deep.equal([1]);
+      expect(jsonResponse.shopIds[0]).to.be.a('number');
+      expect(jsonResponse.shopIds[0]).to.be.equal(1);
     });
   });
 

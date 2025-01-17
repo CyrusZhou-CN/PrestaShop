@@ -98,6 +98,8 @@ describe('BO - International - Languages : Sort and pagination', async () => {
       {args: {testIdentifier: 'sortByIsoCodeDesc', sortBy: 'iso_code', sortDirection: 'desc'}},
       {args: {testIdentifier: 'sortByLanguageCodeAsc', sortBy: 'language_code', sortDirection: 'asc'}},
       {args: {testIdentifier: 'sortByLanguageCodeDesc', sortBy: 'language_code', sortDirection: 'desc'}},
+      {args: {testIdentifier: 'sortByLocaleAsc', sortBy: 'locale', sortDirection: 'asc'}},
+      {args: {testIdentifier: 'sortByLocaleDesc', sortBy: 'locale', sortDirection: 'desc'}},
       {args: {testIdentifier: 'sortByDateFormatLiteAsc', sortBy: 'date_format_lite', sortDirection: 'asc'}},
       {args: {testIdentifier: 'sortByDateFormatLiteDesc', sortBy: 'date_format_lite', sortDirection: 'desc'}},
       {args: {testIdentifier: 'sortByDateFormatFullAsc', sortBy: 'date_format_full', sortDirection: 'asc'}},

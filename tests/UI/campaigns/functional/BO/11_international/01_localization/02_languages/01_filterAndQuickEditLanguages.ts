@@ -116,6 +116,15 @@ describe('BO - International - Languages : Filter and quick edit languages', asy
       {
         args:
           {
+            testIdentifier: 'filterLocale',
+            filterType: 'input',
+            filterBy: 'locale',
+            filterValue: dataLanguages.english.locale,
+          },
+      },
+      {
+        args:
+          {
             testIdentifier: 'filterDateFormatLite',
             filterType: 'input',
             filterBy: 'date_format_lite',

@@ -44,6 +44,7 @@ use PrestaShop\PrestaShop\Core\Domain\Product\Command\AddProductCommand;
 use PrestaShop\PrestaShop\Core\Domain\Product\Query\GetProductForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductId;
 use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductType;
+use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopCollection;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
 use PrestaShopBundle\ApiPlatform\Serializer\DomainSerializer;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -87,10 +88,10 @@ class DomainSerializerTest extends KernelTestCase
         $serializer = self::getContainer()->get(DomainSerializer::class);
 
         // We don't use @dataProvider because the class DB setup was messy, so we do it manually
-        foreach ($this->getExpectedDenormalizedData() as $denormalizedData) {
+        foreach ($this->getExpectedDenormalizedData() as $useCase => $denormalizedData) {
             list($dataToDenormalize, $denormalizedObject) = $denormalizedData;
             $normalizationMapping = $denormalizedData[2] ?? [];
-            self::assertEquals($denormalizedObject, $serializer->denormalize($dataToDenormalize, get_class($denormalizedObject), null, [DomainSerializer::NORMALIZATION_MAPPING => $normalizationMapping]));
+            self::assertEquals($denormalizedObject, $serializer->denormalize($dataToDenormalize, get_class($denormalizedObject), null, [DomainSerializer::NORMALIZATION_MAPPING => $normalizationMapping]), $useCase);
         }
     }
 
@@ -275,6 +276,23 @@ class DomainSerializerTest extends KernelTestCase
             ShopConstraint::shop(51, true),
         ];
 
+        yield 'shop collections' => [
+            [
+                'shopGroupId' => null,
+                'shopId' => null,
+                'shopIds' => [3, 4],
+                'isStrict' => false,
+            ],
+            ShopCollection::shops([3, 4]),
+        ];
+
+        yield 'shop collections list only specified' => [
+            [
+                'shopIds' => [3, 4],
+            ],
+            ShopCollection::shops([3, 4]),
+        ];
+
         yield 'add product command' => [
             [
                 'productType' => ProductType::TYPE_STANDARD,
@@ -318,10 +336,10 @@ class DomainSerializerTest extends KernelTestCase
         $serializer = self::getContainer()->get(DomainSerializer::class);
 
         // We don't use @dataProvider because the class DB setup was messy, so we do it manually
-        foreach ($this->getNormalizationData() as $normalizationData) {
+        foreach ($this->getNormalizationData() as $useCase => $normalizationData) {
             list($dataToNormalize, $expectedNormalizedData) = $normalizationData;
             $normalizationMapping = $normalizationData[2] ?? [];
-            self::assertEquals($expectedNormalizedData, $serializer->normalize($dataToNormalize, null, [DomainSerializer::NORMALIZATION_MAPPING => $normalizationMapping]));
+            self::assertEquals($expectedNormalizedData, $serializer->normalize($dataToNormalize, null, [DomainSerializer::NORMALIZATION_MAPPING => $normalizationMapping]), $useCase);
         }
     }
 
@@ -453,6 +471,7 @@ class DomainSerializerTest extends KernelTestCase
             [
                 'shopId' => 42,
                 'shopGroupId' => null,
+                'shopIds' => null,
                 'isStrict' => false,
             ],
         ];
@@ -462,6 +481,7 @@ class DomainSerializerTest extends KernelTestCase
             [
                 'shopId' => null,
                 'shopGroupId' => 42,
+                'shopIds' => null,
                 'isStrict' => false,
             ],
         ];
@@ -471,6 +491,7 @@ class DomainSerializerTest extends KernelTestCase
             [
                 'shopId' => null,
                 'shopGroupId' => null,
+                'shopIds' => null,
                 'isStrict' => false,
             ],
         ];
@@ -480,7 +501,18 @@ class DomainSerializerTest extends KernelTestCase
             [
                 'shopId' => null,
                 'shopGroupId' => null,
+                'shopIds' => null,
                 'isStrict' => true,
+            ],
+        ];
+
+        yield 'normalize collection shops' => [
+            ShopCollection::shops([3, 4]),
+            [
+                'shopId' => null,
+                'shopGroupId' => null,
+                'shopIds' => [3, 4],
+                'isStrict' => false,
             ],
         ];
     }
