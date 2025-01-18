@@ -77,7 +77,7 @@ describe('BO - Login : Check links', async () => {
     page = await boLoginPage.clickOnTwitterLink(page);
 
     const url = await boLoginPage.getCurrentURL(page);
-    expect(url).to.equal('https://x.com/i/flow/login?redirect_after_login=/PrestaShop');
+    expect(url).to.equal('https://x.com/PrestaShop?mx=2');
   });
 
   it('should close the twitter page', async function () {
