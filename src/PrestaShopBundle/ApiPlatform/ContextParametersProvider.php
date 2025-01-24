@@ -35,14 +35,21 @@ use PrestaShop\PrestaShop\Core\Context\ShopContext;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopCollection;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopId;
 
-trait ContextParametersTrait
+/**
+ * Provides an array containing the values from PrestaShop context services so they can be accessed
+ * and used via the mapping.
+ */
+class ContextParametersProvider
 {
-    protected readonly ShopContext $shopContext;
-    protected readonly LanguageContext $languageContext;
-    protected readonly CurrencyContext $currencyContext;
-    protected readonly ApiClientContext $apiClientContext;
+    public function __construct(
+        protected readonly ShopContext $shopContext,
+        protected readonly LanguageContext $languageContext,
+        protected readonly CurrencyContext $currencyContext,
+        protected readonly ApiClientContext $apiClientContext,
+    ) {
+    }
 
-    protected function getContextParameters(): array
+    public function getContextParameters(): array
     {
         $shopConstraint = $this->shopContext->getShopConstraint();
 

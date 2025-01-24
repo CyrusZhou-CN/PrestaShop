@@ -28,11 +28,15 @@ declare(strict_types=1);
 
 namespace Tests\Integration\ApiPlatform\Serializer;
 
+use ApiPlatform\Metadata\HttpOperation;
 use DateTimeImmutable;
 use PrestaShop\Decimal\DecimalNumber;
-use PrestaShop\Module\APIResources\ApiPlatform\Resources\CustomerGroup;
+use PrestaShop\Module\APIResources\ApiPlatform\Resources\ApiClient\ApiClientList;
 use PrestaShop\Module\APIResources\ApiPlatform\Resources\Hook;
 use PrestaShop\Module\APIResources\ApiPlatform\Resources\Product\Product;
+use PrestaShop\PrestaShop\Core\Context\CurrencyContextBuilder;
+use PrestaShop\PrestaShop\Core\Context\LanguageContextBuilder;
+use PrestaShop\PrestaShop\Core\Context\ShopContextBuilder;
 use PrestaShop\PrestaShop\Core\Domain\ApiClient\ValueObject\CreatedApiClient;
 use PrestaShop\PrestaShop\Core\Domain\CartRule\Command\EditCartRuleCommand;
 use PrestaShop\PrestaShop\Core\Domain\CartRule\ValueObject\CartRuleAction;
@@ -40,25 +44,43 @@ use PrestaShop\PrestaShop\Core\Domain\Customer\Group\Command\AddCustomerGroupCom
 use PrestaShop\PrestaShop\Core\Domain\Customer\Group\Query\GetCustomerGroupForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Customer\Group\QueryResult\EditableCustomerGroup;
 use PrestaShop\PrestaShop\Core\Domain\Customer\Group\ValueObject\GroupId;
+use PrestaShop\PrestaShop\Core\Domain\Module\Command\UploadModuleCommand;
 use PrestaShop\PrestaShop\Core\Domain\Product\Command\AddProductCommand;
 use PrestaShop\PrestaShop\Core\Domain\Product\Query\GetProductForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductId;
 use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductType;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopCollection;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
-use PrestaShopBundle\ApiPlatform\Serializer\DomainSerializer;
+use PrestaShopBundle\ApiPlatform\Metadata\LocalizedValue;
+use PrestaShopBundle\ApiPlatform\NormalizationMapper;
+use PrestaShopBundle\ApiPlatform\Serializer\CQRSApiSerializer;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\HttpFoundation\File\File;
 use Tests\Integration\Utility\LanguageTrait;
 use Tests\Resources\ApiPlatform\Resources\LocalizedResource;
 use Tests\Resources\Resetter\LanguageResetter;
+use Tests\Resources\ResourceResetter;
 
-class DomainSerializerTest extends KernelTestCase
+class CQRSApiSerializerTest extends KernelTestCase
 {
     use LanguageTrait;
 
     protected const EN_LANG_ID = 1;
 
     protected static ?int $frenchLangId = null;
+
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        // BAckup modules because language installation modifies them
+        (new ResourceResetter())->backupTestModules();
+
+        // Reset languages and reinstall the french one to make sure we have the correct data in DB
+        // The self::$frenchLangId was initialized early with the data providers but in the meantime the DB may have been cleaned
+        // by other tests, we reset it and create new fr language, since the DB increment value is reset the ID should be 2
+        LanguageResetter::resetLanguages();
+        self::$frenchLangId = self::addLanguageByLocale('fr-FR');
+    }
 
     public static function tearDownAfterClass(): void
     {
@@ -67,42 +89,63 @@ class DomainSerializerTest extends KernelTestCase
         LanguageResetter::resetLanguages();
     }
 
-    public static function setUpBeforeClass(): void
+    protected function setUp(): void
     {
-        parent::setUpBeforeClass();
-        self::$frenchLangId = null;
-        LanguageResetter::resetLanguages();
+        parent::setUp();
+
+        /** @var ShopContextBuilder $shopContextBuilder */
+        $shopContextBuilder = self::getContainer()->get('test_shop_context_builder');
+        $shopContextBuilder->setShopConstraint(ShopConstraint::shop(1));
+        $shopContextBuilder->setShopId(1);
+
+        /** @var LanguageContextBuilder $languageContextBuilder */
+        $languageContextBuilder = self::getContainer()->get('test_language_context_builder');
+        $languageContextBuilder->setLanguageId(1);
+        $languageContextBuilder->setDefaultLanguageId(1);
+
+        /** @var CurrencyContextBuilder $currencyContextBuilder */
+        $currencyContextBuilder = self::getContainer()->get('test_currency_context_builder');
+        $currencyContextBuilder->setCurrencyId(1);
     }
 
     protected static function getFrenchId(): int
     {
         if (empty(self::$frenchLangId)) {
+            LanguageResetter::resetLanguages();
             self::$frenchLangId = self::addLanguageByLocale('fr-FR');
         }
 
         return self::$frenchLangId;
     }
 
+    public function testDecoration(): void
+    {
+        // Test that CQRSApiSerializer correctly decorates the API Platform serializer
+        $apiPlatformSerializer = self::getContainer()->get('api_platform.serializer');
+        $this->assertTrue(is_a($apiPlatformSerializer, CQRSApiSerializer::class));
+
+        // But we don't want to impact the global serializer
+        $globalSerializer = self::getContainer()->get('serializer');
+        $this->assertFalse(is_a($globalSerializer, CQRSApiSerializer::class));
+    }
+
     public function testDenormalize(): void
     {
-        $serializer = self::getContainer()->get(DomainSerializer::class);
+        $serializer = self::getContainer()->get(CQRSApiSerializer::class);
 
-        // We don't use @dataProvider because the class DB setup was messy, so we do it manually
-        foreach ($this->getExpectedDenormalizedData() as $useCase => $denormalizedData) {
-            list($dataToDenormalize, $denormalizedObject) = $denormalizedData;
-            $normalizationMapping = $denormalizedData[2] ?? [];
-            self::assertEquals($denormalizedObject, $serializer->denormalize($dataToDenormalize, get_class($denormalizedObject), null, [DomainSerializer::NORMALIZATION_MAPPING => $normalizationMapping]), $useCase);
+        foreach ($this->getExpectedDenormalizedData() as $useCase => $denormalizationData) {
+            list($dataToDenormalize, $denormalizedObject, $normalizationMapping, $type, $extraContext) = array_pad($denormalizationData, 5, null);
+            $context = [NormalizationMapper::NORMALIZATION_MAPPING => $normalizationMapping ?? []];
+            $type = $type ?: get_class($denormalizedObject);
+            if (!empty($extraContext)) {
+                $context = array_merge($context, $extraContext);
+            }
+
+            self::assertEquals($denormalizedObject, $serializer->denormalize($dataToDenormalize, $type, null, $context), $useCase);
         }
     }
 
-    public function testDenormalizeWithEmptyValues(): void
-    {
-        $serializer = self::getContainer()->get(DomainSerializer::class);
-        $value = $serializer->denormalize(null, Product::class, null, []);
-        self::assertEquals(new Product(), $value);
-    }
-
-    public function getExpectedDenormalizedData()
+    public function getExpectedDenormalizedData(): iterable
     {
         $localizedResource = new LocalizedResource([
             'en-US' => 'english link',
@@ -205,11 +248,6 @@ class DomainSerializerTest extends KernelTestCase
                 // 'cartRuleAction' => ['freeShipping' => true, 'giftProduct' => ['productId': 1], 'discount' => ['amountDiscount' => ['amount' => 10]]]...
             ],
             $editCartRuleCommand,
-        ];
-
-        yield 'null value returns an empty object' => [
-            null,
-            new CustomerGroup(),
         ];
 
         $customerGroupQuery = new GetCustomerGroupForEditing(51);
@@ -329,29 +367,104 @@ class DomainSerializerTest extends KernelTestCase
             $hook,
             ['[id_hook]' => '[id]'],
         ];
+
+        $command = new AddProductCommand(
+            ProductType::TYPE_STANDARD,
+            // Shop ID is passed via context
+            1,
+            // Localized values are indexed by ID
+            [
+                self::EN_LANG_ID => 'english name',
+                self::getFrenchId() => 'nom français',
+            ]
+        );
+        $operation = new HttpOperation(extraProperties: [
+            'CQRSCommandMapping' => [
+                '[_context][shopId]' => '[shopId]',
+                '[type]' => '[productType]',
+                '[names]' => '[localizedNames]',
+            ]]
+        );
+        yield 'denormalize input with API resource type initially but input set to CQRS command, mapping in operation' => [
+            [
+                'names' => [
+                    'en-US' => 'english name',
+                    'fr-FR' => 'nom français',
+                ],
+                'type' => 'standard',
+            ],
+            $command,
+            [],
+            Product::class,
+            [
+                'input' => [
+                    'class' => AddProductCommand::class,
+                ],
+                'operation' => $operation,
+            ],
+        ];
+
+        $apiClientListItem = new ApiClientList();
+        $apiClientListItem->apiClientId = 42;
+        $apiClientListItem->clientId = 'clientId';
+        $apiClientListItem->clientName = 'clientName';
+        $apiClientListItem->description = 'description';
+        $apiClientListItem->externalIssuer = null;
+        $apiClientListItem->enabled = true;
+        $apiClientListItem->lifetime = 3600;
+        yield 'list item with tiny int that must be converted into boolean value' => [
+            [
+                'apiClientId' => 42,
+                'clientId' => 'clientId',
+                'clientName' => 'clientName',
+                'description' => 'description',
+                'externalIssuer' => null,
+                'enabled' => 1,
+                'lifetime' => 3600,
+            ],
+            $apiClientListItem,
+            [],
+            null,
+            [
+                // Required context option to enable the boolean casting
+                CQRSApiSerializer::CAST_BOOL => true,
+            ],
+        ];
+
+        $uploadModuleCommand = new UploadModuleCommand(__DIR__ . '/../../../Resources/assets/new_logo.jpg');
+        yield 'command with uploaded file are injected thanks to command mapping' => [
+            [
+                'archive' => new File(__DIR__ . '/../../../Resources/assets/new_logo.jpg'),
+            ],
+            $uploadModuleCommand,
+            [
+                '[archive].pathName' => '[source]',
+            ],
+        ];
     }
 
     public function testNormalize(): void
     {
-        $serializer = self::getContainer()->get(DomainSerializer::class);
-
-        // We don't use @dataProvider because the class DB setup was messy, so we do it manually
+        $serializer = self::getContainer()->get(CQRSApiSerializer::class);
         foreach ($this->getNormalizationData() as $useCase => $normalizationData) {
-            list($dataToNormalize, $expectedNormalizedData) = $normalizationData;
-            $normalizationMapping = $normalizationData[2] ?? [];
-            self::assertEquals($expectedNormalizedData, $serializer->normalize($dataToNormalize, null, [DomainSerializer::NORMALIZATION_MAPPING => $normalizationMapping]), $useCase);
+            list($dataToNormalize, $expectedNormalizedData, $normalizationMapping, $extraContext) = array_pad($normalizationData, 4, null);
+            $context = [NormalizationMapper::NORMALIZATION_MAPPING => ($normalizationMapping ?? [])] + ($extraContext ?? []);
+
+            self::assertEquals($expectedNormalizedData, $serializer->normalize($dataToNormalize, null, $context), $useCase);
         }
     }
 
-    public function testNormalizeWithEmptyValues(): void
+    public static function getNormalizationData(): iterable
     {
-        $serializer = self::getContainer()->get(DomainSerializer::class);
-        $value = $serializer->normalize(null, null, []);
-        self::assertNull($value);
-    }
+        $createdApiClient = new CreatedApiClient(42, 'my_secret');
+        yield 'test' => [
+            $createdApiClient,
+            [
+                'apiClientId' => 42,
+                'secret' => 'my_secret',
+            ],
+        ];
 
-    public function getNormalizationData(): iterable
-    {
         $localizedResource = new LocalizedResource([
             'fr-FR' => 'http://mylink.fr',
             'en-US' => 'http://mylink.com',
@@ -361,14 +474,15 @@ class DomainSerializerTest extends KernelTestCase
             self::EN_LANG_ID => 'English name',
         ];
         $localizedResource->descriptions = [
-            'fr-FR' => 'Description française',
+            self::getFrenchId() => 'Description française',
             'en-US' => 'French description',
         ];
         $localizedResource->titles = [
             'fr-FR' => 'Titre français',
-            'en-US' => 'French title',
+            self::EN_LANG_ID => 'French title',
         ];
-        yield 'normalize localized resource' => [
+
+        yield 'normalize localized resource uses locale keys' => [
             $localizedResource,
             [
                 'names' => [
@@ -376,16 +490,16 @@ class DomainSerializerTest extends KernelTestCase
                     self::EN_LANG_ID => 'English name',
                 ],
                 'descriptions' => [
-                    self::getFrenchId() => 'Description française',
-                    self::EN_LANG_ID => 'French description',
+                    'fr-FR' => 'Description française',
+                    'en-US' => 'French description',
                 ],
                 'titles' => [
-                    self::getFrenchId() => 'Titre français',
-                    self::EN_LANG_ID => 'French title',
+                    'fr-FR' => 'Titre français',
+                    'en-US' => 'French title',
                 ],
                 'localizedLinks' => [
-                    self::getFrenchId() => 'http://mylink.fr',
-                    self::EN_LANG_ID => 'http://mylink.com',
+                    'fr-FR' => 'http://mylink.fr',
+                    'en-US' => 'http://mylink.com',
                 ],
             ],
         ];
@@ -418,8 +532,8 @@ class DomainSerializerTest extends KernelTestCase
         $editableCustomerGroup = new EditableCustomerGroup(
             42,
             [
-                1 => 'Group',
-                2 => 'Groupe',
+                self::EN_LANG_ID => 'Group',
+                self::$frenchLangId => 'Groupe',
             ],
             new DecimalNumber('10.67'),
             false,
@@ -433,8 +547,8 @@ class DomainSerializerTest extends KernelTestCase
             [
                 'id' => 42,
                 'localizedNames' => [
-                    1 => 'Group',
-                    2 => 'Groupe',
+                    self::EN_LANG_ID => 'Group',
+                    self::$frenchLangId => 'Groupe',
                 ],
                 'reduction' => 10.67,
                 'displayPriceTaxExcluded' => false,
@@ -450,8 +564,8 @@ class DomainSerializerTest extends KernelTestCase
             [
                 'id' => 42,
                 'localizedNames' => [
-                    1 => 'Group',
-                    2 => 'Groupe',
+                    'en-US' => 'Group',
+                    'fr-FR' => 'Groupe',
                 ],
                 'reduction' => 10.67,
                 'reductionPercent' => 10.67,
@@ -463,6 +577,14 @@ class DomainSerializerTest extends KernelTestCase
             ],
             [
                 '[reduction]' => '[reductionPercent]',
+            ],
+            // Extra context to handle localized values
+            [
+                LocalizedValue::LOCALIZED_VALUE_PARAMETERS => [
+                    'localizedNames' => [
+                        LocalizedValue::NORMALIZED_KEY => LocalizedValue::LOCALE_KEY,
+                    ],
+                ],
             ],
         ];
 

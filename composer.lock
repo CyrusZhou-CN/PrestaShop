@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4f87d94a9c159f54aacef90733f694c4",
+    "content-hash": "57b15323eb7d9f341ff143613d9fd108",
     "packages": [
         {
             "name": "api-platform/core",
@@ -5202,16 +5202,16 @@
         },
         {
             "name": "prestashop/ps_apiresources",
-            "version": "dev-product-multishop-validation",
+            "version": "dev-api-doc",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jolelievre/ps_apiresources.git",
-                "reference": "bb3093e36d8c8586847426d97a8aaf3478556309"
+                "reference": "0d1715e5630f0151b3fad2389d8859b69db41347"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jolelievre/ps_apiresources/zipball/bb3093e36d8c8586847426d97a8aaf3478556309",
-                "reference": "bb3093e36d8c8586847426d97a8aaf3478556309",
+                "url": "https://api.github.com/repos/jolelievre/ps_apiresources/zipball/0d1715e5630f0151b3fad2389d8859b69db41347",
+                "reference": "0d1715e5630f0151b3fad2389d8859b69db41347",
                 "shasum": ""
             },
             "require": {
@@ -5264,9 +5264,9 @@
             "description": "PrestaShop - API Resources",
             "homepage": "https://github.com/PrestaShop/ps_apiresources",
             "support": {
-                "source": "https://github.com/jolelievre/ps_apiresources/tree/product-multishop-validation"
+                "source": "https://github.com/jolelievre/ps_apiresources/tree/api-doc"
             },
-            "time": "2024-12-31T17:28:49+00:00"
+            "time": "2025-01-22T09:11:14+00:00"
         },
         {
             "name": "prestashop/ps_banner",
