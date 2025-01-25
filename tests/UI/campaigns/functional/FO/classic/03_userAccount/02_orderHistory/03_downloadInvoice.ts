@@ -2,9 +2,6 @@ import testContext from '@utils/testContext';
 import {expect} from 'chai';
 import {createOrderByCustomerTest} from '@commonTests/FO/classic/order';
 
-// Import pages
-import {orderHistoryPage} from '@pages/FO/classic/myAccount/orderHistory';
-
 import {
   boDashboardPage,
   boInvoicesPage,
@@ -20,12 +17,12 @@ import {
   foClassicHomePage,
   foClassicLoginPage,
   foClassicMyAccountPage,
+  foClassicMyOrderHistoryPage,
   type Page,
   utilsFile,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
 
-// context
 const baseContext: string = 'functional_FO_classic_userAccount_orderHistory_downloadInvoice';
 
 /*
@@ -160,21 +157,21 @@ describe('FO - Account - Order history : download invoice', async () => {
 
       await foClassicMyAccountPage.goToHistoryAndDetailsPage(page);
 
-      const pageHeaderTitle: string = await orderHistoryPage.getPageTitle(page);
-      expect(pageHeaderTitle).to.equal(orderHistoryPage.pageTitle);
+      const pageHeaderTitle: string = await foClassicMyOrderHistoryPage.getPageTitle(page);
+      expect(pageHeaderTitle).to.equal(foClassicMyOrderHistoryPage.pageTitle);
     });
 
     it('should check that the invoice of the first order in list is visible', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkInvoice', baseContext);
 
-      const isVisible: boolean = await orderHistoryPage.isInvoiceVisible(page, 1);
+      const isVisible: boolean = await foClassicMyOrderHistoryPage.isInvoiceVisible(page, 1);
       expect(isVisible, 'The invoice file is not existing!').to.eq(true);
     });
 
     it('should download the invoice and check the invoice ID', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'downloadInvoice', baseContext);
 
-      const downloadFilePath: string|null = await orderHistoryPage.downloadInvoice(page);
+      const downloadFilePath: string|null = await foClassicMyOrderHistoryPage.downloadInvoice(page);
 
       const exist: boolean = await utilsFile.isTextInPDF(downloadFilePath, fileName);
       expect(exist).to.eq(true);
@@ -183,7 +180,7 @@ describe('FO - Account - Order history : download invoice', async () => {
     it('should check that no invoice is visible for the second order in list', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkNoInvoice', baseContext);
 
-      const isVisible: boolean = await orderHistoryPage.isInvoiceVisible(page, 2);
+      const isVisible: boolean = await foClassicMyOrderHistoryPage.isInvoiceVisible(page, 2);
       expect(isVisible).to.eq(false);
     });
   });

@@ -1,13 +1,10 @@
-// Import utils
 import testContext from '@utils/testContext';
-
-// Import pages
-// Import BO pages
-import viewCustomerPage from '@pages/BO/customers/view';
+import {expect} from 'chai';
 
 import {
   boCustomersPage,
   boCustomersCreatePage,
+  boCustomersViewPage,
   boDashboardPage,
   boLoginPage,
   type BrowserContext,
@@ -17,8 +14,6 @@ import {
   type Page,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
-
-import {expect} from 'chai';
 
 const baseContext: string = 'functional_BO_customers_customers_CRUDCustomer';
 
@@ -159,22 +154,22 @@ describe('BO - Customers - Customers : CRUD Customer in BO', async () => {
 
       await boCustomersPage.goToViewCustomerPage(page, 1);
 
-      const pageTitle = await viewCustomerPage.getPageTitle(page);
-      expect(pageTitle).to.contains(viewCustomerPage.pageTitle(createCustomerName));
+      const pageTitle = await boCustomersViewPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boCustomersViewPage.pageTitle(createCustomerName));
     });
 
     it('should check customer personal information', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkCreatedCustomerInfo', baseContext);
 
-      const cardHeaderText = await viewCustomerPage.getPersonalInformationTitle(page);
+      const cardHeaderText = await boCustomersViewPage.getPersonalInformationTitle(page);
       expect(cardHeaderText).to.contains(createCustomerData.firstName);
       expect(cardHeaderText).to.contains(createCustomerData.lastName);
       expect(cardHeaderText).to.contains(createCustomerData.email);
 
-      const numOrders = await viewCustomerPage.getNumberOfElementFromTitle(page, 'Orders');
+      const numOrders = await boCustomersViewPage.getNumberOfElementFromTitle(page, 'Orders');
       expect(parseInt(numOrders, 10)).equal(0);
 
-      const numCarts = await viewCustomerPage.getNumberOfElementFromTitle(page, 'Carts');
+      const numCarts = await boCustomersViewPage.getNumberOfElementFromTitle(page, 'Carts');
       expect(parseInt(numCarts, 10)).equal(0);
     });
   });
@@ -184,10 +179,10 @@ describe('BO - Customers - Customers : CRUD Customer in BO', async () => {
     it('should go to \'Customers > Customers\' page', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'goToCustomerPageToUpdate', baseContext);
 
-      await viewCustomerPage.goToSubMenu(
+      await boCustomersViewPage.goToSubMenu(
         page,
-        viewCustomerPage.customersParentLink,
-        viewCustomerPage.customersLink,
+        boCustomersViewPage.customersParentLink,
+        boCustomersViewPage.customersLink,
       );
 
       const pageTitle = await boCustomersPage.getPageTitle(page);
@@ -280,22 +275,22 @@ describe('BO - Customers - Customers : CRUD Customer in BO', async () => {
 
       await boCustomersPage.goToViewCustomerPage(page, 1);
 
-      const pageTitle = await viewCustomerPage.getPageTitle(page);
-      expect(pageTitle).to.contains(viewCustomerPage.pageTitle(editCustomerName));
+      const pageTitle = await boCustomersViewPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boCustomersViewPage.pageTitle(editCustomerName));
     });
 
     it('should check customer personal information', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkUpdatedCustomerInfo', baseContext);
 
-      const cardHeaderText = await viewCustomerPage.getPersonalInformationTitle(page);
+      const cardHeaderText = await boCustomersViewPage.getPersonalInformationTitle(page);
       expect(cardHeaderText).to.contains(editCustomerData.firstName);
       expect(cardHeaderText).to.contains(editCustomerData.lastName);
       expect(cardHeaderText).to.contains(editCustomerData.email);
 
-      const numOrders = await viewCustomerPage.getNumberOfElementFromTitle(page, 'Orders');
+      const numOrders = await boCustomersViewPage.getNumberOfElementFromTitle(page, 'Orders');
       expect(parseInt(numOrders, 10)).equal(0);
 
-      const numCarts = await viewCustomerPage.getNumberOfElementFromTitle(page, 'Carts');
+      const numCarts = await boCustomersViewPage.getNumberOfElementFromTitle(page, 'Carts');
       expect(parseInt(numCarts, 10)).equal(0);
     });
   });
@@ -305,10 +300,10 @@ describe('BO - Customers - Customers : CRUD Customer in BO', async () => {
     it('should go to \'Customers > Customers\' page', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'goToCustomersPageToDelete', baseContext);
 
-      await viewCustomerPage.goToSubMenu(
+      await boCustomersViewPage.goToSubMenu(
         page,
-        viewCustomerPage.customersParentLink,
-        viewCustomerPage.customersLink,
+        boCustomersViewPage.customersParentLink,
+        boCustomersViewPage.customersLink,
       );
 
       const pageTitle = await boCustomersPage.getPageTitle(page);

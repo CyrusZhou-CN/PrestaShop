@@ -6,8 +6,6 @@ import addBrandAddressPage from '@pages/BO/catalog/brands/addAddress';
 import viewBrandPage from '@pages/BO/catalog/brands/view';
 import categoriesPage from '@pages/BO/catalog/categories';
 import addCategoryPage from '@pages/BO/catalog/categories/add';
-import cartRulesPage from '@pages/BO/catalog/discounts';
-import addCartRulePage from '@pages/BO/catalog/discounts/add';
 import catalogPriceRulesPage from '@pages/BO/catalog/discounts/catalogPriceRules';
 import addCatalogPriceRulePage from '@pages/BO/catalog/discounts/catalogPriceRules/add';
 import featuresPage from '@pages/BO/catalog/features';
@@ -16,7 +14,6 @@ import addFeatureValuePage from '@pages/BO/catalog/features/addValue';
 import viewFeaturePage from '@pages/BO/catalog/features/view';
 import filesPage from '@pages/BO/catalog/files';
 import addFilePage from '@pages/BO/catalog/files/add';
-import monitoringPage from '@pages/BO/catalog/monitoring';
 import movementsPage from '@pages/BO/catalog/stocks/movements';
 import suppliersPage from '@pages/BO/catalog/suppliers';
 import viewSupplierPage from '@pages/BO/catalog/suppliers/view';
@@ -26,8 +23,11 @@ import {
   boAttributesPage,
   boAttributesCreatePage,
   boBrandsPage,
+  boCartRulesPage,
+  boCartRulesCreatePage,
   boDashboardPage,
   boLoginPage,
+  boMonitoringPage,
   boProductsPage,
   boProductsCreatePage,
   boStockPage,
@@ -168,8 +168,8 @@ describe('BO - Catalog', async () => {
       boDashboardPage.monitoringLink,
     );
 
-    const pageTitle = await monitoringPage.getPageTitle(page);
-    expect(pageTitle).to.contains(monitoringPage.pageTitle);
+    const pageTitle = await boMonitoringPage.getPageTitle(page);
+    expect(pageTitle).to.contains(boMonitoringPage.pageTitle);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -474,8 +474,8 @@ describe('BO - Catalog', async () => {
       boDashboardPage.discountsLink,
     );
 
-    const pageTitle = await cartRulesPage.getPageTitle(page);
-    expect(pageTitle).to.contains(cartRulesPage.pageTitle);
+    const pageTitle = await boCartRulesPage.getPageTitle(page);
+    expect(pageTitle).to.contains(boCartRulesPage.pageTitle);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -484,10 +484,10 @@ describe('BO - Catalog', async () => {
   it('should go to \'Catalog > Discounts > Cart Rules > Add new cart rule\' page', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'goToAddNewCartRulePage', baseContext);
 
-    await cartRulesPage.goToAddNewCartRulesPage(page);
+    await boCartRulesPage.goToAddNewCartRulesPage(page);
 
-    const pageTitle = await addCartRulePage.getPageTitle(page);
-    expect(pageTitle).to.contains(addCartRulePage.pageTitle);
+    const pageTitle = await boCartRulesCreatePage.getPageTitle(page);
+    expect(pageTitle).to.contains(boCartRulesCreatePage.pageTitle);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -501,7 +501,7 @@ describe('BO - Catalog', async () => {
       boDashboardPage.catalogParentLink,
       boDashboardPage.discountsLink,
     );
-    await cartRulesPage.goToCatalogPriceRulesTab(page);
+    await boCartRulesPage.goToCatalogPriceRulesTab(page);
 
     const pageTitle = await catalogPriceRulesPage.getPageTitle(page);
     expect(pageTitle).to.contains(catalogPriceRulesPage.pageTitle);

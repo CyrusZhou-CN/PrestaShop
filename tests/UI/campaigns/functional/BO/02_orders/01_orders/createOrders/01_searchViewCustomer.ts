@@ -1,13 +1,11 @@
-// Import utils
 import testContext from '@utils/testContext';
+import {expect} from 'chai';
 
 // Import commonTests
 import {createCustomerTest, deleteCustomerTest} from '@commonTests/BO/customers/customer';
 
-// Import BO pages
-import viewCustomerPage from '@pages/BO/customers/view';
-
 import {
+  boCustomersViewPage,
   boDashboardPage,
   boLoginPage,
   boOrdersPage,
@@ -19,8 +17,6 @@ import {
   type Page,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
-
-import {expect} from 'chai';
 
 const baseContext: string = 'functional_BO_orders_orders_createOrders_searchViewCustomer';
 
@@ -187,7 +183,7 @@ describe('BO - Orders - Create order : Search and view customer details from new
       customerIframe = boOrdersCreatePage.getCustomerIframe(page, dataCustomers.johnDoe.id);
       expect(customerIframe).to.not.eq(null);
 
-      const cardHeaderText = await viewCustomerPage.getPersonalInformationTitle(customerIframe!);
+      const cardHeaderText = await boCustomersViewPage.getPersonalInformationTitle(customerIframe!);
       expect(cardHeaderText).to.contains(dataCustomers.johnDoe.firstName);
       expect(cardHeaderText).to.contains(dataCustomers.johnDoe.lastName);
       expect(cardHeaderText).to.contains(dataCustomers.johnDoe.email);
@@ -207,7 +203,7 @@ describe('BO - Orders - Create order : Search and view customer details from new
       it(`should check the ${test.args.blockName} number`, async function () {
         await testContext.addContextItem(this, 'testIdentifier', `check${test.args.blockName}Number`, baseContext);
 
-        const cardHeaderText = await viewCustomerPage.getNumberOfElementFromTitle(customerIframe!, test.args.blockName);
+        const cardHeaderText = await boCustomersViewPage.getNumberOfElementFromTitle(customerIframe!, test.args.blockName);
         expect(parseInt(cardHeaderText, 10)).to.be.at.least(test.args.number);
       });
     });
@@ -215,7 +211,7 @@ describe('BO - Orders - Create order : Search and view customer details from new
     it('should check the existence of add private note block', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkAddPrivateNote', baseContext);
 
-      const isVisible = await viewCustomerPage.isPrivateNoteBlockVisible(customerIframe!);
+      const isVisible = await boCustomersViewPage.isPrivateNoteBlockVisible(customerIframe!);
       expect(isVisible).to.eq(true);
     });
   });

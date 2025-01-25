@@ -2,14 +2,12 @@ import testContext from '@utils/testContext';
 import {createOrderByCustomerTest} from '@commonTests/FO/classic/order';
 import {expect} from 'chai';
 
-// Import BO pages
-import orderPagePaymentBlock from '@pages/BO/orders/view/paymentBlock';
-
 import {
   boDashboardPage,
   boInvoicesPage,
   boLoginPage,
   boOrdersPage,
+  boOrdersViewBlockPaymentsPage,
   boOrdersViewBlockProductsPage,
   boOrdersViewBlockTabListPage,
   type BrowserContext,
@@ -322,7 +320,7 @@ describe('BO - Orders - View and edit order : Check order documents tab', async 
 
       await boOrdersViewBlockTabListPage.clickOnEnterPaymentButton(page);
 
-      const amountValue = await orderPagePaymentBlock.getPaymentAmountInputValue(page);
+      const amountValue = await boOrdersViewBlockPaymentsPage.getPaymentAmountInputValue(page);
       expect(amountValue).to.not.equal('');
     });
 

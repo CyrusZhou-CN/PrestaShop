@@ -3,9 +3,6 @@ import {createOrderByCustomerTest} from '@commonTests/FO/hummingbird/order';
 import {enableHummingbird, disableHummingbird} from '@commonTests/BO/design/hummingbird';
 import {expect} from 'chai';
 
-// Import FO pages
-import orderHistoryPage from '@pages/FO/hummingbird/myAccount/orderHistory';
-
 import {
   boDashboardPage,
   boInvoicesPage,
@@ -21,12 +18,12 @@ import {
   foHummingbirdHomePage,
   foHummingbirdLoginPage,
   foHummingbirdMyAccountPage,
+  foHummingbirdMyOrderHistoryPage,
   type Page,
   utilsFile,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
 
-// context
 const baseContext: string = 'functional_FO_hummingbird_userAccount_orderHistory_downloadInvoice';
 
 /*
@@ -167,21 +164,21 @@ describe('FO - Account - Order history : download invoice', async () => {
 
       await foHummingbirdMyAccountPage.goToHistoryAndDetailsPage(page);
 
-      const pageHeaderTitle = await orderHistoryPage.getPageTitle(page);
-      expect(pageHeaderTitle).to.equal(orderHistoryPage.pageTitle);
+      const pageHeaderTitle = await foHummingbirdMyOrderHistoryPage.getPageTitle(page);
+      expect(pageHeaderTitle).to.equal(foHummingbirdMyOrderHistoryPage.pageTitle);
     });
 
     it('should check that the invoice of the first order in list is visible', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkInvoice', baseContext);
 
-      const isVisible = await orderHistoryPage.isInvoiceVisible(page, 1);
+      const isVisible = await foHummingbirdMyOrderHistoryPage.isInvoiceVisible(page, 1);
       expect(isVisible, 'The invoice file is not existing!').to.eq(true);
     });
 
     it('should download the invoice and check the invoice ID', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'downloadInvoice', baseContext);
 
-      const downloadFilePath = await orderHistoryPage.downloadInvoice(page);
+      const downloadFilePath = await foHummingbirdMyOrderHistoryPage.downloadInvoice(page);
 
       const exist = await utilsFile.isTextInPDF(downloadFilePath, fileName);
       expect(exist).to.eq(true);
@@ -190,7 +187,7 @@ describe('FO - Account - Order history : download invoice', async () => {
     it('should check that no invoice is visible for the second order in list', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkNoInvoice', baseContext);
 
-      const isVisible = await orderHistoryPage.isInvoiceVisible(page, 2);
+      const isVisible = await foHummingbirdMyOrderHistoryPage.isInvoiceVisible(page, 2);
       expect(isVisible).to.eq(false);
     });
   });

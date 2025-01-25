@@ -1,13 +1,10 @@
-// Import utils
 import testContext from '@utils/testContext';
-
-// Import pages
-import monitoringPage from '@pages/BO/catalog/monitoring';
 import {expect} from 'chai';
 
 import {
   boDashboardPage,
   boLoginPage,
+  boMonitoringPage,
   boProductsPage,
   boProductsCreatePage,
   boProductsCreateTabCombinationsPage,
@@ -193,10 +190,10 @@ describe('BO - Catalog - Monitoring : Create different products and delete them 
           boProductsCreatePage.monitoringLink,
         );
 
-        const pageTitle = await monitoringPage.getPageTitle(page);
-        expect(pageTitle).to.contains(monitoringPage.pageTitle);
+        const pageTitle = await boMonitoringPage.getPageTitle(page);
+        expect(pageTitle).to.contains(boMonitoringPage.pageTitle);
 
-        numberOfProductsIngrid = await monitoringPage.resetAndGetNumberOfLines(
+        numberOfProductsIngrid = await boMonitoringPage.resetAndGetNumberOfLines(
           page,
           test.gridName,
         );
@@ -211,7 +208,7 @@ describe('BO - Catalog - Monitoring : Create different products and delete them 
           baseContext,
         );
 
-        await monitoringPage.filterTable(
+        await boMonitoringPage.filterTable(
           page,
           test.gridName,
           'input',
@@ -219,7 +216,7 @@ describe('BO - Catalog - Monitoring : Create different products and delete them 
           test.productToCreate.name,
         );
 
-        const textColumn = await monitoringPage.getTextColumnFromTable(
+        const textColumn = await boMonitoringPage.getTextColumnFromTable(
           page,
           test.gridName,
           1,
@@ -236,7 +233,7 @@ describe('BO - Catalog - Monitoring : Create different products and delete them 
           baseContext,
         );
 
-        numberOfProductsIngrid = await monitoringPage.resetAndGetNumberOfLines(page, test.gridName);
+        numberOfProductsIngrid = await boMonitoringPage.resetAndGetNumberOfLines(page, test.gridName);
         expect(numberOfProductsIngrid).to.be.at.least(1);
       });
     });
@@ -250,7 +247,7 @@ describe('BO - Catalog - Monitoring : Create different products and delete them 
           baseContext,
         );
 
-        await monitoringPage.filterTable(
+        await boMonitoringPage.filterTable(
           page,
           test.gridName,
           'input',
@@ -258,7 +255,7 @@ describe('BO - Catalog - Monitoring : Create different products and delete them 
           test.productToCreate.name,
         );
 
-        const textColumn = await monitoringPage.getTextColumnFromTable(
+        const textColumn = await boMonitoringPage.getTextColumnFromTable(
           page,
           test.gridName,
           1,
@@ -275,7 +272,7 @@ describe('BO - Catalog - Monitoring : Create different products and delete them 
           baseContext,
         );
 
-        const textResult = await monitoringPage.deleteProductInGrid(page, test.gridName, 1);
+        const textResult = await boMonitoringPage.deleteProductInGrid(page, test.gridName, 1);
         expect(textResult).to.equal(boProductsPage.successfulDeleteMessage);
 
         const pageTitle = await boProductsPage.getPageTitle(page);

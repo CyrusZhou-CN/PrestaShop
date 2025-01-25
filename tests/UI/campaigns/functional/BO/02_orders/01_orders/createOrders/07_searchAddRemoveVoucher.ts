@@ -1,14 +1,12 @@
-// Import utils
 import testContext from '@utils/testContext';
+import {expect} from 'chai';
 
 // Import common tests
 import {createCartRuleTest, bulkDeleteCartRuleTest} from '@commonTests/BO/catalog/cartRule';
 
-// Import BO pages
-import cartRulesPage from '@pages/BO/catalog/discounts';
-import addCartRulePage from '@pages/BO/catalog/discounts/add';
-
 import {
+  boCartRulesPage,
+  boCartRulesCreatePage,
   boDashboardPage,
   boLoginPage,
   boOrdersPage,
@@ -24,8 +22,6 @@ import {
   utilsDate,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
-
-import {expect} from 'chai';
 
 const baseContext: string = 'functional_BO_orders_orders_createOrders_searchAddRemoveVoucher';
 
@@ -222,28 +218,28 @@ describe('BO - Orders - Create order : Search, add and remove voucher', async ()
         boDashboardPage.discountsLink,
       );
 
-      const pageTitle = await cartRulesPage.getPageTitle(page);
-      expect(pageTitle).to.contains(cartRulesPage.pageTitle);
+      const pageTitle = await boCartRulesPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boCartRulesPage.pageTitle);
     });
 
     it('should reset and get number of cart rules', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'resetFilter', baseContext);
 
-      numberOfCartRules = await cartRulesPage.resetAndGetNumberOfLines(page);
+      numberOfCartRules = await boCartRulesPage.resetAndGetNumberOfLines(page);
       expect(numberOfCartRules).to.be.at.least(0);
     });
 
     it('should delete cart rule', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'deleteCartRule', baseContext);
 
-      const validationMessage = await cartRulesPage.deleteCartRule(page, 1, cartRuleWithoutCodeData.name);
-      expect(validationMessage).to.contains(cartRulesPage.successfulDeleteMessage);
+      const validationMessage = await boCartRulesPage.deleteCartRule(page, 1, cartRuleWithoutCodeData.name);
+      expect(validationMessage).to.contains(boCartRulesPage.successfulDeleteMessage);
     });
 
     it('should reset all filters', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'resetAfterBulkDelete', baseContext);
 
-      const numberOfCartRulesAfterDelete = await cartRulesPage.resetAndGetNumberOfLines(page);
+      const numberOfCartRulesAfterDelete = await boCartRulesPage.resetAndGetNumberOfLines(page);
       expect(numberOfCartRulesAfterDelete).to.equal(numberOfCartRules - 1);
     });
   });
@@ -400,7 +396,7 @@ describe('BO - Orders - Create order : Search, add and remove voucher', async ()
     it('should create then search for the disabled voucher and check the error message', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'searchDisabledVoucher', baseContext);
 
-      await addCartRulePage.createEditCartRules(addVoucherPage!, disabledCartRuleData, false);
+      await boCartRulesCreatePage.createEditCartRules(addVoucherPage!, disabledCartRuleData, false);
 
       await boOrdersCreatePage.searchVoucher(page, disabledCartRuleData.name);
 
@@ -424,7 +420,7 @@ describe('BO - Orders - Create order : Search, add and remove voucher', async ()
       addVoucherPage = boOrdersCreatePage.getCreateVoucherIframe(page);
       expect(addVoucherPage).to.not.eq(null);
 
-      await addCartRulePage.createEditCartRules(addVoucherPage!, cartRuleWithGiftData, false);
+      await boCartRulesCreatePage.createEditCartRules(addVoucherPage!, cartRuleWithGiftData, false);
     });
 
     it('should search for the created voucher and check details', async function () {
@@ -519,7 +515,7 @@ describe('BO - Orders - Create order : Search, add and remove voucher', async ()
       addVoucherPage = boOrdersCreatePage.getCreateVoucherIframe(page);
       expect(addVoucherPage).to.not.eq(null);
 
-      await addCartRulePage.createEditCartRules(addVoucherPage!, cartRuleFreeShippingData, false);
+      await boCartRulesCreatePage.createEditCartRules(addVoucherPage!, cartRuleFreeShippingData, false);
     });
 
     it('should search for the created voucher and check details', async function () {

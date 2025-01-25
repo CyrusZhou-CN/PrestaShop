@@ -2,12 +2,12 @@
 import testContext from '@utils/testContext';
 
 // Import pages
-import cartRulesPage from '@pages/BO/catalog/discounts';
 import catalogPriceRulesPage from '@pages/BO/catalog/discounts/catalogPriceRules';
 import addCatalogPriceRulePage from '@pages/BO/catalog/discounts/catalogPriceRules/add';
 
 import {expect} from 'chai';
 import {
+  boCartRulesPage,
   boDashboardPage,
   boLoginPage,
   type BrowserContext,
@@ -67,14 +67,14 @@ describe('BO - Catalog - Discounts : Filter, sort and pagination catalog price r
       boDashboardPage.discountsLink,
     );
 
-    const pageTitle = await cartRulesPage.getPageTitle(page);
-    expect(pageTitle).to.contains(cartRulesPage.pageTitle);
+    const pageTitle = await boCartRulesPage.getPageTitle(page);
+    expect(pageTitle).to.contains(boCartRulesPage.pageTitle);
   });
 
   it('should go to \'Catalog Price Rules\' tab', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'goToCatalogPriceRulesTab', baseContext);
 
-    await cartRulesPage.goToCatalogPriceRulesTab(page);
+    await boCartRulesPage.goToCatalogPriceRulesTab(page);
 
     numberOfCatalogPriceRules = await catalogPriceRulesPage.resetAndGetNumberOfLines(page);
 

@@ -1,15 +1,12 @@
-// Import utils
 import testContext from '@utils/testContext';
-
-// Import pages
 import categoriesPage from '@pages/BO/catalog/categories';
 import addCategoryPage from '@pages/BO/catalog/categories/add';
-import monitoringPage from '@pages/BO/catalog/monitoring';
-
 import {expect} from 'chai';
+
 import {
   boDashboardPage,
   boLoginPage,
+  boMonitoringPage,
   type BrowserContext,
   FakerCategory,
   type Page,
@@ -110,17 +107,17 @@ describe('BO - Catalog - Monitoring : Create empty category and delete it from m
         categoriesPage.monitoringLink,
       );
 
-      const pageTitle = await monitoringPage.getPageTitle(page);
-      expect(pageTitle).to.contains(monitoringPage.pageTitle);
+      const pageTitle = await boMonitoringPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boMonitoringPage.pageTitle);
 
-      numberOfEmptyCategories = await monitoringPage.resetAndGetNumberOfLines(page, 'empty_category');
+      numberOfEmptyCategories = await boMonitoringPage.resetAndGetNumberOfLines(page, 'empty_category');
       expect(numberOfEmptyCategories).to.be.at.least(1);
     });
 
     it(`should filter categories by Name ${createCategoryData.name}`, async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkCategory', baseContext);
 
-      await monitoringPage.filterTable(
+      await boMonitoringPage.filterTable(
         page,
         'empty_category',
         'input',
@@ -128,14 +125,14 @@ describe('BO - Catalog - Monitoring : Create empty category and delete it from m
         createCategoryData.name,
       );
 
-      const textColumn = await monitoringPage.getTextColumnFromTable(page, 'empty_category', 1, 'name');
+      const textColumn = await boMonitoringPage.getTextColumnFromTable(page, 'empty_category', 1, 'name');
       expect(textColumn).to.contains(createCategoryData.name);
     });
 
     it('should reset filter in empty categories grid', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'resetInMonitoringPage', baseContext);
 
-      numberOfEmptyCategories = await monitoringPage.resetAndGetNumberOfLines(page, 'empty_category');
+      numberOfEmptyCategories = await boMonitoringPage.resetAndGetNumberOfLines(page, 'empty_category');
       expect(numberOfEmptyCategories).to.be.at.least(1);
     });
   });
@@ -144,7 +141,7 @@ describe('BO - Catalog - Monitoring : Create empty category and delete it from m
     it(`should filter categories by Name ${createCategoryData.name}`, async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'filterEmptyCategoriesGridToDelete', baseContext);
 
-      await monitoringPage.filterTable(
+      await boMonitoringPage.filterTable(
         page,
         'empty_category',
         'input',
@@ -152,15 +149,15 @@ describe('BO - Catalog - Monitoring : Create empty category and delete it from m
         createCategoryData.name,
       );
 
-      const textColumn = await monitoringPage.getTextColumnFromTable(page, 'empty_category', 1, 'name');
+      const textColumn = await boMonitoringPage.getTextColumnFromTable(page, 'empty_category', 1, 'name');
       expect(textColumn).to.contains(createCategoryData.name);
     });
 
     it('should delete category', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'deleteCategory', baseContext);
 
-      const textResult = await monitoringPage.deleteCategoryInGrid(page, 'empty_category', 1, 1);
-      expect(textResult).to.equal(monitoringPage.successfulDeleteMessage);
+      const textResult = await boMonitoringPage.deleteCategoryInGrid(page, 'empty_category', 1, 1);
+      expect(textResult).to.equal(boMonitoringPage.successfulDeleteMessage);
 
       const pageTitle = await categoriesPage.getPageTitle(page);
       expect(pageTitle).to.contains(categoriesPage.pageTitle);

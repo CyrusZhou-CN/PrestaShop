@@ -1,5 +1,5 @@
-// Import utils
 import testContext from '@utils/testContext';
+import {expect} from 'chai';
 
 // Import commonTests
 import deleteCacheTest from '@commonTests/BO/advancedParameters/cache';
@@ -17,7 +17,6 @@ import {addAddressPage} from '@pages/FO/classic/myAccount/addAddress';
 import {addressesPage} from '@pages/FO/classic/myAccount/addresses';
 import {creditSlipPage} from '@pages/FO/classic/myAccount/creditSlips';
 import {accountIdentityPage} from '@pages/FO/classic/myAccount/identity';
-import {orderHistoryPage} from '@pages/FO/classic/myAccount/orderHistory';
 import {guestOrderTrackingPage} from '@pages/FO/classic/orderTracking/guestOrderTracking';
 import {newProductsPage} from '@pages/FO/classic/newProducts';
 import {pricesDropPage} from '@pages/FO/classic/pricesDrop';
@@ -34,12 +33,11 @@ import {
   foClassicContactUsPage,
   foClassicHomePage,
   foClassicLoginPage,
+  foClassicMyOrderHistoryPage,
   foClassicMyWishlistsPage,
   type Page,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
-
-import {expect} from 'chai';
 
 const baseContext: string = 'functional_FO_classic_headerAndFooter_checkLinksInFooter';
 
@@ -169,7 +167,7 @@ describe('FO - Header and Footer : Check links in footer page', async () => {
     [
       {linkSelector: 'Information', pageTitle: accountIdentityPage.pageTitle},
       {linkSelector: 'Addresses', pageTitle: addressesPage.pageTitle},
-      {linkSelector: 'Orders', pageTitle: orderHistoryPage.pageTitle},
+      {linkSelector: 'Orders', pageTitle: foClassicMyOrderHistoryPage.pageTitle},
       {linkSelector: 'Credit slips', pageTitle: creditSlipPage.pageTitle},
       {linkSelector: 'Wishlist', pageTitle: foClassicMyWishlistsPage.pageTitle},
       {linkSelector: 'Sign out', pageTitle: foClassicLoginPage.pageTitle},
@@ -207,7 +205,7 @@ describe('FO - Header and Footer : Check links in footer page', async () => {
     [
       {linkSelector: 'Information', pageTitle: accountIdentityPage.pageTitle},
       {linkSelector: 'Add first address', pageTitle: addAddressPage.pageTitle},
-      {linkSelector: 'Orders', pageTitle: orderHistoryPage.pageTitle},
+      {linkSelector: 'Orders', pageTitle: foClassicMyOrderHistoryPage.pageTitle},
       {linkSelector: 'Credit slips', pageTitle: creditSlipPage.pageTitle},
       {linkSelector: 'Wishlist', pageTitle: foClassicMyWishlistsPage.pageTitle},
       {linkSelector: 'Sign out', pageTitle: foClassicLoginPage.pageTitle},

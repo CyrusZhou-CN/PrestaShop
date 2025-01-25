@@ -1,5 +1,5 @@
-// Import utils
 import testContext from '@utils/testContext';
+import {expect} from 'chai';
 
 // Import common tests
 import {deleteCartRuleTest} from '@commonTests/BO/catalog/cartRule';
@@ -7,14 +7,12 @@ import {bulkDeleteProductsTest} from '@commonTests/BO/catalog/product';
 import {enableEcoTaxTest, disableEcoTaxTest} from '@commonTests/BO/international/ecoTax';
 import {createOrderByCustomerTest, createOrderSpecificProductTest} from '@commonTests/FO/classic/order';
 
-// Import BO pages
-import orderPageCustomerBlock from '@pages/BO/orders/view/customerBlock';
-import orderPagePaymentBlock from '@pages/BO/orders/view/paymentBlock';
-
 import {
   boDashboardPage,
   boLoginPage,
   boOrdersPage,
+  boOrdersViewBlockCustomersPage,
+  boOrdersViewBlockPaymentsPage,
   boOrdersViewBlockProductsPage,
   boOrdersViewBlockTabListPage,
   boProductsPage,
@@ -39,8 +37,6 @@ import {
   utilsFile,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
-
-import {expect} from 'chai';
 
 const baseContext = 'functional_BO_orders_orders_viewAndEditOrder_checkInvoice';
 
@@ -362,8 +358,8 @@ describe('BO - Orders - View and edit order: Check invoice', async () => {
           + `${dataAddresses.address_5.address} ${dataAddresses.address_5.secondAddress} `
           + `${dataAddresses.address_5.postalCode} ${dataAddresses.address_5.city}`;
 
-        const alertMessage = await orderPageCustomerBlock.selectAnotherInvoiceAddress(page, addressToSelect);
-        expect(alertMessage).to.contains(orderPageCustomerBlock.successfulUpdateMessage);
+        const alertMessage = await boOrdersViewBlockCustomersPage.selectAnotherInvoiceAddress(page, addressToSelect);
+        expect(alertMessage).to.contains(boOrdersViewBlockCustomersPage.successfulUpdateMessage);
       });
 
       it(`should change the order status to '${dataOrderStatuses.paymentAccepted.name}'`, async function () {
@@ -1252,8 +1248,8 @@ describe('BO - Orders - View and edit order: Check invoice', async () => {
             + `${dataAddresses.address_5.address} ${dataAddresses.address_5.secondAddress} `
             + `${dataAddresses.address_5.postalCode} ${dataAddresses.address_5.city}`;
 
-          const alertMessage = await orderPageCustomerBlock.selectAnotherShippingAddress(page, addressToSelect);
-          expect(alertMessage).to.contains(orderPageCustomerBlock.successfulUpdateMessage);
+          const alertMessage = await boOrdersViewBlockCustomersPage.selectAnotherShippingAddress(page, addressToSelect);
+          expect(alertMessage).to.contains(boOrdersViewBlockCustomersPage.successfulUpdateMessage);
         });
 
         it('should click on \'View invoice\' button and check that the file is downloaded', async function () {
@@ -1289,8 +1285,8 @@ describe('BO - Orders - View and edit order: Check invoice', async () => {
             + `${dataAddresses.address_5.address} ${dataAddresses.address_5.secondAddress} `
             + `${dataAddresses.address_5.postalCode} ${dataAddresses.address_5.city}`;
 
-          const alertMessage = await orderPageCustomerBlock.selectAnotherInvoiceAddress(page, addressToSelect);
-          expect(alertMessage).to.contains(orderPageCustomerBlock.successfulUpdateMessage);
+          const alertMessage = await boOrdersViewBlockCustomersPage.selectAnotherInvoiceAddress(page, addressToSelect);
+          expect(alertMessage).to.contains(boOrdersViewBlockCustomersPage.successfulUpdateMessage);
         });
 
         it('should click on \'View invoice\' button and check that the file is downloaded', async function () {
@@ -1537,11 +1533,11 @@ describe('BO - Orders - View and edit order: Check invoice', async () => {
         it('should add payment', async function () {
           await testContext.addContextItem(this, 'testIdentifier', 'addPayment', baseContext);
 
-          const validationMessage = await orderPagePaymentBlock.addPayment(page, paymentData);
+          const validationMessage = await boOrdersViewBlockPaymentsPage.addPayment(page, paymentData);
           expect(
             validationMessage,
             'Successful message is not correct!',
-          ).to.equal(orderPagePaymentBlock.successfulUpdateMessage);
+          ).to.equal(boOrdersViewBlockPaymentsPage.successfulUpdateMessage);
         });
 
         it('should click on \'View invoice\' button and check that the file is downloaded', async function () {

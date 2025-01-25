@@ -3,10 +3,6 @@ import {createOrderByCustomerTest} from '@commonTests/FO/hummingbird/order';
 import {enableHummingbird, disableHummingbird} from '@commonTests/BO/design/hummingbird';
 import {expect} from 'chai';
 
-// Import FO pages
-import orderHistoryPage from '@pages/FO/hummingbird/myAccount/orderHistory';
-import orderDetailsPage from '@pages/FO/hummingbird/myAccount/orderDetails';
-
 import {
   boDashboardPage,
   boInvoicesPage,
@@ -22,12 +18,13 @@ import {
   foHummingbirdHomePage,
   foHummingbirdLoginPage,
   foHummingbirdMyAccountPage,
+  foHummingbirdMyOrderDetailsPage,
+  foHummingbirdMyOrderHistoryPage,
   type Page,
   utilsFile,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
 
-// context
 const baseContext: string = 'functional_FO_hummingbird_userAccount_orderHistory_orderDetails_downloadInvoice';
 
 /*
@@ -168,23 +165,23 @@ describe('FO - Account - Order details : Download invoice', async () => {
 
       await foHummingbirdMyAccountPage.goToHistoryAndDetailsPage(page);
 
-      const pageHeaderTitle = await orderHistoryPage.getPageTitle(page);
-      expect(pageHeaderTitle).to.equal(orderHistoryPage.pageTitle);
+      const pageHeaderTitle = await foHummingbirdMyOrderHistoryPage.getPageTitle(page);
+      expect(pageHeaderTitle).to.equal(foHummingbirdMyOrderHistoryPage.pageTitle);
     });
 
     it('should go to order details page of the first order in list', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'goToFoToOrderDetails', baseContext);
 
-      await orderHistoryPage.goToDetailsPage(page);
+      await foHummingbirdMyOrderHistoryPage.goToDetailsPage(page);
 
-      const pageTitle = await orderDetailsPage.getPageTitle(page);
-      expect(pageTitle).to.equal(orderDetailsPage.pageTitle);
+      const pageTitle = await foHummingbirdMyOrderDetailsPage.getPageTitle(page);
+      expect(pageTitle).to.equal(foHummingbirdMyOrderDetailsPage.pageTitle);
     });
 
     it('should download the invoice', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkDownloadFile', baseContext);
 
-      const downloadFilePath = await orderDetailsPage.downloadInvoice(page);
+      const downloadFilePath = await foHummingbirdMyOrderDetailsPage.downloadInvoice(page);
 
       const doesFileExist = await utilsFile.doesFileExist(downloadFilePath, 5000);
       expect(doesFileExist, 'File is not downloaded!').to.equal(true);
@@ -207,23 +204,23 @@ describe('FO - Account - Order details : Download invoice', async () => {
 
       await foHummingbirdMyAccountPage.goToHistoryAndDetailsPage(page);
 
-      const pageHeaderTitle = await orderHistoryPage.getPageTitle(page);
-      expect(pageHeaderTitle).to.equal(orderHistoryPage.pageTitle);
+      const pageHeaderTitle = await foHummingbirdMyOrderHistoryPage.getPageTitle(page);
+      expect(pageHeaderTitle).to.equal(foHummingbirdMyOrderHistoryPage.pageTitle);
     });
 
     it('should go to order details page of the second order in list', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'goToFoToOrderDetails2', baseContext);
 
-      await orderHistoryPage.goToDetailsPage(page, 2);
+      await foHummingbirdMyOrderHistoryPage.goToDetailsPage(page, 2);
 
-      const pageTitle = await orderDetailsPage.getPageTitle(page);
-      expect(pageTitle).to.equal(orderDetailsPage.pageTitle);
+      const pageTitle = await foHummingbirdMyOrderDetailsPage.getPageTitle(page);
+      expect(pageTitle).to.equal(foHummingbirdMyOrderDetailsPage.pageTitle);
     });
 
     it('should check that no invoice is visible', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkNoInvoiceIsVisible', baseContext);
 
-      const isInvoiceVisible = await orderDetailsPage.isInvoiceVisible(page);
+      const isInvoiceVisible = await foHummingbirdMyOrderDetailsPage.isInvoiceVisible(page);
       expect(isInvoiceVisible).to.equal(false);
     });
   });

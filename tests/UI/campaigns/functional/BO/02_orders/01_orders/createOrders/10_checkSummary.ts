@@ -1,18 +1,16 @@
-// Import utils
 import testContext from '@utils/testContext';
+import {expect} from 'chai';
 
 // Import common tests
 import {resetSmtpConfigTest, setupSmtpConfigTest} from '@commonTests/BO/advancedParameters/smtp';
 import {createCartRuleTest, deleteCartRuleTest} from '@commonTests/BO/catalog/cartRule';
-
-// Import BO pages
-import orderPageMessagesBlock from '@pages/BO/orders/view/messagesBlock';
 
 import {
   boDashboardPage,
   boLoginPage,
   boOrdersPage,
   boOrdersCreatePage,
+  boOrdersViewBlockMessagesPage,
   type BrowserContext,
   dataCarriers,
   dataCustomers,
@@ -28,8 +26,6 @@ import {
   utilsMail,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
-
-import {expect} from 'chai';
 
 const baseContext: string = 'functional_BO_orders_orders_createOrders_checkSummary';
 
@@ -336,16 +332,16 @@ describe('BO - Orders - Create order : Check summary', async () => {
       it('should check that the page displayed is view order page', async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'checkOrder message', baseContext);
 
-        const pageTitle = await orderPageMessagesBlock.getPageTitle(page);
+        const pageTitle = await boOrdersViewBlockMessagesPage.getPageTitle(page);
         expect(pageTitle, 'View order page is not displayed!').to.contain(
-          orderPageMessagesBlock.pageTitle,
+          boOrdersViewBlockMessagesPage.pageTitle,
         );
       });
 
       it('should check that the order message is displayed on view order page', async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'checkOrderMessage', baseContext);
 
-        const textMessage = await orderPageMessagesBlock.getTextMessage(page, 1, 'customer');
+        const textMessage = await boOrdersViewBlockMessagesPage.getTextMessage(page, 1, 'customer');
         expect(textMessage, 'Message is not correct!').to.contains(orderMessage);
       });
     });

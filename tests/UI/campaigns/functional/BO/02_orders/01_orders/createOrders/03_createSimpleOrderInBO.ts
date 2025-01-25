@@ -1,17 +1,15 @@
-// Import utils
 import testContext from '@utils/testContext';
+import {expect} from 'chai';
 
 // Import commonTests
 import {deleteCartRuleTest} from '@commonTests/BO/catalog/cartRule';
-
-// Import BO pages
-import orderPageCustomerBlock from '@pages/BO/orders/view/customerBlock';
 
 import {
   boDashboardPage,
   boLoginPage,
   boOrdersPage,
   boOrdersCreatePage,
+  boOrdersViewBlockCustomersPage,
   boOrdersViewBlockProductsPage,
   type BrowserContext,
   dataAddresses,
@@ -24,8 +22,6 @@ import {
   type Page,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
-
-import {expect} from 'chai';
 
 const baseContext: string = 'functional_BO_orders_orders_createOrders_createSimpleOrderInBO';
 
@@ -137,7 +133,7 @@ describe('BO - Orders - Create order : Create simple order in BO', async () => {
     it('should check order shipping address', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkShippingAddress', baseContext);
 
-      const shippingAddress = await orderPageCustomerBlock.getShippingAddress(page);
+      const shippingAddress = await boOrdersViewBlockCustomersPage.getShippingAddress(page);
       expect(shippingAddress)
         .to.contain(orderToMake.deliveryAddress.firstName)
         .and.to.contain(orderToMake.deliveryAddress.lastName)
@@ -150,7 +146,7 @@ describe('BO - Orders - Create order : Create simple order in BO', async () => {
     it('should check order invoice address', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkInvoiceAddress', baseContext);
 
-      const invoiceAddress = await orderPageCustomerBlock.getInvoiceAddress(page);
+      const invoiceAddress = await boOrdersViewBlockCustomersPage.getInvoiceAddress(page);
       expect(invoiceAddress)
         .to.contain(orderToMake.deliveryAddress.firstName)
         .and.to.contain(orderToMake.deliveryAddress.lastName)

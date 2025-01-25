@@ -1,13 +1,11 @@
 // Import utils
 import testContext from '@utils/testContext';
+import {expect} from 'chai';
 
 // Import commonTests
 import {createAddressTest} from '@commonTests/BO/customers/address';
 import {createCustomerTest, deleteCustomerTest} from '@commonTests/BO/customers/customer';
 import {createOrderByCustomerTest} from '@commonTests/FO/classic/order';
-
-// Import BO pages
-import orderPageCustomerBlock from '@pages/BO/orders/view/customerBlock';
 
 import {
   boCustomersPage,
@@ -15,6 +13,7 @@ import {
   boLoginPage,
   boOrdersPage,
   boOrdersCreatePage,
+  boOrdersViewBlockCustomersPage,
   boOrdersViewBlockProductsPage,
   boOrdersViewBlockTabListPage,
   type BrowserContext,
@@ -30,8 +29,6 @@ import {
   utilsDate,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
-
-import {expect} from 'chai';
 
 const baseContext: string = 'functional_BO_orders_orders_createOrders_selectPreviousOrders';
 
@@ -251,7 +248,7 @@ describe('BO - Orders - Create order : Select previous orders', async () => {
       orderIframe = boOrdersCreatePage.getOrderIframe(page, orderID);
       expect(orderIframe).to.not.eq(null);
 
-      const customerInfo = await orderPageCustomerBlock.getCustomerInfoBlock(orderIframe!);
+      const customerInfo = await boOrdersViewBlockCustomersPage.getCustomerInfoBlock(orderIframe!);
       expect(customerInfo).to.contains(newCustomer.socialTitle);
       expect(customerInfo).to.contains(newCustomer.firstName);
       expect(customerInfo).to.contains(newCustomer.lastName);

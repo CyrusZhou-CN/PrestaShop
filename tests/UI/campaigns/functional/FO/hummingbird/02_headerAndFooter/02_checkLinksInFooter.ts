@@ -18,7 +18,6 @@ import addAddressPage from '@pages/FO/hummingbird/myAccount/addAddress';
 import addressesPage from '@pages/FO/hummingbird/myAccount/addresses';
 import creditSlipsPage from '@pages/FO/hummingbird/myAccount/creditSlips';
 import personalInfoPage from '@pages/FO/hummingbird/myAccount/identity';
-import ordersPage from '@pages/FO/hummingbird/myAccount/orderHistory';
 import guestOrderTrackingPage from '@pages/FO/hummingbird/orderTracking/guestOrderTracking';
 import newProductsPage from '@pages/FO/hummingbird/newProducts';
 import pricesDropPage from '@pages/FO/hummingbird/pricesDrop';
@@ -35,6 +34,7 @@ import {
   foHummingbirdContactUsPage,
   foHummingbirdHomePage,
   foHummingbirdLoginPage,
+  foHummingbirdMyOrderHistoryPage,
   foHummingbirdMyWishlistsPage,
   type Page,
   utilsPlaywright,
@@ -173,7 +173,7 @@ describe('FO - Header and Footer : Check links in footer page', async () => {
     [
       {linkSelector: 'Information', pageTitle: personalInfoPage.pageTitle},
       {linkSelector: 'Addresses', pageTitle: addressesPage.pageTitle},
-      {linkSelector: 'Orders', pageTitle: ordersPage.pageTitle},
+      {linkSelector: 'Orders', pageTitle: foHummingbirdMyOrderHistoryPage.pageTitle},
       {linkSelector: 'Credit slips', pageTitle: creditSlipsPage.pageTitle},
       {linkSelector: 'Wishlist', pageTitle: foHummingbirdMyWishlistsPage.pageTitle},
       {linkSelector: 'Sign out', pageTitle: foHummingbirdLoginPage.pageTitle},
@@ -211,7 +211,7 @@ describe('FO - Header and Footer : Check links in footer page', async () => {
     [
       {linkSelector: 'Information', pageTitle: personalInfoPage.pageTitle},
       {linkSelector: 'Add first address', pageTitle: addAddressPage.pageTitle},
-      {linkSelector: 'Orders', pageTitle: ordersPage.pageTitle},
+      {linkSelector: 'Orders', pageTitle: foHummingbirdMyOrderHistoryPage.pageTitle},
       {linkSelector: 'Credit slips', pageTitle: creditSlipsPage.pageTitle},
       {linkSelector: 'Wishlist', pageTitle: foHummingbirdMyWishlistsPage.pageTitle},
       {linkSelector: 'Sign out', pageTitle: foHummingbirdLoginPage.pageTitle},

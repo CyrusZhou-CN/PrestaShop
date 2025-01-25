@@ -1,7 +1,5 @@
 import testContext from '@utils/testContext';
-
-// Import BO pages
-import viewShoppingCartPage from '@pages/BO/orders/shoppingCarts/view';
+import {expect} from 'chai';
 
 import {
   boDashboardPage,
@@ -10,6 +8,7 @@ import {
   boOrdersCreatePage,
   boOrdersViewBlockProductsPage,
   boShoppingCartsPage,
+  boShoppingCartsViewPage,
   boStockPage,
   type BrowserContext,
   dataCarriers,
@@ -27,8 +26,6 @@ import {
   utilsDate,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
-
-import {expect} from 'chai';
 
 const baseContext: string = 'functional_BO_orders_orders_createOrders_selectPreviousCarts';
 
@@ -403,14 +400,14 @@ describe('BO - Orders - Create Order : Select Previous Carts', async () => {
       shoppingCartPage = boOrdersCreatePage.getShoppingCartIframe(page, lastShoppingCartId);
       expect(shoppingCartPage).to.not.eq(null);
 
-      const cartId = await viewShoppingCartPage.getCartId(shoppingCartPage!);
+      const cartId = await boShoppingCartsViewPage.getCartId(shoppingCartPage!);
       expect(cartId).to.be.equal(`Cart #${lastShoppingCartId}`);
     });
 
     it('should check the cart total', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkCardTotal', baseContext);
 
-      const cartTotal = await viewShoppingCartPage.getCartTotal(shoppingCartPage!);
+      const cartTotal = await boShoppingCartsViewPage.getCartTotal(shoppingCartPage!);
       expect(cartTotal.toString())
         .to.be.equal((dataProducts.demo_1.finalPrice + myCarrierCost).toFixed(2));
     });
@@ -418,7 +415,7 @@ describe('BO - Orders - Create Order : Select Previous Carts', async () => {
     it('should check the customer Information Block', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkCustomerInformationBlock', baseContext);
 
-      const customerInformation = await viewShoppingCartPage
+      const customerInformation = await boShoppingCartsViewPage
         .getCustomerInformation(shoppingCartPage!);
       expect(customerInformation)
         .to.contains(`${dataCustomers.johnDoe.socialTitle} ${dataCustomers.johnDoe.firstName} ${dataCustomers.johnDoe.lastName}`)
@@ -429,10 +426,10 @@ describe('BO - Orders - Create Order : Select Previous Carts', async () => {
     it('should check the cart Information Block', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkCartInformationBlock', baseContext);
 
-      const orderInformation = await viewShoppingCartPage.getOrderInformation(shoppingCartPage!);
+      const orderInformation = await boShoppingCartsViewPage.getOrderInformation(shoppingCartPage!);
       expect(orderInformation).to.contains('The customer has not proceeded to checkout yet.');
 
-      const hasButtonCreateOrderFromCart = await viewShoppingCartPage.hasButtonCreateOrderFromCart(shoppingCartPage!);
+      const hasButtonCreateOrderFromCart = await boShoppingCartsViewPage.hasButtonCreateOrderFromCart(shoppingCartPage!);
       expect(hasButtonCreateOrderFromCart).to.eq(true);
     });
 
@@ -440,7 +437,7 @@ describe('BO - Orders - Create Order : Select Previous Carts', async () => {
       await testContext
         .addContextItem(this, 'testIdentifier', 'checkProductStockAvailableInCartSummaryBlock', baseContext);
 
-      const cartSummary = await viewShoppingCartPage.getTextColumn(shoppingCartPage!, 'stock_available');
+      const cartSummary = await boShoppingCartsViewPage.getTextColumn(shoppingCartPage!, 'stock_available');
       expect(cartSummary).to.contains(availableStockOfOrderedProduct.toString());
     });
 
@@ -458,7 +455,7 @@ describe('BO - Orders - Create Order : Select Previous Carts', async () => {
         await testContext
           .addContextItem(this, 'testIdentifier', `checkProduct${test.args.columnName}InCartSummaryBlock`, baseContext);
 
-        const cartSummary = await viewShoppingCartPage.getTextColumn(shoppingCartPage!, test.args.columnName);
+        const cartSummary = await boShoppingCartsViewPage.getTextColumn(shoppingCartPage!, test.args.columnName);
 
         if (test.args.columnName === 'title') {
           expect(cartSummary).to.contains(test.args.result).and.to.contains(test.args.result_2);
