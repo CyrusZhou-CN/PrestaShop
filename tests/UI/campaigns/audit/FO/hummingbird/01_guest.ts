@@ -49,6 +49,10 @@ describe('Check FO public pages', async () => {
       await utilsPlaywright.closeBrowserContext(browserContext);
     });
 
+    beforeEach(async () => {
+      utilsPlaywright.resetJsErrors();
+    });
+
     it('should go to the home page', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'goToHome', baseContext);
 

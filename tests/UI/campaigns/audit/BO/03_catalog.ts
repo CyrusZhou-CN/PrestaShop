@@ -58,6 +58,10 @@ describe('BO - Catalog', async () => {
     await utilsPlaywright.closeBrowserContext(browserContext);
   });
 
+  beforeEach(async () => {
+    utilsPlaywright.resetJsErrors();
+  });
+
   it('should login in BO', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'loginBO', baseContext);
 
