@@ -3,5 +3,6 @@ imports:
 
 services:
   PrestaShop\PrestaShop\Core\Hook\HookModuleFilter:
+    public: true
     arguments:
       - !tagged core.hook_module_exec_filter

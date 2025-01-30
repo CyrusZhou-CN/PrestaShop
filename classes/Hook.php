@@ -31,6 +31,7 @@ use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 use PrestaShop\PrestaShop\Core\Exception\CoreException;
 use PrestaShop\PrestaShop\Core\Hook\HookModuleFilter;
 use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 class HookCore extends ObjectModel
 {
@@ -764,10 +765,7 @@ class HookCore extends ObjectModel
         }
 
         $hookModuleFilter = self::getHookModuleFilter();
-
-        if (!empty($hookModuleFilter) && !empty($modulesToInvoke)) {
-            $modulesToInvoke = $hookModuleFilter->filterHookModuleExecList($modulesToInvoke, $hookName);
-        }
+        $modulesToInvoke = $hookModuleFilter->filterHookModuleExecList($modulesToInvoke, $hookName);
 
         return !empty($modulesToInvoke) ? $modulesToInvoke : false;
     }
@@ -1118,8 +1116,9 @@ class HookCore extends ObjectModel
     }
 
     /**
-     * @return HookModuleFilter|null
+     * @return HookModuleFilter
      * @throws \PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException
+     * @throws ServiceNotFoundException
      */
     private static function getHookModuleFilter()
     {
@@ -1129,13 +1128,7 @@ class HookCore extends ObjectModel
             $serviceContainer = ContainerBuilder::getContainer('front', _PS_MODE_DEV_);
         }
 
-        try {
-            $hookModuleFilter = $serviceContainer->get(HookModuleFilter::class);
-        } catch (Exception $e) {
-            return null;
-        }
-
-        return $hookModuleFilter;
+        return $serviceContainer->get(HookModuleFilter::class);
     }
 
     /**
