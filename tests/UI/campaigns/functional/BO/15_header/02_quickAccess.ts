@@ -2,11 +2,11 @@ import testContext from '@utils/testContext';
 import {expect} from 'chai';
 
 // Import pages
-import newCategoryPage from '@pages/BO/catalog/categories/add';
 import addNewQuickAccessPage from '@pages/BO/quickAccess/add';
 
 import {
   boCartRulesCreatePage,
+  boCategoriesCreatePage,
   boCustomersCreatePage,
   boDashboardPage,
   boLoginPage,
@@ -57,7 +57,7 @@ describe('BO - Header : Quick access links', async () => {
     [
       {args: {pageName: 'Catalog evaluation', pageTitle: boStatisticsPage.pageTitle}},
       {args: {pageName: 'Installed modules', pageTitle: boModuleManagerPage.pageTitle}},
-      {args: {pageName: 'New category', pageTitle: newCategoryPage.pageTitleCreate}},
+      {args: {pageName: 'New category', pageTitle: boCategoriesCreatePage.pageTitleCreate}},
       {args: {pageName: 'New product', pageTitle: boProductsPage.pageTitle}},
       {args: {pageName: 'Orders', pageTitle: boOrdersPage.pageTitle}},
       {args: {pageName: 'New voucher', pageTitle: boCartRulesCreatePage.pageTitle}},

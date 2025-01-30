@@ -5,21 +5,21 @@ import opsBulkDeleteAttributes from '@commonTests/BO/catalog/attributes';
 import opsBulkDeleteBrands from '@commonTests/BO/catalog/brands';
 import {deleteProductTest} from '@commonTests/BO/catalog/product';
 import boBrandsCreatePage from '@pages/BO/catalog/brands/add';
-import boCategoriesPage from '@pages/BO/catalog/categories';
-import boCategoriesCreatePage from '@pages/BO/catalog/categories/add';
-import boAttributesViewPage from '@pages/BO/catalog/attributes/view';
-import boAttributeValuesCreatePage from '@pages/BO/catalog/attributes/addValue';
-import boFeaturesPage from '@pages/BO/catalog/features';
-import boFeaturesCreatePage from '@pages/BO/catalog/features/addFeature';
-import boFeaturesViewPage from '@pages/BO/catalog/features/view';
-import boFeatureValuesCreatePage from '@pages/BO/catalog/features/addValue';
 import testContext from '@utils/testContext';
 
 import {
   boAttributesPage,
   boAttributesCreatePage,
+  boAttributesValueCreatePage,
+  boAttributesViewPage,
   boBrandsPage,
+  boCategoriesPage,
+  boCategoriesCreatePage,
   boDashboardPage,
+  boFeaturesPage,
+  boFeaturesCreatePage,
+  boFeaturesValueCreatePage,
+  boFeaturesViewPage,
   boLoginPage,
   boProductsCreatePage,
   boProductsCreateTabCombinationsPage,
@@ -358,8 +358,8 @@ describe('BO - Shop Parameters - Search: Weight', async () => {
 
         await boAttributesViewPage.goToAddNewValuePage(page);
 
-        const pageTitle = await boAttributeValuesCreatePage.getPageTitle(page);
-        expect(pageTitle).to.equal(boAttributeValuesCreatePage.createPageTitle);
+        const pageTitle = await boAttributesValueCreatePage.getPageTitle(page);
+        expect(pageTitle).to.equal(boAttributesValueCreatePage.createPageTitle);
       });
 
       it('should create value', async function () {
@@ -367,7 +367,7 @@ describe('BO - Shop Parameters - Search: Weight', async () => {
 
         attributeValueData.setAttributeId(attributeId);
 
-        const textResult = await boAttributeValuesCreatePage.addEditValue(page, attributeValueData);
+        const textResult = await boAttributesValueCreatePage.addEditValue(page, attributeValueData);
         expect(textResult).to.contains(boAttributesViewPage.successfulCreationMessage);
       });
     });
@@ -442,15 +442,15 @@ describe('BO - Shop Parameters - Search: Weight', async () => {
 
         await boFeaturesViewPage.goToAddNewValuePage(page);
 
-        const pageTitle = await boFeatureValuesCreatePage.getPageTitle(page);
-        expect(pageTitle).to.eq(boFeatureValuesCreatePage.createPageTitle);
+        const pageTitle = await boFeaturesValueCreatePage.getPageTitle(page);
+        expect(pageTitle).to.eq(boFeaturesValueCreatePage.createPageTitle);
       });
 
       it('should create value', async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'createNewValue', baseContext);
 
-        const textResult = await boFeatureValuesCreatePage.addEditValue(page, featureValueData);
-        expect(textResult).to.contains(boFeatureValuesCreatePage.successfulCreationMessage);
+        const textResult = await boFeaturesValueCreatePage.addEditValue(page, featureValueData);
+        expect(textResult).to.contains(boFeaturesValueCreatePage.successfulCreationMessage);
       });
     });
 

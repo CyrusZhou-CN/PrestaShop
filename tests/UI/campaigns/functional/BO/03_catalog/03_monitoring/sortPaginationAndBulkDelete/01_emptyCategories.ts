@@ -1,18 +1,15 @@
-// Import utils
 import testContext from '@utils/testContext';
+import {expect} from 'chai';
 
 // Import common tests
 import importFileTest from '@commonTests/BO/advancedParameters/importFile';
 import bulkDeleteCategoriesTest from '@commonTests/BO/catalog/category';
 
-// Import pages
-import categoriesPage from '@pages/BO/catalog/categories';
-
 // Import data
 import ImportCategories from '@data/import/categories';
 
-import {expect} from 'chai';
 import {
+  boCategoriesPage,
   boDashboardPage,
   boLoginPage,
   boMonitoringPage,
@@ -78,7 +75,7 @@ describe('BO - Catalog - Monitoring : Sort and pagination list of empty categori
     it('should go to \'Catalog > Monitoring\' page', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'goToMonitoringPageToSort', baseContext);
 
-      await categoriesPage.goToSubMenu(
+      await boCategoriesPage.goToSubMenu(
         page,
         boDashboardPage.catalogParentLink,
         boDashboardPage.monitoringLink,

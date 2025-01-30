@@ -22,7 +22,6 @@ import guestOrderTrackingPage from '@pages/FO/hummingbird/orderTracking/guestOrd
 import newProductsPage from '@pages/FO/hummingbird/newProducts';
 import pricesDropPage from '@pages/FO/hummingbird/pricesDrop';
 import securePaymentPage from '@pages/FO/hummingbird/securePayment';
-import siteMapPage from '@pages/FO/hummingbird/siteMap';
 import storesPage from '@pages/FO/hummingbird/stores';
 import termsAndConditionsOfUsePage from '@pages/FO/hummingbird/termsAndConditionsOfUse';
 
@@ -36,6 +35,7 @@ import {
   foHummingbirdLoginPage,
   foHummingbirdMyOrderHistoryPage,
   foHummingbirdMyWishlistsPage,
+  foHummingbirdSitemapPage,
   type Page,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
@@ -122,7 +122,7 @@ describe('FO - Header and Footer : Check links in footer page', async () => {
       {linkSelector: 'About us', pageTitle: foHummingbirdAboutUsPage.pageTitle},
       {linkSelector: 'Secure payment', pageTitle: securePaymentPage.pageTitle},
       {linkSelector: 'Contact us', pageTitle: foHummingbirdContactUsPage.pageTitle},
-      {linkSelector: 'Sitemap', pageTitle: siteMapPage.pageTitle},
+      {linkSelector: 'Sitemap', pageTitle: foHummingbirdSitemapPage.pageTitle},
       {linkSelector: 'Stores', pageTitle: storesPage.pageTitle},
     ].forEach((args, index: number) => {
       it(`should check '${args.linkSelector}' footer links`, async function () {

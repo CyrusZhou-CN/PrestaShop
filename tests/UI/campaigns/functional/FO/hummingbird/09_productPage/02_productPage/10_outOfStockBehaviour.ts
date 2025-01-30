@@ -1,7 +1,6 @@
 import testContext from '@utils/testContext';
 import {deleteProductTest} from '@commonTests/BO/catalog/product';
 import {enableHummingbird, disableHummingbird} from '@commonTests/BO/design/hummingbird';
-import movementsPage from '@pages/BO/catalog/stocks/movements';
 import blockCartModal from '@pages/FO/hummingbird/modal/blockCart';
 import {expect} from 'chai';
 
@@ -11,6 +10,7 @@ import {
   boProductsPage,
   boProductsCreatePage,
   boProductsCreateTabStocksPage,
+  boStockMovementsPage,
   type BrowserContext,
   FakerProduct,
   foHummingbirdProductPage,
@@ -137,14 +137,14 @@ describe('FO - Product page - Product page : Out of stock behaviour', async () =
 
       page = await boProductsCreateTabStocksPage.clickViewAllStockMovements(page);
 
-      const pageTitle = await movementsPage.getPageTitle(page);
-      expect(pageTitle).to.equal(movementsPage.pageTitle);
+      const pageTitle = await boStockMovementsPage.getPageTitle(page);
+      expect(pageTitle).to.equal(boStockMovementsPage.pageTitle);
     });
 
     it('should close the Stock Movements page', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'closeStockMovementsPage', baseContext);
 
-      page = await movementsPage.closePage(browserContext, page, 0);
+      page = await boStockMovementsPage.closePage(browserContext, page, 0);
 
       const pageTitle = await boProductsCreatePage.getPageTitle(page);
       expect(pageTitle).to.contains(boProductsCreatePage.pageTitle);

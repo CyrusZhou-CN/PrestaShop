@@ -1,11 +1,11 @@
 import testContext from '@utils/testContext';
-import filesPage from '@pages/BO/catalog/files';
 import addFilePage from '@pages/BO/catalog/files/add';
 import {expect} from 'chai';
 
 import {
   boAdministrationPage,
   boDashboardPage,
+  boFilesPage,
   boLoginPage,
   boProductsPage,
   boProductsCreatePage,
@@ -115,16 +115,16 @@ describe('BO - Advanced Parameters - Administration : Upload quota', async () =>
         boDashboardPage.catalogParentLink,
         boDashboardPage.filesLink,
       );
-      await filesPage.closeSfToolBar(page);
+      await boFilesPage.closeSfToolBar(page);
 
-      const pageTitle = await filesPage.getPageTitle(page);
-      expect(pageTitle).to.contains(filesPage.pageTitle);
+      const pageTitle = await boFilesPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boFilesPage.pageTitle);
     });
 
     it('should go to new file page', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'goToNewFilePage', baseContext);
 
-      await filesPage.goToAddNewFilePage(page);
+      await boFilesPage.goToAddNewFilePage(page);
 
       const pageTitle = await addFilePage.getPageTitle(page);
       expect(pageTitle).to.contains(addFilePage.pageTitle);
@@ -143,14 +143,14 @@ describe('BO - Advanced Parameters - Administration : Upload quota', async () =>
       await testContext.addContextItem(this, 'testIdentifier', 'createFileAndCheckSuccess', baseContext);
 
       const result = await addFilePage.createEditFile(page, secondFileData);
-      expect(result).to.equal(filesPage.successfulCreationMessage);
+      expect(result).to.equal(boFilesPage.successfulCreationMessage);
     });
 
     it('should delete the created file', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'deleteFile', baseContext);
 
-      const result = await filesPage.deleteFile(page, 1);
-      expect(result).to.be.equal(filesPage.successfulDeleteMessage);
+      const result = await boFilesPage.deleteFile(page, 1);
+      expect(result).to.be.equal(boFilesPage.successfulDeleteMessage);
     });
   });
 

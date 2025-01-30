@@ -1,20 +1,8 @@
 import {expect} from 'chai';
-import addValuePage from '@pages/BO/catalog/attributes/addValue';
-import viewAttributePage from '@pages/BO/catalog/attributes/view';
 import addBrandPage from '@pages/BO/catalog/brands/add';
 import addBrandAddressPage from '@pages/BO/catalog/brands/addAddress';
 import viewBrandPage from '@pages/BO/catalog/brands/view';
-import categoriesPage from '@pages/BO/catalog/categories';
-import addCategoryPage from '@pages/BO/catalog/categories/add';
-import catalogPriceRulesPage from '@pages/BO/catalog/discounts/catalogPriceRules';
-import addCatalogPriceRulePage from '@pages/BO/catalog/discounts/catalogPriceRules/add';
-import featuresPage from '@pages/BO/catalog/features';
-import addFeaturePage from '@pages/BO/catalog/features/addFeature';
-import addFeatureValuePage from '@pages/BO/catalog/features/addValue';
-import viewFeaturePage from '@pages/BO/catalog/features/view';
-import filesPage from '@pages/BO/catalog/files';
 import addFilePage from '@pages/BO/catalog/files/add';
-import movementsPage from '@pages/BO/catalog/stocks/movements';
 import suppliersPage from '@pages/BO/catalog/suppliers';
 import viewSupplierPage from '@pages/BO/catalog/suppliers/view';
 import testContext from '@utils/testContext';
@@ -22,15 +10,27 @@ import testContext from '@utils/testContext';
 import {
   boAttributesPage,
   boAttributesCreatePage,
+  boAttributesValueCreatePage,
+  boAttributesViewPage,
   boBrandsPage,
   boCartRulesPage,
   boCartRulesCreatePage,
+  boCatalogPriceRulesPage,
+  boCatalogPriceRulesCreatePage,
+  boCategoriesPage,
+  boCategoriesCreatePage,
   boDashboardPage,
+  boFeaturesPage,
+  boFeaturesCreatePage,
+  boFeaturesValueCreatePage,
+  boFeaturesViewPage,
+  boFilesPage,
   boLoginPage,
   boMonitoringPage,
   boProductsPage,
   boProductsCreatePage,
   boStockPage,
+  boStockMovementsPage,
   boSuppliersCreate,
   type BrowserContext,
   dataAttributes,
@@ -126,8 +126,8 @@ describe('BO - Catalog', async () => {
       boDashboardPage.categoriesLink,
     );
 
-    const pageTitle = await categoriesPage.getPageTitle(page);
-    expect(pageTitle).to.contains(categoriesPage.pageTitle);
+    const pageTitle = await boCategoriesPage.getPageTitle(page);
+    expect(pageTitle).to.contains(boCategoriesPage.pageTitle);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -136,9 +136,9 @@ describe('BO - Catalog', async () => {
   it('should go to \'Catalog > Categories > Category\' page', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'goToCategoryPage', baseContext);
 
-    await categoriesPage.goToEditCategoryPage(page, 1);
+    await boCategoriesPage.goToEditCategoryPage(page, 1);
 
-    const pageTitle = await addCategoryPage.getPageTitle(page);
+    const pageTitle = await boCategoriesCreatePage.getPageTitle(page);
     expect(pageTitle).to.contains(dataCategories.clothes.name);
 
     const jsErrors = utilsPlaywright.getJsErrors();
@@ -154,10 +154,10 @@ describe('BO - Catalog', async () => {
       boDashboardPage.categoriesLink,
     );
 
-    await categoriesPage.goToAddNewCategoryPage(page);
+    await boCategoriesPage.goToAddNewCategoryPage(page);
 
-    const pageTitle = await addCategoryPage.getPageTitle(page);
-    expect(pageTitle).to.contains(addCategoryPage.pageTitleCreate);
+    const pageTitle = await boCategoriesCreatePage.getPageTitle(page);
+    expect(pageTitle).to.contains(boCategoriesCreatePage.pageTitleCreate);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -166,7 +166,7 @@ describe('BO - Catalog', async () => {
   it('should go to \'Catalog > Monitoring\' page', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'goToMonitoringPage', baseContext);
 
-    await categoriesPage.goToSubMenu(
+    await boCategoriesPage.goToSubMenu(
       page,
       boDashboardPage.catalogParentLink,
       boDashboardPage.monitoringLink,
@@ -200,8 +200,8 @@ describe('BO - Catalog', async () => {
 
     await boAttributesPage.viewAttribute(page, 1);
 
-    const pageTitle = await viewAttributePage.getPageTitle(page);
-    expect(pageTitle).to.equal(viewAttributePage.pageTitle(dataAttributes.size.name));
+    const pageTitle = await boAttributesViewPage.getPageTitle(page);
+    expect(pageTitle).to.equal(boAttributesViewPage.pageTitle(dataAttributes.size.name));
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -210,10 +210,10 @@ describe('BO - Catalog', async () => {
   it('should go to \'Catalog > Attributes & Features > Attributes > Add new value\' page', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'goToAddNewAttributeValuePage', baseContext);
 
-    await viewAttributePage.goToAddNewValuePage(page);
+    await boAttributesViewPage.goToAddNewValuePage(page);
 
-    const pageTitle = await addValuePage.getPageTitle(page);
-    expect(pageTitle).to.contains(addValuePage.createPageTitle);
+    const pageTitle = await boAttributesValueCreatePage.getPageTitle(page);
+    expect(pageTitle).to.contains(boAttributesValueCreatePage.createPageTitle);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -247,8 +247,8 @@ describe('BO - Catalog', async () => {
     );
     await boAttributesPage.goToFeaturesPage(page);
 
-    const pageTitle = await featuresPage.getPageTitle(page);
-    expect(pageTitle).to.contains(featuresPage.pageTitle);
+    const pageTitle = await boFeaturesPage.getPageTitle(page);
+    expect(pageTitle).to.contains(boFeaturesPage.pageTitle);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -257,9 +257,9 @@ describe('BO - Catalog', async () => {
   it('should go to \'Catalog > Attributes & Features > Features > Feature\' page', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'goToFeaturePage', baseContext);
 
-    await featuresPage.viewFeature(page, 1);
+    await boFeaturesPage.viewFeature(page, 1);
 
-    const pageTitle = await viewFeaturePage.getPageTitle(page);
+    const pageTitle = await boFeaturesViewPage.getPageTitle(page);
     expect(pageTitle).to.contains(`${dataFeatures.composition.name} • ${global.INSTALL.SHOP_NAME}`);
 
     const jsErrors = utilsPlaywright.getJsErrors();
@@ -269,10 +269,10 @@ describe('BO - Catalog', async () => {
   it('should go to \'Catalog > Attributes & Features > Features > Add new value\' page', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'goToAddNewFeatureValuePage', baseContext);
 
-    await viewFeaturePage.goToAddNewValuePage(page);
+    await boFeaturesViewPage.goToAddNewValuePage(page);
 
-    const pageTitle = await addFeatureValuePage.getPageTitle(page);
-    expect(pageTitle).to.contains(addFeatureValuePage.createPageTitle);
+    const pageTitle = await boFeaturesValueCreatePage.getPageTitle(page);
+    expect(pageTitle).to.contains(boFeaturesValueCreatePage.createPageTitle);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -288,10 +288,10 @@ describe('BO - Catalog', async () => {
     );
     await boAttributesPage.goToFeaturesPage(page);
 
-    await featuresPage.goToAddFeaturePage(page);
+    await boFeaturesPage.goToAddFeaturePage(page);
 
-    const pageTitle = await addFeaturePage.getPageTitle(page);
-    expect(pageTitle).to.eq(addFeaturePage.createPageTitle);
+    const pageTitle = await boFeaturesCreatePage.getPageTitle(page);
+    expect(pageTitle).to.eq(boFeaturesCreatePage.createPageTitle);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -450,8 +450,8 @@ describe('BO - Catalog', async () => {
       boDashboardPage.filesLink,
     );
 
-    const pageTitle = await filesPage.getPageTitle(page);
-    expect(pageTitle).to.contains(filesPage.pageTitle);
+    const pageTitle = await boFilesPage.getPageTitle(page);
+    expect(pageTitle).to.contains(boFilesPage.pageTitle);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -460,7 +460,7 @@ describe('BO - Catalog', async () => {
   it('should go to \'Catalog > Files > Add new file\' page', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'goToAddNewFilePage', baseContext);
 
-    await filesPage.goToAddNewFilePage(page);
+    await boFilesPage.goToAddNewFilePage(page);
 
     const pageTitle = await addFilePage.getPageTitle(page);
     expect(pageTitle).to.contains(addFilePage.pageTitle);
@@ -507,8 +507,8 @@ describe('BO - Catalog', async () => {
     );
     await boCartRulesPage.goToCatalogPriceRulesTab(page);
 
-    const pageTitle = await catalogPriceRulesPage.getPageTitle(page);
-    expect(pageTitle).to.contains(catalogPriceRulesPage.pageTitle);
+    const pageTitle = await boCatalogPriceRulesPage.getPageTitle(page);
+    expect(pageTitle).to.contains(boCatalogPriceRulesPage.pageTitle);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -517,10 +517,10 @@ describe('BO - Catalog', async () => {
   it('should go to \'Catalog > Discounts > Catalog Price Rules > Add new catalog price rule\' page', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'goToAddNewCatalogPriceRulePage', baseContext);
 
-    await catalogPriceRulesPage.goToAddNewCatalogPriceRulePage(page);
+    await boCatalogPriceRulesPage.goToAddNewCatalogPriceRulePage(page);
 
-    const pageTitle = await addCatalogPriceRulePage.getPageTitle(page);
-    expect(pageTitle).to.contains(addCatalogPriceRulePage.pageTitle);
+    const pageTitle = await boCatalogPriceRulesCreatePage.getPageTitle(page);
+    expect(pageTitle).to.contains(boCatalogPriceRulesCreatePage.pageTitle);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);
@@ -547,8 +547,8 @@ describe('BO - Catalog', async () => {
 
     await boStockPage.goToSubTabMovements(page);
 
-    const pageTitle = await movementsPage.getPageTitle(page);
-    expect(pageTitle).to.contains(movementsPage.pageTitle);
+    const pageTitle = await boStockMovementsPage.getPageTitle(page);
+    expect(pageTitle).to.contains(boStockMovementsPage.pageTitle);
 
     const jsErrors = utilsPlaywright.getJsErrors();
     expect(jsErrors.length).to.equals(0);

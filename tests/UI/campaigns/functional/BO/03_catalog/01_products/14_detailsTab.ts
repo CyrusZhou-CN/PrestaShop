@@ -1,10 +1,10 @@
 import testContext from '@utils/testContext';
-import featuresPage from '@pages/BO/catalog/features';
-import filesPage from '@pages/BO/catalog/files';
 import {expect} from 'chai';
 
 import {
   boDashboardPage,
+  boFeaturesPage,
+  boFilesPage,
   boLoginPage,
   boProductsPage,
   boProductsCreatePage,
@@ -236,14 +236,14 @@ describe('BO - Catalog - Products : Details tab', async () => {
       await boProductsCreatePage.goToTab(page, 'details');
       page = await boProductsCreateTabDetailsPage.clickonManageFeatures(page);
 
-      const pageTitle = await featuresPage.getPageTitle(page);
-      expect(pageTitle).to.contains(featuresPage.pageTitle);
+      const pageTitle = await boFeaturesPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boFeaturesPage.pageTitle);
     });
 
     it('should close the Features pages', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'closeFeaturesTab', baseContext);
 
-      page = await filesPage.closePage(browserContext, page, 0);
+      page = await boFilesPage.closePage(browserContext, page, 0);
 
       const pageTitle = await boProductsCreatePage.getPageTitle(page);
       expect(pageTitle).to.contains(boProductsCreatePage.pageTitle);
@@ -302,14 +302,14 @@ describe('BO - Catalog - Products : Details tab', async () => {
 
       page = await boProductsCreateTabDetailsPage.clickOnManageAllFiles(page);
 
-      const pageTitle = await filesPage.getPageTitle(page);
-      expect(pageTitle).to.contains(filesPage.pageTitle);
+      const pageTitle = await boFilesPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boFilesPage.pageTitle);
     });
 
     it('should close Files page', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'closeFilesPage', baseContext);
 
-      page = await filesPage.closePage(browserContext, page, 0);
+      page = await boFilesPage.closePage(browserContext, page, 0);
 
       const pageTitle = await boProductsCreatePage.getPageTitle(page);
       expect(pageTitle).to.contains(boProductsCreatePage.pageTitle);
@@ -447,15 +447,15 @@ describe('BO - Catalog - Products : Details tab', async () => {
         boDashboardPage.filesLink,
       );
 
-      const pageTitle = await filesPage.getPageTitle(page);
-      expect(pageTitle).to.contains(filesPage.pageTitle);
+      const pageTitle = await boFilesPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boFilesPage.pageTitle);
     });
 
     it('should delete files with Bulk Actions', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'BulkDelete', baseContext);
 
-      const deleteTextResult = await filesPage.deleteFilesBulkActions(page);
-      expect(deleteTextResult).to.be.equal(filesPage.successfulMultiDeleteMessage);
+      const deleteTextResult = await boFilesPage.deleteFilesBulkActions(page);
+      expect(deleteTextResult).to.be.equal(boFilesPage.successfulMultiDeleteMessage);
     });
   });
 });

@@ -1,14 +1,8 @@
-// Import utils
 import testContext from '@utils/testContext';
+import {expect} from 'chai';
 
 // Import commonSteps
 import {bulkDeleteProductsTest} from '@commonTests/BO/catalog/product';
-
-// Import pages
-// Import BO pages
-import taxesPage from '@pages/BO/international/taxes';
-import addTaxRulesPage from '@pages/BO/international/taxes/taxRules/add';
-import taxRulesPage from '@pages/BO/international/taxes/taxRules';
 
 import {
   boDashboardPage,
@@ -18,6 +12,9 @@ import {
   boOrdersViewBlockTabListPage,
   boProductsPage,
   boProductsCreatePage,
+  boTaxesPage,
+  boTaxRulesPage,
+  boTaxRulesCreatePage,
   type BrowserContext,
   dataCustomers,
   dataOrderStatuses,
@@ -33,8 +30,6 @@ import {
   utilsFile,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
-
-import {expect} from 'chai';
 
 const baseContext: string = 'functional_BO_orders_invoices_invoiceOptions_enableDisableTaxBreakdown';
 
@@ -129,56 +124,56 @@ describe('BO - Orders - Invoices : Enable/Disable tax breakdown', async () => {
           boInvoicesPage.taxesLink,
         );
 
-        const pageTitle = await taxesPage.getPageTitle(page);
-        expect(pageTitle).to.contains(taxesPage.pageTitle);
+        const pageTitle = await boTaxesPage.getPageTitle(page);
+        expect(pageTitle).to.contains(boTaxesPage.pageTitle);
       });
 
       it('should go to \'Tax Rules\' page', async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'goToTaxRulesPage', baseContext);
 
-        await taxesPage.goToTaxRulesPage(page);
+        await boTaxesPage.goToTaxRulesPage(page);
 
-        const pageTitle = await taxRulesPage.getPageTitle(page);
-        expect(pageTitle).to.contains(taxRulesPage.pageTitle);
+        const pageTitle = await boTaxRulesPage.getPageTitle(page);
+        expect(pageTitle).to.contains(boTaxRulesPage.pageTitle);
       });
 
       it('should go to \'Add new tax rules group\' page', async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'goToAddTaxRulePage', baseContext);
 
-        await taxRulesPage.goToAddNewTaxRulesGroupPage(page);
+        await boTaxRulesPage.goToAddNewTaxRulesGroupPage(page);
 
-        const pageTitle = await addTaxRulesPage.getPageTitle(page);
-        expect(pageTitle).to.contains(addTaxRulesPage.pageTitleCreate);
+        const pageTitle = await boTaxRulesCreatePage.getPageTitle(page);
+        expect(pageTitle).to.contains(boTaxRulesCreatePage.pageTitleCreate);
       });
 
       it('should create new tax rule group', async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'createTaxRuleGroup', baseContext);
 
-        const textResult = await addTaxRulesPage.createEditTaxRulesGroup(page, taxRuleGroupToCreate);
-        expect(textResult).to.contains(addTaxRulesPage.successfulCreationMessage);
+        const textResult = await boTaxRulesCreatePage.createEditTaxRulesGroup(page, taxRuleGroupToCreate);
+        expect(textResult).to.contains(boTaxRulesCreatePage.successfulCreationMessage);
       });
 
       it('should create new tax rule n°1', async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'createFirstTaxRule', baseContext);
 
-        const textResult = await addTaxRulesPage.createEditTaxRules(page, firstTaxRuleToCreate);
-        expect(textResult).to.contains(addTaxRulesPage.successfulUpdateMessage);
+        const textResult = await boTaxRulesCreatePage.createEditTaxRules(page, firstTaxRuleToCreate);
+        expect(textResult).to.contains(boTaxRulesCreatePage.successfulUpdateMessage);
       });
 
       it('should go to \'Add new tax rule\' page', async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'clickToCreateSecondTaxRule', baseContext);
 
-        await addTaxRulesPage.clickOnAddNewTaxRule(page);
+        await boTaxRulesCreatePage.clickOnAddNewTaxRule(page);
 
-        const pageTitle = await addTaxRulesPage.getPageTitle(page);
-        expect(pageTitle).to.contains(addTaxRulesPage.pageTitleEdit);
+        const pageTitle = await boTaxRulesCreatePage.getPageTitle(page);
+        expect(pageTitle).to.contains(boTaxRulesCreatePage.pageTitleEdit);
       });
 
       it('should create new tax rule n°2', async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'createSecondTaxRule', baseContext);
 
-        const textResult = await addTaxRulesPage.createEditTaxRules(page, secondTaxRuleToCreate);
-        expect(textResult).to.contains(addTaxRulesPage.successfulUpdateMessage);
+        const textResult = await boTaxRulesCreatePage.createEditTaxRules(page, secondTaxRuleToCreate);
+        expect(textResult).to.contains(boTaxRulesCreatePage.successfulUpdateMessage);
       });
     });
 
@@ -186,10 +181,10 @@ describe('BO - Orders - Invoices : Enable/Disable tax breakdown', async () => {
       it('should go to \'Products > Products\' page', async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'goToProductPageToCreateProduct', baseContext);
 
-        await addTaxRulesPage.goToSubMenu(
+        await boTaxRulesCreatePage.goToSubMenu(
           page,
-          addTaxRulesPage.catalogParentLink,
-          addTaxRulesPage.productsLink,
+          boTaxRulesCreatePage.catalogParentLink,
+          boTaxRulesCreatePage.productsLink,
         );
 
         const pageTitle = await boProductsPage.getPageTitle(page);
@@ -444,33 +439,33 @@ describe('BO - Orders - Invoices : Enable/Disable tax breakdown', async () => {
         boInvoicesPage.taxesLink,
       );
 
-      const pageTitle = await taxesPage.getPageTitle(page);
-      expect(pageTitle).to.contains(taxesPage.pageTitle);
+      const pageTitle = await boTaxesPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boTaxesPage.pageTitle);
     });
 
     it('should go to \'Tax Rules\' page', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'goToTaxRulesPage1', baseContext);
 
-      await taxesPage.goToTaxRulesPage(page);
+      await boTaxesPage.goToTaxRulesPage(page);
 
-      const pageTitle = await taxRulesPage.getPageTitle(page);
-      expect(pageTitle).to.contains(taxRulesPage.pageTitle);
+      const pageTitle = await boTaxRulesPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boTaxRulesPage.pageTitle);
     });
 
     it('should filter list by name', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'filterForBulkDelete', baseContext);
 
-      await taxRulesPage.filterTable(
+      await boTaxRulesPage.filterTable(
         page,
         'input',
         'name',
         taxRuleGroupToCreate.name,
       );
 
-      const numberOfLinesAfterFilter = await taxRulesPage.getNumberOfElementInGrid(page);
+      const numberOfLinesAfterFilter = await boTaxRulesPage.getNumberOfElementInGrid(page);
 
       for (let i = 1; i <= numberOfLinesAfterFilter; i++) {
-        const textColumn = await taxRulesPage.getTextColumnFromTable(
+        const textColumn = await boTaxRulesPage.getTextColumnFromTable(
           page,
           i,
           'name',
@@ -482,14 +477,14 @@ describe('BO - Orders - Invoices : Enable/Disable tax breakdown', async () => {
     it('should delete tax rules with Bulk Actions and check result', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'bulkDeleteCarriers', baseContext);
 
-      const deleteTextResult = await taxRulesPage.bulkDeleteTaxRules(page);
-      expect(deleteTextResult).to.be.contains(taxRulesPage.successfulMultiDeleteMessage);
+      const deleteTextResult = await boTaxRulesPage.bulkDeleteTaxRules(page);
+      expect(deleteTextResult).to.be.contains(boTaxRulesPage.successfulMultiDeleteMessage);
     });
 
     it('should reset all filters', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'resetFilterAfterDelete', baseContext);
 
-      const numberOfLinesAfterReset = await taxRulesPage.resetAndGetNumberOfLines(page);
+      const numberOfLinesAfterReset = await boTaxRulesPage.resetAndGetNumberOfLines(page);
       expect(numberOfLinesAfterReset).to.be.above(0);
     });
   });

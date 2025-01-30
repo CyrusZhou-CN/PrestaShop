@@ -9,7 +9,6 @@ import createAccountPage from '@pages/FO/hummingbird/myAccount/add';
 import guestOrderTrackingPage from '@pages/FO/hummingbird/orderTracking/guestOrderTracking';
 import termsAndConditionsOfUsePage from '@pages/FO/hummingbird/termsAndConditionsOfUse';
 import securePaymentPage from '@pages/FO/hummingbird/securePayment';
-import siteMapPage from '@pages/FO/hummingbird/siteMap';
 import storesPage from '@pages/FO/hummingbird/stores';
 import testContext from '@utils/testContext';
 
@@ -24,6 +23,7 @@ import {
   foHummingbirdLoginPage,
   foHummingbirdProductPage,
   foHummingbirdSearchResultsPage,
+  foHummingbirdSitemapPage,
   type Page,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
@@ -141,7 +141,7 @@ describe('Check FO public pages', async () => {
         {linkSelector: 'About us', pageTitle: foHummingbirdAboutUsPage.pageTitle},
         {linkSelector: 'Secure payment', pageTitle: securePaymentPage.pageTitle},
         {linkSelector: 'Contact us', pageTitle: foHummingbirdContactUsPage.pageTitle},
-        {linkSelector: 'Sitemap', pageTitle: siteMapPage.pageTitle},
+        {linkSelector: 'Sitemap', pageTitle: foHummingbirdSitemapPage.pageTitle},
         {linkSelector: 'Stores', pageTitle: storesPage.pageTitle},
       ].forEach((args, index: number) => {
         it(`should check '${args.linkSelector}' footer links`, async function () {

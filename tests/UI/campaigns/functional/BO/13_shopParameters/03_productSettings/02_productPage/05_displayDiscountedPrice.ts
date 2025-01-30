@@ -1,14 +1,10 @@
-// Import utils
 import testContext from '@utils/testContext';
-
-// Import pages
-// Import BO pages
-import catalogPriceRulesPage from '@pages/BO/catalog/discounts/catalogPriceRules';
-import addCatalogPriceRulePage from '@pages/BO/catalog/discounts/catalogPriceRules/add';
-
 import {expect} from 'chai';
+
 import {
   boCartRulesPage,
+  boCatalogPriceRulesPage,
+  boCatalogPriceRulesCreatePage,
   boDashboardPage,
   boLoginPage,
   boProductSettingsPage,
@@ -79,29 +75,29 @@ describe('BO - Shop Parameters - Product Settings : Enable/Disable display disco
 
     await boCartRulesPage.goToCatalogPriceRulesTab(page);
 
-    const pageTitle = await catalogPriceRulesPage.getPageTitle(page);
-    expect(pageTitle).to.contains(catalogPriceRulesPage.pageTitle);
+    const pageTitle = await boCatalogPriceRulesPage.getPageTitle(page);
+    expect(pageTitle).to.contains(boCatalogPriceRulesPage.pageTitle);
   });
 
   it('should create new catalog price rule', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'createCatalogPriceRule', baseContext);
 
-    await catalogPriceRulesPage.goToAddNewCatalogPriceRulePage(page);
+    await boCatalogPriceRulesPage.goToAddNewCatalogPriceRulePage(page);
 
-    const pageTitle = await addCatalogPriceRulePage.getPageTitle(page);
-    expect(pageTitle).to.contains(addCatalogPriceRulePage.pageTitle);
+    const pageTitle = await boCatalogPriceRulesCreatePage.getPageTitle(page);
+    expect(pageTitle).to.contains(boCatalogPriceRulesCreatePage.pageTitle);
 
-    const validationMessage = await addCatalogPriceRulePage.setCatalogPriceRule(page, priceRuleData);
-    expect(validationMessage).to.contains(catalogPriceRulesPage.successfulCreationMessage);
+    const validationMessage = await boCatalogPriceRulesCreatePage.setCatalogPriceRule(page, priceRuleData);
+    expect(validationMessage).to.contains(boCatalogPriceRulesPage.successfulCreationMessage);
   });
 
   it('should go to \'Shop parameters > Product Settings\' page', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'goToProductSettingsPage', baseContext);
 
-    await addCatalogPriceRulePage.goToSubMenu(
+    await boCatalogPriceRulesCreatePage.goToSubMenu(
       page,
-      addCatalogPriceRulePage.shopParametersParentLink,
-      addCatalogPriceRulePage.productSettingsLink,
+      boCatalogPriceRulesCreatePage.shopParametersParentLink,
+      boCatalogPriceRulesCreatePage.productSettingsLink,
     );
     await boProductSettingsPage.closeSfToolBar(page);
 
@@ -195,14 +191,14 @@ describe('BO - Shop Parameters - Product Settings : Enable/Disable display disco
 
     await boCartRulesPage.goToCatalogPriceRulesTab(page);
 
-    const pageTitle = await catalogPriceRulesPage.getPageTitle(page);
-    expect(pageTitle).to.contains(catalogPriceRulesPage.pageTitle);
+    const pageTitle = await boCatalogPriceRulesPage.getPageTitle(page);
+    expect(pageTitle).to.contains(boCatalogPriceRulesPage.pageTitle);
   });
 
   it('should delete catalog price rule', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'deleteCatalogPriceRule', baseContext);
 
-    const deleteTextResult = await catalogPriceRulesPage.deleteCatalogPriceRule(page, priceRuleData.name);
-    expect(deleteTextResult).to.contains(catalogPriceRulesPage.successfulDeleteMessage);
+    const deleteTextResult = await boCatalogPriceRulesPage.deleteCatalogPriceRule(page, priceRuleData.name);
+    expect(deleteTextResult).to.contains(boCatalogPriceRulesPage.successfulDeleteMessage);
   });
 });
