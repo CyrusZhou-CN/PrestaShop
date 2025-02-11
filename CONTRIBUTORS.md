@@ -428,6 +428,7 @@ GitHub contributors:
 - Johannes Schramm
 - John Cocula
 - John Zandbergen
+- JohnPAfr
 - Jonadabe
 - Jonas Erixon
 - Jónatan Núñez
@@ -683,6 +684,7 @@ GitHub contributors:
 - Paul Coudeville
 - Paulo Baptista
 - Pavel Novitsky
+- Pawel Szostok
 - pbirnzain
 - Pedro Câmara
 - Pedro J. Parra
@@ -745,6 +747,7 @@ GitHub contributors:
 - Quentin Montant
 - Quentin MONTANT - KIWIK
 - Quetzacoalt91
+- r.fabiani
 - Racochejl
 - Rafael Cunha
 - Rafał Miłecki
@@ -784,6 +787,7 @@ GitHub contributors:
 - Romain 'Maz' BILLOIR
 - Romain BOCHEUX
 - Romain Couderc
+- Romain PIOT
 - Romain Soulard
 - romainberger
 - Roman Gusev
@@ -923,6 +927,7 @@ GitHub contributors:
 - tomek
 - Tony BOTALLA
 - toslan
+- Touxten
 - Travis-CI
 - tucoinfo
 - Tung Dao
