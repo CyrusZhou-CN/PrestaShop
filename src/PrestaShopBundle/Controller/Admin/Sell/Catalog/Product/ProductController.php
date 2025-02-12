@@ -729,6 +729,7 @@ class ProductController extends FrameworkBundleAdminController
      */
     public function exportAction(ProductFilters $filters)
     {
+        $filters = new ProductFilters($filters->getShopConstraint(), ['limit' => null] + $filters->all());
         $productGridFactory = $this->get('prestashop.core.grid.factory.product');
         $grid = $productGridFactory->getGrid($filters);
 
