@@ -3959,6 +3959,10 @@ exit;
                         'poster' => 'URI',
                         'preload' => 'Enum#auto,metadata,none',
                         'controls' => 'Bool',
+                        'autoplay' => 'Bool',
+                        'loop' => 'Bool',
+                        'muted' => 'Bool',
+                        'playsinline' => 'Bool',
                     ]);
                     $def->addElement('source', 'Block', 'Flow', 'Common', [
                         'src' => 'URI',
