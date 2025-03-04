@@ -3029,3 +3029,28 @@ CREATE TABLE `PREFIX_access` (
   KEY `IDX_564352A15FCA037F` (`id_profile`),
   KEY `IDX_564352A18C6DE0E5` (`id_authorization_role`)
 ) ENGINE=ENGINE_TYPE DEFAULT CHARSET=utf8mb4 COLLATION;
+
+CREATE TABLE `PREFIX_shipment` (
+  `id_shipment` int(10) AUTO_INCREMENT NOT NULL,
+  `id_order` int(10) NOT NULL,
+  `id_carrier` int(10) NOT NULL,
+  `id_delivery_address` int(10) DEFAULT NULL,
+  `shipping_cost_tax_excl` NUMERIC(20, 6) DEFAULT '0.000000',
+  `shipping_cost_tax_incl` NUMERIC(20, 6) DEFAULT '0.000000',
+  `packed_at` datetime DEFAULT NULL,
+  `shipped_at` datetime DEFAULT NULL,
+  `delivered_at` datetime DEFAULT NULL,
+  `cancelled_at` DATETIME DEFAULT NULL,
+  `tracking_number` varchar(255) DEFAULT NULL,
+  `date_add` datetime NOT NULL,
+  `date_upd` datetime NOT NULL,
+  PRIMARY KEY (`id_shipment`)
+) ENGINE=ENGINE_TYPE DEFAULT CHARSET=utf8mb4 COLLATION;
+
+CREATE TABLE `PREFIX_shipment_product` (
+  `id_shipment_product` INT AUTO_INCREMENT NOT NULL,
+  `id_shipment` int(10) NOT NULL,
+  `id_order_detail` int(10) NOT NULL,
+  `quantity` int(10) DEFAULT NULL,
+  PRIMARY KEY (id_shipment_product)
+) ENGINE=ENGINE_TYPE DEFAULT CHARSET=utf8mb4 COLLATION;
