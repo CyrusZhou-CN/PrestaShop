@@ -73,4 +73,8 @@ class DiscountConstraintException extends DiscountException
     public const EMPTY_RESTRICTION_RULE_IDS = 42;
     public const EMPTY_RESTRICTION_RULES = 43;
     public const INVALID_PROPERTY_FOR_TYPE = 44;
+
+    public const INVALID_AMOUNT_DISCOUNT_ALREADY_SET = 45;
+
+    public const INVALID_PERCENT_DISCOUNT_ALREADY_SET = 46;
 }

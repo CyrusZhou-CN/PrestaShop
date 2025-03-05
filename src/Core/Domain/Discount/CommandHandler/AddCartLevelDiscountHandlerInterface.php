@@ -24,20 +24,12 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-namespace PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject;
+namespace PrestaShop\PrestaShop\Core\Domain\Discount\CommandHandler;
 
-class DiscountType
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
+
+interface AddCartLevelDiscountHandlerInterface
 {
-    public const FREE_SHIPPING = 'free_shipping';
-    public const CART_DISCOUNT = 'cart_discount';
-    public const FREE_GIFT = 'free_gift';
-
-    public function __construct(private readonly string $value)
-    {
-    }
-
-    public function getValue(): string
-    {
-        return $this->value;
-    }
+    public function handle(AddCartLevelDiscountCommand $command): DiscountId;
 }

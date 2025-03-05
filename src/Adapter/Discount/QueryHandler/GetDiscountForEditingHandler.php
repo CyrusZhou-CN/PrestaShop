@@ -28,6 +28,7 @@ namespace PrestaShop\PrestaShop\Adapter\Discount\QueryHandler;
 
 use DateTimeImmutable;
 use Exception;
+use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountRepository;
 use PrestaShop\PrestaShop\Core\CommandBus\Attributes\AsQueryHandler;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Query\GetDiscountForEditing;
@@ -62,7 +63,11 @@ class GetDiscountForEditingHandler implements GetDiscountForEditingHandlerInterf
             (int) $cartRule->id_customer,
             $cartRule->highlight,
             $cartRule->partial_use,
-            $cartRule->type
+            $cartRule->type,
+            new DecimalNumber($cartRule->reduction_percent),
+            new DecimalNumber($cartRule->reduction_amount),
+            $cartRule->reduction_currency,
+            $cartRule->reduction_tax
         );
     }
 }

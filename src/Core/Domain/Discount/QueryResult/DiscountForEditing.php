@@ -27,6 +27,7 @@
 namespace PrestaShop\PrestaShop\Core\Domain\Discount\QueryResult;
 
 use DateTimeImmutable;
+use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
 
 class DiscountForEditing
@@ -45,6 +46,10 @@ class DiscountForEditing
         private readonly bool $highlightInCart,
         private readonly bool $allowPartialUse,
         private readonly string $type,
+        private readonly ?DecimalNumber $percentDiscount,
+        private readonly ?DecimalNumber $amountDiscount,
+        private readonly ?int $currencyId,
+        private readonly ?bool $taxIncluded,
     ) {
     }
 
@@ -111,5 +116,25 @@ class DiscountForEditing
     public function getType(): DiscountType
     {
         return new DiscountType($this->type);
+    }
+
+    public function getPercentDiscount(): ?DecimalNumber
+    {
+        return $this->percentDiscount;
+    }
+
+    public function getAmountDiscount(): ?DecimalNumber
+    {
+        return $this->amountDiscount;
+    }
+
+    public function getCurrencyId(): ?int
+    {
+        return $this->currencyId;
+    }
+
+    public function isTaxIncluded(): ?bool
+    {
+        return $this->taxIncluded;
     }
 }

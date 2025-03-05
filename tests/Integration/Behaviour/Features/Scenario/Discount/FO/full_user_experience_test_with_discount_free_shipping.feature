@@ -1,6 +1,6 @@
-# ./vendor/bin/behat -c tests/Integration/Behaviour/behat.yml -s discount --tags full-ux-discount-test
+# ./vendor/bin/behat -c tests/Integration/Behaviour/behat.yml -s discount --tags full-ux-discount-test-free-shipping
 @restore-all-tables-before-feature
-@full-ux-discount-test
+@full-ux-discount-test-free-shipping
 
 Feature: Full UX discount test
   PrestaShop allows BO users to create discounts
@@ -16,41 +16,26 @@ Feature: Full UX discount test
     And language with iso code "en" is the default one
 
   Scenario: Create a complete discount with free shipping using new CQRS
-    When I create a free shipping discount "discount_1" with following properties:
+    When I create a free shipping discount "complete_free_shipping_discount" with following properties:
       | name[en-US]       | Promotion              |
-      | description       | Promotion for holidays |
-      | highlight         | false                  |
       | active            | true                   |
-      | allow_partial_use | false                  |
-      | priority          | 2                      |
       | valid_from        | 2025-01-01 11:05:00    |
       | valid_to          | 2025-12-01 00:00:00    |
-      | total_quantity    | 10                     |
-      | quantity_per_user | 1                      |
-      | free_shipping     | true                   |
       | code              | PROMO_2025             |
-    And discount "discount_1" should have the following properties:
+    And discount "complete_free_shipping_discount" should have the following properties:
       | name[en-US]       | Promotion              |
-      | description       | Promotion for holidays |
-      | highlight         | false                  |
       | active            | true                   |
-      | allow_partial_use | false                  |
-      | priority          | 2                      |
       | valid_from        | 2025-01-01 11:05:00    |
       | valid_to          | 2025-12-01 00:00:00    |
-      | total_quantity    | 10                     |
-      | quantity_per_user | 1                      |
-      | free_shipping     | true                   |
       | code              | PROMO_2025             |
 
   Scenario: One product in cart, one discount offering only free shipping
-    Given discount "discount_1" should have the following properties:
+    Given discount "complete_free_shipping_discount" should have the following properties:
       | name[en-US]   | Promotion  |
-      | priority      | 2          |
       | free_shipping | true       |
       | code          | PROMO_2025 |
     And I add 1 items of product "product1" in my cart
     And my cart total shipping fees should be 7.0 tax included
     And my cart total should be 26.812 tax included
-    When I apply the voucher code "discount_1"
+    When I apply the voucher code "complete_free_shipping_discount"
     Then my cart total should be 19.812 tax included

@@ -30,6 +30,9 @@ use Behat\Gherkin\Node\TableNode;
 use DateTimeImmutable;
 use Exception;
 use PHPUnit\Framework\Assert;
+use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeShippingDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
@@ -56,6 +59,46 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         try {
             $command = new AddFreeShippingDiscountCommand();
             $this->createDiscount($discountReference, $data, $command);
+        } catch (DiscountConstraintException $e) {
+            $this->setLastException($e);
+        }
+    }
+
+    /**
+     * @When I create a cart level discount :discountReference with following properties:
+     *
+     * @param string $discountReference
+     * @param TableNode $node
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function createCartLevelDiscountIfNotExists(string $discountReference, TableNode $node): void
+    {
+        $data = $this->localizeByRows($node);
+        try {
+            $command = new AddCartLevelDiscountCommand();
+            $this->createDiscount($discountReference, $data, $command);
+        } catch (DiscountConstraintException $e) {
+            $this->setLastException($e);
+        }
+    }
+
+    /**
+     * @When I create a cart level discount :discountReference
+     *
+     * @param string $discountReference
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function createSimpleCartLevelDiscountIfNotExists(string $discountReference): void
+    {
+        try {
+            $command = new AddCartLevelDiscountCommand();
+            $this->createDiscount($discountReference, [], $command);
         } catch (DiscountConstraintException $e) {
             $this->setLastException($e);
         }
@@ -151,6 +194,20 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             $command->setCode($data['code']);
         }
 
+        if ($command instanceof AddCartLevelDiscountCommand) {
+            if (!empty($data['reduction_percent'])) {
+                $command->setPercentDiscount(new DecimalNumber($data['reduction_percent']));
+            }
+
+            if (!empty($data['reduction_amount'])) {
+                $command->setAmountDiscount(
+                    new DecimalNumber($data['reduction_amount']),
+                    new CurrencyId($this->getSharedStorage()->get($data['reduction_currency'])),
+                    PrimitiveUtils::castStringBooleanIntoBoolean($data['taxIncluded']),
+                );
+            }
+        }
+
         /** @var DiscountId $discountId */
         $discountId = $this->getCommandBus()->handle($command);
         $this->getSharedStorage()->set($cartRuleReference, $discountId->getValue());
@@ -214,6 +271,23 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         }
         if (isset($expectedData['quantity_per_user'])) {
             Assert::assertSame((int) $expectedData['quantity_per_user'], $discountForEditing->getQuantityPerUser(), 'Unexpected quantity_per_user');
+        }
+
+        if (isset($expectedData['reduction_percent'])) {
+            Assert::assertSame((float) $expectedData['reduction_percent'], (float) (string) $discountForEditing->getPercentDiscount(), 'Unexpected percent discount');
+        }
+
+        if (isset($expectedData['reduction_amount'])) {
+            Assert::assertSame((float) $expectedData['reduction_amount'], (float) (string) $discountForEditing->getAmountDiscount(), 'Unexpected amount discount');
+        }
+        if (isset($expectedData['reduction_currency'])) {
+            Assert::assertSame($this->getSharedStorage()->get($expectedData['reduction_currency']), $discountForEditing->getCurrencyId(), 'Unexpected reduction currency');
+        }
+        if (isset($expectedData['taxIncluded'])) {
+            Assert::assertSame(PrimitiveUtils::castStringBooleanIntoBoolean($expectedData['taxIncluded']), $discountForEditing->isTaxIncluded(), 'Unexpected tax included');
+        }
+        if (isset($expectedData['type'])) {
+            Assert::assertSame($expectedData['type'], $discountForEditing->getType()->getValue(), 'Unexpected type');
         }
     }
 

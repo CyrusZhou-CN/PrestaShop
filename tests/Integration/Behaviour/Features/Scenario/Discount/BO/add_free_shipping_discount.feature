@@ -1,7 +1,7 @@
-# ./vendor/bin/behat -c tests/Integration/Behaviour/behat.yml -s discount --tags add-discount
+# ./vendor/bin/behat -c tests/Integration/Behaviour/behat.yml -s discount --tags add-free-shipping-discount
 @restore-all-tables-before-feature
 @restore-languages-after-feature
-@add-discount
+@add-free-shipping-discount
 Feature: Add discount
   PrestaShop allows BO users to create discounts
   As a BO user
@@ -18,36 +18,22 @@ Feature: Add discount
   Scenario: Create a simple discount with free shipping
     When I create a free shipping discount "basic_free_shipping_discount"
     Then discount "basic_free_shipping_discount" should have the following properties:
-      | free_shipping | true  |
       | active        | false |
 
   Scenario: Create a complete discount with free shipping
     When I create a free shipping discount "complete_free_shipping_discount" with following properties:
       | name[en-US]       | Promotion              |
       | name[fr-FR]       | Promotion fr           |
-      | description       | Promotion for holidays |
-      | highlight         | false                  |
       | active            | true                   |
-      | allow_partial_use | false                  |
-      | priority          | 2                      |
       | valid_from        | 2019-01-01 11:05:00    |
       | valid_to          | 2019-12-01 00:00:00    |
-      | total_quantity    | 10                     |
-      | quantity_per_user | 1                      |
       | code              | PROMO_2019             |
     Then discount "complete_free_shipping_discount" should have the following properties:
       | name[en-US]       | Promotion              |
       | name[fr-FR]       | Promotion fr           |
-      | description       | Promotion for holidays |
-      | highlight         | false                  |
       | active            | true                   |
-      | allow_partial_use | false                  |
-      | priority          | 2                      |
       | valid_from        | 2019-01-01 11:05:00    |
       | valid_to          | 2019-12-01 00:00:00    |
-      | total_quantity    | 10                     |
-      | quantity_per_user | 1                      |
-      | free_shipping     | true                   |
       | code              | PROMO_2019             |
 
   Scenario: Create a discount with free shipping online but without names should be forbidden

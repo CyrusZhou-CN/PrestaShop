@@ -24,20 +24,29 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-namespace PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject;
+namespace PrestaShop\PrestaShop\Adapter\Discount\CommandHandler;
 
-class DiscountType
+use PrestaShop\PrestaShop\Adapter\CartRule\CartRuleBuilder;
+use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountRepository;
+use PrestaShop\PrestaShop\Core\CommandBus\Attributes\AsCommandHandler;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\CommandHandler\AddCartLevelDiscountHandlerInterface;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
+
+#[AsCommandHandler]
+class AddCartLevelDiscountHandler implements AddCartLevelDiscountHandlerInterface
 {
-    public const FREE_SHIPPING = 'free_shipping';
-    public const CART_DISCOUNT = 'cart_discount';
-    public const FREE_GIFT = 'free_gift';
-
-    public function __construct(private readonly string $value)
-    {
+    public function __construct(
+        private readonly DiscountRepository $discountRepository,
+        private readonly CartRuleBuilder $cartRuleBuilder
+    ) {
     }
 
-    public function getValue(): string
+    public function handle(AddCartLevelDiscountCommand $command): DiscountId
     {
-        return $this->value;
+        $BuiltCartRule = $this->cartRuleBuilder->build($command);
+        $discount = $this->discountRepository->add($BuiltCartRule);
+
+        return new DiscountId((int) $discount->id);
     }
 }
