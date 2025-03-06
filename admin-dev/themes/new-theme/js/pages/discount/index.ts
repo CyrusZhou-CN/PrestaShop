@@ -1,4 +1,3 @@
-<?php
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -24,22 +23,16 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-namespace PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject;
+$(() => {
+  const discountGrid = new window.prestashop.component.Grid('discount');
 
-class DiscountType
-{
-    public const CART_DISCOUNT = 'cart_discount';
-    public const PRODUCTS_DISCOUNT = 'products_discount';
-    public const FREE_GIFT = 'free_gift';
-    public const FREE_SHIPPING = 'free_shipping';
-    public const ORDER_DISCOUNT = 'order_discount';
-
-    public function __construct(private readonly string $value)
-    {
-    }
-
-    public function getValue(): string
-    {
-        return $this->value;
-    }
-}
+  discountGrid.addExtension(new window.prestashop.component.GridExtensions.ExportToSqlManagerExtension());
+  discountGrid.addExtension(new window.prestashop.component.GridExtensions.ReloadListExtension());
+  discountGrid.addExtension(new window.prestashop.component.GridExtensions.SortingExtension());
+  discountGrid.addExtension(new window.prestashop.component.GridExtensions.FiltersResetExtension());
+  discountGrid.addExtension(new window.prestashop.component.GridExtensions.ColumnTogglingExtension());
+  discountGrid.addExtension(new window.prestashop.component.GridExtensions.SubmitRowActionExtension());
+  discountGrid.addExtension(new window.prestashop.component.GridExtensions.SubmitBulkActionExtension());
+  discountGrid.addExtension(new window.prestashop.component.GridExtensions.BulkActionCheckboxExtension());
+  discountGrid.addExtension(new window.prestashop.component.GridExtensions.FiltersSubmitButtonEnablerExtension());
+});

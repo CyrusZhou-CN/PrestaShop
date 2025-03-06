@@ -323,6 +323,13 @@ services:
       - 'PrestaShopBundle\Form\Admin\Sell\CartRule\CartRuleType'
       - '@PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataProvider\CartRuleFormDataProvider'
 
+  prestashop.core.form.identifiable_object.builder.create_discount_form_builder:
+    class: 'PrestaShop\PrestaShop\Core\Form\IdentifiableObject\Builder\FormBuilder'
+    factory: [ '@prestashop.core.form.builder.form_builder_factory', 'create' ]
+    arguments:
+      - 'PrestaShopBundle\Form\Admin\Sell\Discount\CreateDiscountType'
+      - '@PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataProvider\DiscountFormDataProvider'
+
   prestashop.core.form.identifiable_object.builder.title_form_builder:
     class: 'PrestaShop\PrestaShop\Core\Form\IdentifiableObject\Builder\FormBuilder'
     factory: [ '@prestashop.core.form.builder.form_builder_factory', 'create' ]

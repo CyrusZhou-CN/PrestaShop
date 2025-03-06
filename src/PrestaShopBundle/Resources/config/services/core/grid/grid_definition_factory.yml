@@ -262,6 +262,12 @@ services:
     arguments:
       - '@=service("prestashop.adapter.legacy.context").getContext().language.date_format_full'
 
+  prestashop.core.grid.definition.factory.discount:
+    class: 'PrestaShop\PrestaShop\Core\Grid\Definition\Factory\DiscountGridDefinitionFactory'
+    parent: PrestaShop\PrestaShop\Core\Grid\Definition\Factory\AbstractGridDefinitionFactory
+    autowire: true
+    public: true
+
   prestashop.core.grid.definition.factory.catalog_price_rule:
     class: 'PrestaShop\PrestaShop\Core\Grid\Definition\Factory\CatalogPriceRuleGridDefinitionFactory'
     parent: PrestaShop\PrestaShop\Core\Grid\Definition\Factory\AbstractGridDefinitionFactory

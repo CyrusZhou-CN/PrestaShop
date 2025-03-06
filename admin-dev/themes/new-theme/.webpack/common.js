@@ -62,6 +62,7 @@ module.exports = {
     category: './js/pages/category',
     category_edit: './js/pages/category/edit',
     cldr: './js/app/cldr',
+    discount: './js/pages/discount',
     cms_page: './js/pages/cms-page',
     cms_page_form: './js/pages/cms-page/form',
     combination_bulk: './js/pages/product/combination/bulk',

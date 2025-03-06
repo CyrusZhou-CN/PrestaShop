@@ -44,6 +44,8 @@ services:
 
   PrestaShopBundle\Form\Admin\Sell\CartRule\:
     resource: "%kernel.project_dir%/src/PrestaShopBundle/Form/Admin/Sell/CartRule/*"
+  PrestaShopBundle\Form\Admin\Sell\Discount\:
+    resource: "%kernel.project_dir%/src/PrestaShopBundle/Form/Admin/Sell/Discount/*"
   PrestaShopBundle\Form\Admin\Sell\Product\:
     resource: "%kernel.project_dir%/src/PrestaShopBundle/Form/Admin/Sell/Product/*"
   PrestaShopBundle\Form\Admin\Type\:

@@ -24,22 +24,32 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-namespace PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject;
+declare(strict_types=1);
 
-class DiscountType
+namespace PrestaShop\PrestaShop\Core\Search\Filters;
+
+use PrestaShop\PrestaShop\Core\Grid\Definition\Factory\DiscountGridDefinitionFactory;
+use PrestaShop\PrestaShop\Core\Search\Filters;
+
+/**
+ * Responsible for providing default filters for discount grid.
+ */
+final class DiscountFilters extends Filters
 {
-    public const CART_DISCOUNT = 'cart_discount';
-    public const PRODUCTS_DISCOUNT = 'products_discount';
-    public const FREE_GIFT = 'free_gift';
-    public const FREE_SHIPPING = 'free_shipping';
-    public const ORDER_DISCOUNT = 'order_discount';
+    /** @var string */
+    protected $filterId = DiscountGridDefinitionFactory::GRID_ID;
 
-    public function __construct(private readonly string $value)
+    /**
+     * {@inheritdoc}
+     */
+    public static function getDefaults(): array
     {
-    }
-
-    public function getValue(): string
-    {
-        return $this->value;
+        return [
+            'limit' => 50,
+            'offset' => 0,
+            'orderBy' => 'id_discount',
+            'sortOrder' => 'desc',
+            'filters' => [],
+        ];
     }
 }

@@ -24,22 +24,17 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-namespace PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject;
+namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataProvider;
 
-class DiscountType
+class DiscountFormDataProvider implements FormDataProviderInterface
 {
-    public const CART_DISCOUNT = 'cart_discount';
-    public const PRODUCTS_DISCOUNT = 'products_discount';
-    public const FREE_GIFT = 'free_gift';
-    public const FREE_SHIPPING = 'free_shipping';
-    public const ORDER_DISCOUNT = 'order_discount';
-
-    public function __construct(private readonly string $value)
+    public function getDefaultData()
     {
+        return [];
     }
 
-    public function getValue(): string
+    public function getData($id)
     {
-        return $this->value;
+        return [];
     }
 }
