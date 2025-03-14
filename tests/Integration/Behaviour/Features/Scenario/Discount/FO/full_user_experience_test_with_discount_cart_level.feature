@@ -17,7 +17,6 @@ Feature: Full UX discount test
 
   Scenario: Create a complete cart level flat discount using new CQRS
     When I create a cart level discount "complete_amount_cart_level_discount" with following properties:
-      | type               | amount_discount        |
       | name[en-US]        | Promotion              |
       | active             | true                   |
       | valid_from         | 2025-01-01 11:05:00    |
@@ -48,7 +47,6 @@ Feature: Full UX discount test
 
   Scenario: Create a complete cart level percent discount using new CQRS
     When I create a cart level discount "complete_percent_cart_level_discount" with following properties:
-      | type              | percent_discount       |
       | name[en-US]       | Promotion              |
       | active            | true                   |
       | valid_from        | 2025-01-01 11:05:00    |

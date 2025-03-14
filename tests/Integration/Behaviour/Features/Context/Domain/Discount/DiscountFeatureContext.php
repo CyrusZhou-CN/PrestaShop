@@ -35,6 +35,7 @@ use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeShippingDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddProductLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Query\GetDiscountForEditing;
@@ -98,6 +99,46 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
     {
         try {
             $command = new AddCartLevelDiscountCommand();
+            $this->createDiscount($discountReference, [], $command);
+        } catch (DiscountConstraintException $e) {
+            $this->setLastException($e);
+        }
+    }
+
+    /**
+     * @When I create a product level discount :discountReference with following properties:
+     *
+     * @param string $discountReference
+     * @param TableNode $node
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function createProductLevelDiscountIfNotExists(string $discountReference, TableNode $node): void
+    {
+        $data = $this->localizeByRows($node);
+        try {
+            $command = new AddProductLevelDiscountCommand();
+            $this->createDiscount($discountReference, $data, $command);
+        } catch (DiscountConstraintException $e) {
+            $this->setLastException($e);
+        }
+    }
+
+    /**
+     * @When I create a product level discount :discountReference
+     *
+     * @param string $discountReference
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function createSimpleProductLevelDiscountIfNotExists(string $discountReference): void
+    {
+        try {
+            $command = new AddProductLevelDiscountCommand();
             $this->createDiscount($discountReference, [], $command);
         } catch (DiscountConstraintException $e) {
             $this->setLastException($e);
@@ -194,7 +235,7 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             $command->setCode($data['code']);
         }
 
-        if ($command instanceof AddCartLevelDiscountCommand) {
+        if ($command instanceof AddCartLevelDiscountCommand || $command instanceof AddProductLevelDiscountCommand) {
             if (!empty($data['reduction_percent'])) {
                 $command->setPercentDiscount(new DecimalNumber($data['reduction_percent']));
             }
@@ -205,6 +246,16 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
                     new CurrencyId($this->getSharedStorage()->get($data['reduction_currency'])),
                     PrimitiveUtils::castStringBooleanIntoBoolean($data['taxIncluded']),
                 );
+            }
+        }
+
+        if ($command instanceof AddProductLevelDiscountCommand) {
+            if (!empty($data['reduction_product'])) {
+                if ((int) $data['reduction_product'] === -1 || (int) $data['reduction_product'] === -2) {
+                    $command->setReductionProduct((int) $data['reduction_product']);
+                } else {
+                    $command->setReductionProduct($this->getSharedStorage()->get($data['reduction_product']));
+                }
             }
         }
 
@@ -288,6 +339,13 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         }
         if (isset($expectedData['type'])) {
             Assert::assertSame($expectedData['type'], $discountForEditing->getType()->getValue(), 'Unexpected type');
+        }
+        if (isset($expectedData['reduction_product'])) {
+            if ((int) $expectedData['reduction_product'] === -1 || (int) $expectedData['reduction_product'] === -2) {
+                Assert::assertSame((int) $expectedData['reduction_product'], $discountForEditing->getReductionProduct());
+            } else {
+                Assert::assertSame($this->getSharedStorage()->get($expectedData['reduction_product']), $discountForEditing->getReductionProduct());
+            }
         }
     }
 

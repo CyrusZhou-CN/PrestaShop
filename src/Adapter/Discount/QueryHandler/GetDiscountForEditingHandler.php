@@ -67,7 +67,8 @@ class GetDiscountForEditingHandler implements GetDiscountForEditingHandlerInterf
             new DecimalNumber($cartRule->reduction_percent),
             new DecimalNumber($cartRule->reduction_amount),
             $cartRule->reduction_currency,
-            $cartRule->reduction_tax
+            $cartRule->reduction_tax,
+            $cartRule->reduction_product,
         );
     }
 }

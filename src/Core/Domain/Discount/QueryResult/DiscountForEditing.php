@@ -50,6 +50,7 @@ class DiscountForEditing
         private readonly ?DecimalNumber $amountDiscount,
         private readonly ?int $currencyId,
         private readonly ?bool $taxIncluded,
+        private readonly ?int $reductionProduct,
     ) {
     }
 
@@ -136,5 +137,10 @@ class DiscountForEditing
     public function isTaxIncluded(): ?bool
     {
         return $this->taxIncluded;
+    }
+
+    public function getReductionProduct(): ?int
+    {
+        return $this->reductionProduct;
     }
 }
