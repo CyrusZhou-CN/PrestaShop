@@ -34,7 +34,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Table()
  *
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="PrestaShopBundle\Entity\Repository\ShipmentRepository"))
  *
  * @ORM\HasLifecycleCallbacks
  */
@@ -97,7 +97,7 @@ class Shipment
     /**
      * @ORM\Column(name="tracking_number", type="string", nullable=true)
      */
-    private ?string $trakingNumber;
+    private ?string $trackingNumber;
 
     /**
      * @ORM\Column(name="date_add", type="datetime", nullable=false)
@@ -181,9 +181,9 @@ class Shipment
         return $this->cancelledAt;
     }
 
-    public function getTrakingNumber(): ?string
+    public function getTrackingNumber(): ?string
     {
-        return $this->trakingNumber;
+        return $this->trackingNumber;
     }
 
     public function getProducts(): Collection
@@ -249,9 +249,9 @@ class Shipment
         return $this;
     }
 
-    public function setTrakingNumber(?string $trakingNumber): self
+    public function setTrackingNumber(?string $trackingNumber): self
     {
-        $this->trakingNumber = $trakingNumber;
+        $this->trackingNumber = $trackingNumber;
 
         return $this;
     }

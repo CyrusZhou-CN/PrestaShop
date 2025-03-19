@@ -44,14 +44,14 @@ class ShipmentTest extends TestCase
         $shipment->setOrderId(1);
         $shipment->setShippingCostTaxExcluded(10.5);
         $shipment->setShippingCostTaxIncluded(12.6);
-        $shipment->setTrakingNumber('FR123456789');
+        $shipment->setTrackingNumber('FR123456789');
 
         $this->assertEquals(1, $shipment->getCarrierId());
         $this->assertEquals(1, $shipment->getAddressId());
         $this->assertEquals(1, $shipment->getOrderId());
         $this->assertEquals(10.5, $shipment->getShippingCostTaxExcluded());
         $this->assertEquals(12.6, $shipment->getShippingCostTaxIncluded());
-        $this->assertEquals('FR123456789', $shipment->getTrakingNumber());
+        $this->assertEquals('FR123456789', $shipment->getTrackingNumber());
     }
 
     public function testShipmentLifecycle(): void
