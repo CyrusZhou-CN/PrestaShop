@@ -24,7 +24,10 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 use PrestaShop\PrestaShop\Adapter\MailTemplate\MailPartialTemplateRenderer;
+use PrestaShop\PrestaShop\Adapter\Shipment\OrderShipmentCreator;
 use PrestaShop\PrestaShop\Adapter\StockManager;
+use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagSettings;
+use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagStateCheckerInterface;
 
 abstract class PaymentModuleCore extends Module
 {
@@ -571,6 +574,8 @@ abstract class PaymentModuleCore extends Module
                 'currency' => $this->context->currency,
                 'orderStatus' => $order_status,
             ]);
+
+            $this->addShipmentToOrder($order);
 
             if ($order_status->logable) {
                 foreach ($this->context->cart->getProducts() as $product) {
@@ -1267,5 +1272,20 @@ abstract class PaymentModuleCore extends Module
         }
 
         return $cart_rules_list;
+    }
+
+    private function addShipmentToOrder(Order $order)
+    {
+        /** @var FeatureFlagStateCheckerInterface $featureFlagManager */
+        $featureFlagManager = $this->get(FeatureFlagStateCheckerInterface::class);
+
+        if (!$featureFlagManager->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT)) {
+            return;
+        }
+
+        /** @var OrderShipmentCreator $orderShipmentCreator */
+        $orderShipmentCreator = $this->get('PrestaShop\PrestaShop\Adapter\Shipment\OrderShipmentCreator');
+
+        $orderShipmentCreator->addShipmentOrder($order);
     }
 }

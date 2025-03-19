@@ -20,6 +20,10 @@ services:
       - "%mail_themes_uri%"
       - '@PrestaShop\PrestaShop\Adapter\Tools'
 
+  PrestaShop\PrestaShop\Adapter\Shipment\OrderShipmentCreator:
+    arguments:
+      - '@PrestaShopBundle\Entity\Repository\ShipmentRepository'
+
   prestashop.adapter.legacy.context:
     alias: PrestaShop\PrestaShop\Adapter\LegacyContext
 

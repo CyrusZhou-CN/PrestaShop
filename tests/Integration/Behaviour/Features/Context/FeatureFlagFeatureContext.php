@@ -72,7 +72,8 @@ class FeatureFlagFeatureContext extends AbstractPrestaShopFeatureContext
         /** @var FeatureFlag $featureFlag */
         $featureFlag = $doctrineEntityManager->getRepository(FeatureFlag::class)->findOneBy(['name' => $name]);
 
-        if ($state === 'enable') {
+        // We checking here because StringToBoolTransformContext transform enable/disable to boolean
+        if ($state === '1' || $state === 'enable') {
             $featureFlag->enable();
         } else {
             $featureFlag->disable();
