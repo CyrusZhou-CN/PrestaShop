@@ -28,6 +28,7 @@ namespace Tests\Integration\Behaviour\Features\Context\Domain;
 
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Gherkin\Node\TableNode;
 use Cart;
 use CartRule;
 use Configuration;
@@ -1123,6 +1124,32 @@ class CartFeatureContext extends AbstractDomainFeatureContext
         $cartTotal = $cartInfo->getSummary()->getTotalPriceWithTaxes();
         if ($cartTotal !== $expectedTotal) {
             throw new RuntimeException(sprintf('Expects %s, got %s instead', $expectedTotal, $cartTotal));
+        }
+    }
+
+    /**
+     * @Then my cart :cartReference should have the following details:
+     *
+     * @param TableNode $tableNode
+     *
+     * @return void
+     */
+    public function assertCartDetailsAfterDiscount(string $cartReference, TableNode $tableNode): void
+    {
+        $cartInfo = $this->getCartForOrderCreationByReference($cartReference);
+        $data = $this->localizeByRows($tableNode);
+
+        if (isset($data['total_products'])) {
+            Assert::assertSame($data['total_products'], $cartInfo->getSummary()->getTotalProductsPrice());
+        }
+        if (isset($data['total_discount'])) {
+            Assert::assertSame($data['total_discount'], $cartInfo->getSummary()->getTotalDiscount());
+        }
+        if (isset($data['shipping'])) {
+            Assert::assertSame($data['shipping'], $cartInfo->getSummary()->getTotalShippingPrice());
+        }
+        if (isset($data['total'])) {
+            Assert::assertSame($data['total'], $cartInfo->getSummary()->getTotalPriceWithTaxes());
         }
     }
 

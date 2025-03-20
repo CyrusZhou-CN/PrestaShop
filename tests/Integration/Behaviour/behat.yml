@@ -300,7 +300,7 @@ default:
         - Tests\Integration\Behaviour\Features\Context\Domain\Product\AddProductFeatureContext
         - Tests\Integration\Behaviour\Features\Context\LegacyProductFeatureContext
         - Tests\Integration\Behaviour\Features\Context\CategoryFeatureContext
-        - Tests\Integration\Behaviour\Features\Context\CartFeatureContext
+        - Tests\Integration\Behaviour\Features\Context\Domain\CartFeatureContext
         - Tests\Integration\Behaviour\Features\Context\CartRuleFeatureContext
         - Tests\Integration\Behaviour\Features\Context\CountryFeatureContext
         - Tests\Integration\Behaviour\Features\Context\CarrierFeatureContext

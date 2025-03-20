@@ -32,6 +32,7 @@ use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Context\LanguageContext;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeShippingDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddProductLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
 use RuntimeException;
@@ -60,6 +61,10 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 $command = new AddCartLevelDiscountCommand();
                 $name = $this->translator->trans('On cart amount', [], 'Admin.Catalog.Feature');
                 $command->setPercentDiscount(new DecimalNumber('50'));
+                break;
+            case DiscountType::PRODUCTS_DISCOUNT:
+                $command = new AddProductLevelDiscountCommand();
+                $name = $this->translator->trans('On products amount', [], 'Admin.Catalog.Feature');
                 break;
             default:
                 throw new RuntimeException('Unknown discount type ' . $discountType);
