@@ -2159,8 +2159,7 @@
     <hook id="actionFeatureFormBuilderModifier">
       <name>actionFeatureFormBuilderModifier</name>
       <title>Modify feature identifiable object form</title>
-      <description>This hook allows to modify feature identifiable object forms content by modifying form builder data
-      or FormBuilder itself</description>
+      <description>This hook allows to modify feature identifiable object forms content by modifying form builder data or FormBuilder itself</description>
     </hook>
     <hook id="actionOrderMessageFormBuilderModifier">
       <name>actionOrderMessageFormBuilderModifier</name>
@@ -4924,105 +4923,20 @@
       <title>Modify customer groups grid template data</title>
       <description>This hook allows to modify data which is about to be used in template for customer groups grid</description>
     </hook>
-    <hook id="displayNav1">
-      <name>displayNav1</name>
-      <title/>
-      <description/>
+    <hook id="actionPDFInvoiceRender">
+      <name>actionPDFInvoiceRender</name>
+      <title>PDF Invoice - Render</title>
+      <description>This hook is called when a PDF invoice is rendered from the Front Office and the Back Office</description>
     </hook>
-    <hook id="displayNav2">
-      <name>displayNav2</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayFooterBefore">
-      <name>displayFooterBefore</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayFooterAfter">
-      <name>displayFooterAfter</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displaySearch">
-      <name>displaySearch</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayNotFound">
-      <name>displayNotFound</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayProductPriceBlock">
-      <name>displayProductPriceBlock</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayProductListReviews">
-      <name>displayProductListReviews</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayReassurance">
-      <name>displayReassurance</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayCMSDisputeInformation">
-      <name>displayCMSDisputeInformation</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayCMSPrintButton">
-      <name>displayCMSPrintButton</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayExpressCheckout">
-      <name>displayExpressCheckout</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayCheckoutSubtotalDetails">
-      <name>displayCheckoutSubtotalDetails</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayOrderConfirmation1">
-      <name>displayOrderConfirmation1</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayOrderConfirmation2">
-      <name>displayOrderConfirmation2</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayCrossSellingShoppingCart">
-      <name>displayCrossSellingShoppingCart</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayGDPRConsent">
-      <name>displayGDPRConsent</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayNewsletterRegistration">
-      <name>displayNewsletterRegistration</name>
-      <title/>
-      <description/>
+    <hook id="actionPresentObject">
+      <name>actionPresentObject</name>
+      <title>Object Presenter</title>
+      <description>This hook is called before an object is presented</description>
     </hook>
     <hook id="actionSetInvoice">
       <name>actionSetInvoice</name>
       <title/>
       <description/>
-    </hook>
-    <hook id="actionPDFInvoiceRender">
-      <name>actionPDFInvoiceRender</name>
-      <title>PDF Invoice - Render</title>
-      <description>This hook is called when a PDF invoice is rendered from the Front Office and the Back Office</description>
     </hook>
     <hook id="actionOrderHistoryAddAfter">
       <name>actionOrderHistoryAddAfter</name>
@@ -5034,13 +4948,28 @@
       <title/>
       <description/>
     </hook>
-    <hook id="actionAttributeCombinationDelete">
-      <name>actionAttributeCombinationDelete</name>
+    <hook id="actionOnImageResizeAfter">
+      <name>actionOnImageResizeAfter</name>
       <title/>
       <description/>
     </hook>
-    <hook id="actionAttributeCombinationSave">
-      <name>actionAttributeCombinationSave</name>
+    <hook id="actionOnImageCutAfter">
+      <name>actionOnImageCutAfter</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionSubmitCustomerAddressForm">
+      <name>actionSubmitCustomerAddressForm</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionCartSummary">
+      <name>actionCartSummary</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionGetExtraMailTemplateVars">
+      <name>actionGetExtraMailTemplateVars</name>
       <title/>
       <description/>
     </hook>
@@ -5064,6 +4993,16 @@
       <title/>
       <description/>
     </hook>
+    <hook id="actionDeliveryPriceByWeight">
+      <name>actionDeliveryPriceByWeight</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionDeliveryPriceByPrice">
+      <name>actionDeliveryPriceByPrice</name>
+      <title/>
+      <description/>
+    </hook>
     <hook id="actionDispatcher">
       <name>actionDispatcher</name>
       <title/>
@@ -5074,8 +5013,8 @@
       <title/>
       <description/>
     </hook>
-    <hook id="actionGetExtraMailTemplateVars">
-      <name>actionGetExtraMailTemplateVars</name>
+    <hook id="actionGetIDZoneByAddressID">
+      <name>actionGetIDZoneByAddressID</name>
       <title/>
       <description/>
     </hook>
@@ -5096,6 +5035,81 @@
     </hook>
     <hook id="actionModuleUnRegisterHookAfter">
       <name>actionModuleUnRegisterHookAfter</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionShopDataDuplication">
+      <name>actionShopDataDuplication</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionAdminMetaBeforeWriteRobotsFile">
+      <name>actionAdminMetaBeforeWriteRobotsFile</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionAdminMetaAfterWriteRobotsFile">
+      <name>actionAdminMetaAfterWriteRobotsFile</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="termsAndConditions">
+      <name>termsAndConditions</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionValidateStepComplete">
+      <name>actionValidateStepComplete</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionAdminControllerSetMedia">
+      <name>actionAdminControllerSetMedia</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="overrideMinimalPurchasePrice">
+      <name>overrideMinimalPurchasePrice</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionFrontControllerSetMedia">
+      <name>actionFrontControllerSetMedia</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="overrideLayoutTemplate">
+      <name>overrideLayoutTemplate</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="productSearchProvider">
+      <name>productSearchProvider</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionAttributeCombinationDelete">
+      <name>actionAttributeCombinationDelete</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionAttributeCombinationSave">
+      <name>actionAttributeCombinationSave</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionCustomerBeforeUpdateGroup">
+      <name>actionCustomerBeforeUpdateGroup</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionCustomerAddGroups">
+      <name>actionCustomerAddGroups</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="actionProductCoverage">
+      <name>actionProductCoverage</name>
       <title/>
       <description/>
     </hook>
@@ -5129,103 +5143,48 @@
       <title/>
       <description/>
     </hook>
-    <hook id="actionCustomerBeforeUpdateGroup">
-      <name>actionCustomerBeforeUpdateGroup</name>
+    <hook id="actionWishlistAddProduct">
+      <name>actionWishlistAddProduct</name>
       <title/>
       <description/>
     </hook>
-    <hook id="actionCustomerAddGroups">
-      <name>actionCustomerAddGroups</name>
+    <hook id="displayGDPRConsent">
+      <name>displayGDPRConsent</name>
       <title/>
       <description/>
     </hook>
-    <hook id="actionGetIDZoneByAddressID">
-      <name>actionGetIDZoneByAddressID</name>
+    <hook id="actionObjectProductCommentValidateAfter">
+      <name>actionObjectProductCommentValidateAfter</name>
       <title/>
       <description/>
     </hook>
-    <hook id="actionProductCoverage">
-      <name>actionProductCoverage</name>
+    <hook id="actionExportGDPRData">
+      <name>actionExportGDPRData</name>
       <title/>
       <description/>
     </hook>
-    <hook id="actionSubmitCustomerAddressForm">
-      <name>actionSubmitCustomerAddressForm</name>
+    <hook id="actionDeleteGDPRCustomer">
+      <name>actionDeleteGDPRCustomer</name>
       <title/>
       <description/>
     </hook>
-    <hook id="actionDeliveryPriceByWeight">
-      <name>actionDeliveryPriceByWeight</name>
+    <hook id="actionModuleMailAlertSendCustomer">
+      <name>actionModuleMailAlertSendCustomer</name>
       <title/>
       <description/>
     </hook>
-    <hook id="actionDeliveryPriceByPrice">
-      <name>actionDeliveryPriceByPrice</name>
+    <hook id="actionNewsletterRegistrationBefore">
+      <name>actionNewsletterRegistrationBefore</name>
       <title/>
       <description/>
     </hook>
-    <hook id="actionAdminMetaBeforeWriteRobotsFile">
-      <name>actionAdminMetaBeforeWriteRobotsFile</name>
+    <hook id="actionNewsletterRegistrationAfter">
+      <name>actionNewsletterRegistrationAfter</name>
       <title/>
       <description/>
     </hook>
-    <hook id="actionAdminMetaAfterWriteRobotsFile">
-      <name>actionAdminMetaAfterWriteRobotsFile</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="productSearchProvider">
-      <name>productSearchProvider</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionFrontControllerSetMedia">
-      <name>actionFrontControllerSetMedia</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="overrideLayoutTemplate">
-      <name>overrideLayoutTemplate</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionAdminControllerSetMedia">
-      <name>actionAdminControllerSetMedia</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="overrideMinimalPurchasePrice">
-      <name>overrideMinimalPurchasePrice</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionCartSummary">
-      <name>actionCartSummary</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionOnImageResizeAfter">
-      <name>actionOnImageResizeAfter</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionOnImageCutAfter">
-      <name>actionOnImageCutAfter</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionShopDataDuplication">
-      <name>actionShopDataDuplication</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="termsAndConditions">
-      <name>termsAndConditions</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionValidateStepComplete">
-      <name>actionValidateStepComplete</name>
+    <hook id="displayNewsletterRegistration">
+      <name>displayNewsletterRegistration</name>
       <title/>
       <description/>
     </hook>
@@ -5254,33 +5213,138 @@
       <title/>
       <description/>
     </hook>
-    <hook id="fooHook">
-      <name>fooHook</name>
+    <hook id="displayReassurance">
+      <name>displayReassurance</name>
       <title/>
       <description/>
     </hook>
-    <hook id="ppbsDeleteCartProduct">
-      <name>ppbsDeleteCartProduct</name>
+    <hook id="displayProductPriceBlock">
+      <name>displayProductPriceBlock</name>
       <title/>
       <description/>
     </hook>
-    <hook id="ppbsGetProducts">
-      <name>ppbsGetProducts</name>
+    <hook id="displayProductListReviews">
+      <name>displayProductListReviews</name>
       <title/>
       <description/>
     </hook>
-    <hook id="actionCronJob">
-      <name>actionCronJob</name>
+    <hook id="displayCrossSellingShoppingCart">
+      <name>displayCrossSellingShoppingCart</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayExpressCheckout">
+      <name>displayExpressCheckout</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayCheckoutSubtotalDetails">
+      <name>displayCheckoutSubtotalDetails</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayNav1">
+      <name>displayNav1</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayNav2">
+      <name>displayNav2</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayOrderConfirmation1">
+      <name>displayOrderConfirmation1</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayOrderConfirmation2">
+      <name>displayOrderConfirmation2</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayFooterBefore">
+      <name>displayFooterBefore</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayFooterAfter">
+      <name>displayFooterAfter</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayCMSDisputeInformation">
+      <name>displayCMSDisputeInformation</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayCMSPrintButton">
+      <name>displayCMSPrintButton</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displaySearch">
+      <name>displaySearch</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayNotFound">
+      <name>displayNotFound</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayAdminAfterHeader">
+      <name>displayAdminAfterHeader</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayAdminNavBarBeforeEnd">
+      <name>displayAdminNavBarBeforeEnd</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayAdminListBefore">
+      <name>displayAdminListBefore</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayAdminListAfter">
+      <name>displayAdminListAfter</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayAdminOptions">
+      <name>displayAdminOptions</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayAdminForm">
+      <name>displayAdminForm</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayAdminView">
+      <name>displayAdminView</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayAdminOrderSideBottom">
+      <name>displayAdminOrderSideBottom</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayOrderPreview">
+      <name>displayOrderPreview</name>
+      <title/>
+      <description/>
+    </hook>
+    <hook id="displayAdminLogin">
+      <name>displayAdminLogin</name>
       <title/>
       <description/>
     </hook>
     <hook id="actionPresentModule">
       <name>actionPresentModule</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionSearch">
-      <name>actionSearch</name>
       <title/>
       <description/>
     </hook>
@@ -5299,88 +5363,8 @@
       <title/>
       <description/>
     </hook>
-    <hook id="displayOrderPreview">
-      <name>displayOrderPreview</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayAdminOrderSideBottom">
-      <name>displayAdminOrderSideBottom</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayAdminAfterHeader">
-      <name>displayAdminAfterHeader</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayAdminLogin">
-      <name>displayAdminLogin</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayAdminNavBarBeforeEnd">
-      <name>displayAdminNavBarBeforeEnd</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayAdminListAfter">
-      <name>displayAdminListAfter</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayAdminListBefore">
-      <name>displayAdminListBefore</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayAdminView">
-      <name>displayAdminView</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayAdminOptions">
-      <name>displayAdminOptions</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="displayAdminForm">
-      <name>displayAdminForm</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionWishlistAddProduct">
-      <name>actionWishlistAddProduct</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionObjectProductCommentValidateAfter">
-      <name>actionObjectProductCommentValidateAfter</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionExportGDPRData">
-      <name>actionExportGDPRData</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionDeleteGDPRCustomer">
-      <name>actionDeleteGDPRCustomer</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionNewsletterRegistrationBefore">
-      <name>actionNewsletterRegistrationBefore</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionNewsletterRegistrationAfter">
-      <name>actionNewsletterRegistrationAfter</name>
-      <title/>
-      <description/>
-    </hook>
-    <hook id="actionModuleMailAlertSendCustomer">
-      <name>actionModuleMailAlertSendCustomer</name>
+    <hook id="actionSearch">
+      <name>actionSearch</name>
       <title/>
       <description/>
     </hook>
@@ -5418,11 +5402,6 @@
       <name>actionAfterCreateSearchTermFormHandler</name>
       <title>Modify search term identifiable object data after creating it</title>
       <description>This hook allows to modify search term identifiable object forms data after it was created</description>
-    </hook>
-    <hook id="actionPresentObject">
-      <name>actionPresentObject</name>
-      <title>Object Presenter</title>
-      <description>This hook is called before an object is presented</description>
     </hook>
   </entities>
 </entity_hook>

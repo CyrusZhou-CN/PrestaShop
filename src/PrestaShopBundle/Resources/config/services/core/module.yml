@@ -34,6 +34,8 @@ services:
       $moduleDataProvider: '@prestashop.adapter.data_provider.module'
       $adminModuleDataProvider: '@prestashop.core.admin.data_provider.module_interface'
       $hookManager: '@prestashop.adapter.hook.manager'
+      $modulesDir: '%prestashop.module_dir%'
+      $xliffFileLoader: '@translation.loader.xliff'
 
   PrestaShop\PrestaShop\Core\Module\SourceHandler\ZipSourceHandler:
     autowire: true

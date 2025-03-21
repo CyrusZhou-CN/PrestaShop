@@ -85,7 +85,7 @@ class AppendConfigurationFileHooksListCommand extends Command
         }
 
         // Parse all the hooks from the codebase
-        $hooks = $this->hookExtractor->findHooks(_PS_ROOT_DIR_);
+        $hooks = $this->hookExtractor->findHooks();
         // Reformat them to only get the information needed for the xml file
         $fixtureHooks = [];
         foreach ($hooks as $hook) {

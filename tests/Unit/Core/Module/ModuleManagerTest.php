@@ -40,6 +40,7 @@ use PrestaShop\PrestaShop\Core\Module\ModuleManager;
 use PrestaShop\PrestaShop\Core\Module\ModuleRepository;
 use PrestaShop\PrestaShop\Core\Module\SourceHandler\SourceHandlerFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Translation\Loader\XliffFileLoader;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ModuleManagerTest extends TestCase
@@ -79,6 +80,9 @@ class ModuleManagerTest extends TestCase
                 $translatorMock,
                 $this->createMock(EventDispatcherInterface::class),
                 $this->createMock(HookManager::class),
+                _PS_MODULE_DIR_,
+                new XliffFileLoader(),
+                null,
             ])
             ->onlyMethods(['upgradeMigration'])
             ->getMock()

@@ -151,13 +151,21 @@ abstract class AppKernel extends Kernel
     {
         $loader->load($this->getKernelConfigPath());
 
-        $activeModules = $this->getModuleRepository()->getActiveModules();
-        // We only load translations and services of active modules (not simply installed)
+        $presentModules = $this->getModuleRepository()->getPresentModules();
+        // We only load translations of present modules (so their wording is usable during installation)
         $moduleTranslationsPaths = [];
+        foreach ($presentModules as $presentModule) {
+            $modulePath = _PS_MODULE_DIR_ . $presentModule;
+            $translationsPath = sprintf('%s/translations', $modulePath);
+            if (is_dir($translationsPath)) {
+                $moduleTranslationsPaths[] = $translationsPath;
+            }
+        }
+
+        $activeModules = $this->getModuleRepository()->getActiveModules();
+        // We only load services of active modules (not simply installed)
         foreach ($activeModules as $activeModulePath) {
             $modulePath = _PS_MODULE_DIR_ . $activeModulePath;
-            $translationsPath = sprintf('%s/translations', $modulePath);
-
             $configFiles = [
                 sprintf('%s/config/services.yml', $modulePath),
                 sprintf('%s/config/admin/services.yml', $modulePath),
@@ -169,10 +177,6 @@ abstract class AppKernel extends Kernel
                 if (is_file($file)) {
                     $loader->load($file);
                 }
-            }
-
-            if (is_dir($translationsPath)) {
-                $moduleTranslationsPaths[] = $translationsPath;
             }
         }
 

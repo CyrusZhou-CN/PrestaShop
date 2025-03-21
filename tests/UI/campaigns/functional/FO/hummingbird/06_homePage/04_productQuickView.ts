@@ -20,17 +20,17 @@ import {
 const baseContext: string = 'functional_FO_hummingbird_homePage_productQuickView';
 
 /*
-Pre-condition:
-- Create product out of stock not allowed
-- Install hummingbird theme
-Scenario:
-- Quick view product with combinations
-- Quick view simple product
-- Quick view customized product
-- Quick view product out of stock not allowed
-Post-condition:
-- Delete created product
-- Uninstall hummingbird theme
+ * Pre-condition:
+ * - Create product out of stock not allowed
+ * - Install hummingbird theme
+ * Scenario:
+ * - Quick view product with combinations
+ * - Quick view simple product
+ * - Quick view customized product
+ * - Quick view product out of stock not allowed
+ * Post-condition:
+ * - Delete created product
+ * - Uninstall hummingbird theme
  */
 describe('FO - Home Page : Product quick view', async () => {
   let browserContext: BrowserContext;

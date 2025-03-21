@@ -33,8 +33,8 @@ use PrestaShop\PrestaShop\Core\Hook\Provider\GridDefinitionHookByServiceIdsProvi
 use SimpleXMLElement;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
@@ -43,7 +43,40 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 final class GenerateHooksDocumentationCommand extends Command
 {
-    protected static $defaultName = 'prestashop:extract:hooks';
+    private array $dynamicHookDetails = [
+        GridDefinitionHookByServiceIdsProvider::GRID_DEFINITION_HOOK_SUFFIX => [
+            'file' => 'src/Core/Grid/Definition/Factory/AbstractGridDefinitionFactory.php',
+            'full_implementation' => '$this->hookDispatcher->dispatchWithParameters(\'action\' . Container::camelize($definition->getId()) . \'GridDefinitionModifier\', [
+    \'definition\' => $definition,
+])',
+        ],
+        GridDefinitionHookByServiceIdsProvider::GRID_QUERY_BUILDER_HOOK_SUFFIX => [
+            'file' => 'src/Core/Grid/Data/Factory/DoctrineGridDataFactory.php',
+            'full_implementation' => '$this->hookDispatcher->dispatchWithParameters(\'action\' . Container::camelize($this->gridId) . \'GridQueryBuilderModifier\', [
+    \'search_query_builder\' => $searchQueryBuilder,
+    \'count_query_builder\' => $countQueryBuilder,
+    \'search_criteria\' => $searchCriteria,
+])',
+        ],
+        GridDefinitionHookByServiceIdsProvider::GRID_DATA_HOOK_SUFFIX => [
+            'file' => 'src/Core/Grid/GridFactory.php',
+            'full_implementation' => '$this->hookDispatcher->dispatchWithParameters(\'action\' . Container::camelize($definition->getId()) . \'GridDataModifier\', [
+    \'data\' => &$data,
+])',
+        ],
+        GridDefinitionHookByServiceIdsProvider::GRID_FILTER_FORM_SUFFIX => [
+            'file' => 'src/Core/Grid/Filter/GridFilterFormFactory.php',
+            'full_implementation' => '$this->hookDispatcher->dispatchWithParameters(\'action\' . Container::camelize($definition->getId()) . \'GridFilterFormModifier\', [
+    \'filter_form_builder\' => $formBuilder,
+])',
+        ],
+        GridDefinitionHookByServiceIdsProvider::GRID_PRESENTER_SUFFIX => [
+            'file' => 'src/Core/Grid/Presenter/GridPresenter.php',
+            'full_implementation' => '$this->hookDispatcher->dispatchWithParameters(\'action\' . Container::camelize($definition->getId()) . \'GridPresenterModifier\', [
+    \'presented_grid\' => &$presentedGrid,
+])',
+        ],
+    ];
 
     public function __construct(
         private readonly HookExtractor $hookExtractor,
@@ -56,25 +89,21 @@ final class GenerateHooksDocumentationCommand extends Command
     {
         $this
             ->setDescription('Extract Hooks Documentation files')
-            ->addOption(
+            ->addArgument(
                 'output-dir',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'Directory to output the generated markdown files.',
+                InputArgument::REQUIRED,
+                'Directory containing the generated markdown files (ex: /home/user/devdocs-site/src/content/9/modules/concepts/hooks/list-of-hooks)',
             );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $dynamicHookConst = [
-            GridDefinitionHookByServiceIdsProvider::GRID_DEFINITION_HOOK_SUFFIX,
-            GridDefinitionHookByServiceIdsProvider::GRID_QUERY_BUILDER_HOOK_SUFFIX,
-            GridDefinitionHookByServiceIdsProvider::GRID_DATA_HOOK_SUFFIX,
-            GridDefinitionHookByServiceIdsProvider::GRID_FILTER_FORM_SUFFIX,
-            GridDefinitionHookByServiceIdsProvider::GRID_PRESENTER_SUFFIX,
-        ];
+        $outputDir = $input->getArgument('output-dir');
+        if (!is_dir($outputDir) || !is_writable($outputDir)) {
+            throw new InvalidArgumentException(sprintf('The directory "%s" does not exist or is not writable.', $outputDir));
+        }
 
-        $hooks = $this->hookExtractor->findHooks(_PS_ROOT_DIR_);
+        $hooks = $this->hookExtractor->findHooks();
         $formatedHooks = [];
         $formatedHooksKeys = [];
         foreach ($hooks as $hook) {
@@ -99,12 +128,12 @@ final class GenerateHooksDocumentationCommand extends Command
                 $xmlHooks[$key]['full_implementation'] = $formatedHooks[$xmlHook['hook']]['full_implementation'];
                 $xmlHooks[$key]['locations'] = $formatedHooks[$xmlHook['hook']]['locations'] ?? [];
                 $xmlHooks[$key]['dynamic'] = false;
-            } elseif (!empty(array_filter($dynamicHookConst, fn ($str) => stripos($xmlHook['hook'], $str) !== false))) {
+            } elseif ($matchingDynamicHook = $this->getMatchingDynamicHook($xmlHook['hook'])) {
                 $xmlHooks[$key]['type'] = $this->defineHookType($xmlHook['hook']);
-                $xmlHooks[$key]['file'] = '';
+                $xmlHooks[$key]['file'] = $this->dynamicHookDetails[$matchingDynamicHook]['file'];
                 $xmlHooks[$key]['aliases'] = [];
                 $xmlHooks[$key]['used_parameters'] = [];
-                $xmlHooks[$key]['full_implementation'] = '';
+                $xmlHooks[$key]['full_implementation'] = $this->dynamicHookDetails[$matchingDynamicHook]['full_implementation'];
                 $xmlHooks[$key]['locations'] = ['back office'];
                 $xmlHooks[$key]['dynamic'] = true;
             } else {
@@ -118,14 +147,16 @@ final class GenerateHooksDocumentationCommand extends Command
             }
         }
 
-        $outputDir = $input->getOption('output-dir');
-        if (!is_dir($outputDir) || !is_writable($outputDir)) {
-            throw new InvalidArgumentException(sprintf('The directory "%s" does not exist or is not writable.', $outputDir));
-        }
-
         $this->generateMarkdownFiles($xmlHooks, $outputDir, $output);
 
         return Command::SUCCESS;
+    }
+
+    protected function getMatchingDynamicHook(string $hookName): ?string
+    {
+        $matchingHooks = array_filter(array_keys($this->dynamicHookDetails), fn ($str) => stripos($hookName, $str) !== false);
+
+        return !empty($matchingHooks) ? reset($matchingHooks) : null;
     }
 
     public function generateMarkdownFiles(array $hooks, string $mdDir, OutputInterface $output): void
@@ -134,18 +165,31 @@ final class GenerateHooksDocumentationCommand extends Command
         if (!is_dir($outputDir)) {
             mkdir($outputDir, 0777, true);
         }
+        $outputDir = rtrim($outputDir, '/') . '/';
 
         $githubBaseUrl = 'https://github.com/PrestaShop/PrestaShop/blob/9.0.x/';
+        $generatedHooks = 0;
         foreach ($hooks as $hook) {
             $hookName = $hook['hook'];
             $fileName = $hookName . '.md';
             $filePath = $outputDir . $fileName;
 
+            // If documentation already exists we don't generate it because it may have more details in the documentation than we
+            // can provide here, unless it's a dynamic hook then we update the automatic doc
+            if (file_exists($filePath) && !$hook['dynamic']) {
+                continue;
+            }
+
+            // If the hook was not detected in the code base (and no default file was set because it's a dynamic one)
+            // then it probably no longer exists except in the hook.xml file We don't know yet if the XML file should
+            // be cleaned from it But at least it's safe to assume there is no need to document it
+            if (empty($hook['file'])) {
+                continue;
+            }
+
             $title = $hookName;
-            $escapedHookTitle = str_replace("'", "''", $hook['title'] ?? '');
-            $hookTitle = "'" . $escapedHookTitle . "'";
-            $escapedDescription = str_replace("'", "''", $hook['description'] ?? '');
-            $hookDescription = "'" . $escapedDescription . "'";
+            $hookTitle = "'" . $this->escapeHookDetail($hook['title']) . "'";
+            $hookDescription = "'" . $this->escapeHookDetail($hook['description']) . "'";
             $files = [
                 [
                     'url' => $githubBaseUrl . $hook['file'],
@@ -197,6 +241,11 @@ final class GenerateHooksDocumentationCommand extends Command
 
         {{% hookDescriptor %}}
 
+        EOT;
+
+            if (!empty($fullImplementation)) {
+                $content .= <<<EOT
+
         ## Call of the Hook in the origin file
 
         ```php
@@ -204,12 +253,22 @@ final class GenerateHooksDocumentationCommand extends Command
         ```
 
         EOT;
+            }
 
             // Write the content to the markdown file
             file_put_contents($filePath, $content);
+            ++$generatedHooks;
         }
 
-        $output->writeln('<info> ' . count($hooks) . ' hooks generated into ' . $mdDir . '</info>');
+        $output->writeln('<info> ' . $generatedHooks . ' hooks generated into ' . $mdDir . '</info>');
+    }
+
+    private function escapeHookDetail(string $hookDetail): string
+    {
+        $hookDetail = str_replace("'", "''", $hookDetail);
+        $hookDetail = str_replace(["\n", "\r\n"], ' ', $hookDetail);
+
+        return $hookDetail;
     }
 
     private function parseHooks(SimpleXMLElement $xml): array

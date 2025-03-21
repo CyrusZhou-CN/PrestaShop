@@ -127,10 +127,13 @@ smartyRegisterFunction($smarty, 'modifier', 'strstr', 'strstr');
 smartyRegisterFunction($smarty, 'modifier', 'strtolower', 'strtolower');
 smartyRegisterFunction($smarty, 'modifier', 'strval', 'strval');
 smartyRegisterFunction($smarty, 'modifier', 'substr', 'substr');
+smartyRegisterFunction($smarty, 'modifier', 'strpos', 'strpos');
 smartyRegisterFunction($smarty, 'modifier', 'trim', 'trim');
 smartyRegisterFunction($smarty, 'modifier', 'ucfirst', 'ucfirst');
 smartyRegisterFunction($smarty, 'modifier', 'urlencode', 'urlencode');
 smartyRegisterFunction($smarty, 'modifier', 'var_dump', 'var_dump');
+smartyRegisterFunction($smarty, 'modifier', 'file_exists', 'file_exists');
+smartyRegisterFunction($smarty, 'modifier', 'strpos', 'strpos');
 
 function smarty_modifier_htmlentitiesUTF8($string)
 {

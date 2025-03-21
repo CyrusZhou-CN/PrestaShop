@@ -36,8 +36,6 @@ use Symfony\Component\Finder\Finder;
 
 final class HookExtractor
 {
-    protected string $sourcePath;
-
     protected array $hooks = [];
     protected array $excludedDirectories = [
         'var/cache',
@@ -56,6 +54,7 @@ final class HookExtractor
         'translations',
         'upload',
         'node_modules',
+        'tests',
     ];
     protected array $regexList = [
         'smarty' => [
@@ -75,17 +74,16 @@ final class HookExtractor
     protected string $hookInfosReferenceXml = 'https://raw.githubusercontent.com/PrestaShop/PrestaShop/develop/install-dev/data/xml/hook.xml';
     protected array $hookInfos = [];
 
-    public function findHooks($sourcePath): array
+    public function findHooks(): array
     {
-        $this->sourcePath = $sourcePath;
         $this->extractHookAliases();
         $this->extractHookInfos();
-        $this->scanDirectory($sourcePath);
+        $this->scanDirectory();
 
         return $this->hooks;
     }
 
-    private function extractHookAliases(): void
+    protected function extractHookAliases(): void
     {
         $xmlContent = @simplexml_load_file($this->hookAliasesReferenceXml);
         if ($xmlContent === false) {
@@ -98,14 +96,14 @@ final class HookExtractor
         }
     }
 
-    public function getAliasesForHook($hookName): array
+    protected function getAliasesForHook($hookName): array
     {
         $hookNameLower = strtolower($hookName);
 
         return $this->hookAliases[$hookNameLower] ?? [];
     }
 
-    private function extractHookInfos(): void
+    protected function extractHookInfos(): void
     {
         $xmlContent = @simplexml_load_file($this->hookInfosReferenceXml);
         if ($xmlContent === false) {
@@ -120,26 +118,26 @@ final class HookExtractor
         }
     }
 
-    public function getHookInfo($hookName): array
+    protected function getHookInfo($hookName): array
     {
         $hookNameLower = strtolower($hookName);
 
         return $this->hookInfos[$hookNameLower] ?? [];
     }
 
-    public function makeRelativePath($path): string
+    protected function makeRelativePath($path): string
     {
-        $sourcePathWithSlash = rtrim($this->sourcePath, '/') . '/';
+        $sourcePathWithSlash = rtrim(_PS_ROOT_DIR_, '/') . '/';
 
         return str_replace($sourcePathWithSlash, '', $path);
     }
 
-    public function scanDirectory($sourcePath): void
+    protected function scanDirectory(): void
     {
         $finder = new Finder();
 
         $finder->files()
-            ->in($sourcePath)
+            ->in(_PS_ROOT_DIR_)
             ->name('*.php')
             ->name('*.tpl')
             ->name('*.twig')

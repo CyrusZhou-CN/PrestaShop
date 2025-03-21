@@ -52,6 +52,7 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\Router;
+use Symfony\Component\Translation\Loader\XliffFileLoader;
 
 class ModuleManagerBuilder
 {
@@ -118,7 +119,10 @@ class ModuleManagerBuilder
                     new SourceHandlerFactory(),
                     self::$translator,
                     new NullDispatcher(),
-                    new HookManager()
+                    new HookManager(),
+                    _PS_MODULE_DIR_,
+                    new XliffFileLoader(),
+                    null
                 );
             }
         }

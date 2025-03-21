@@ -276,9 +276,6 @@ class UpdateProductFeatureContext extends AbstractProductFeatureContext
         if (isset($data['reference'])) {
             $command->setReference($data['reference']);
         }
-        if (isset($data['mpn'])) {
-            $command->setMpn($data['mpn']);
-        }
     }
 
     /**
