@@ -31,6 +31,7 @@ use DateTimeImmutable;
 use Exception;
 use PHPUnit\Framework\Assert;
 use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\PrestaShop\Core\Domain\CartRule\Exception\CartRuleValidityException;
 use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
@@ -171,6 +172,14 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         };
 
         $this->assertLastErrorIs(DiscountConstraintException::class, $errorCode);
+    }
+
+    /**
+     * @Then I should get an error that the discount is invalid
+     */
+    public function assertDiscountIsInvalid(): void
+    {
+        $this->assertLastErrorIs(CartRuleValidityException::class);
     }
 
     /**

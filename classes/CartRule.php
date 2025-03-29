@@ -24,7 +24,10 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
+use PrestaShop\PrestaShop\Adapter\ContainerFinder;
 use PrestaShop\PrestaShop\Core\Domain\CartRule\CartRuleSettings;
+use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagSettings;
+use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagStateCheckerInterface;
 
 /**
  * Class CartRuleCore.
@@ -962,8 +965,12 @@ class CartRuleCore extends ObjectModel
         if ($check_carrier) {
             $otherCartRules = $cart->getCartRules(CartRule::FILTER_ACTION_ALL, false);
         }
+        $nbOfCartRules = 0;
         if (count($otherCartRules)) {
             foreach ($otherCartRules as $otherCartRule) {
+                if ($otherCartRule['id_cart_rule'] != $this->id) {
+                    ++$nbOfCartRules;
+                }
                 if ($otherCartRule['id_cart_rule'] == $this->id && !$alreadyInCart) {
                     return (!$display_error) ? false : $this->trans('This voucher is already in your cart', [], 'Shop.Notifications.Error');
                 }
@@ -1009,6 +1016,18 @@ class CartRuleCore extends ObjectModel
 			AND o.`id_cart` = ' . $cart->id);
         if ($removed_order_cartRule_id) {
             return (!$display_error) ? false : $this->trans('You cannot use this voucher because it has manually been removed.', [], 'Shop.Notifications.Error');
+        }
+
+        // This part introduces the new business rules for the discount rework they are only taking effect when the discount feature flag is enabled
+        $containerFinder = new ContainerFinder(Context::getContext());
+        $container = $containerFinder->getContainer();
+        $featureFlagManager = $container->get(FeatureFlagStateCheckerInterface::class);
+        if ($featureFlagManager !== null && $featureFlagManager->isEnabled(FeatureFlagSettings::FEATURE_FLAG_DISCOUNT)) {
+            // This part will have to handle the incompatibility between discount types, for now we can't edit those incompatibility
+            // rules yet, so for the sake of the initial POC we simplify the check by preventing discounts to be compatible with each others
+            if ($nbOfCartRules >= 1) {
+                return (!$display_error) ? false : $this->trans(sprintf('This voucher is not combinable with an other voucher already in your cart: %s', $cart_rule['code'] ?? ''), [], 'Shop.Notifications.Error');
+            }
         }
 
         if (!$display_error) {

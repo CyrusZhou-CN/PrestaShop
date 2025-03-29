@@ -307,6 +307,7 @@ default:
         - Tests\Integration\Behaviour\Features\Context\CustomerFeatureContext
         - Tests\Integration\Behaviour\Features\Context\Configuration\CommonConfigurationFeatureContext
         - Tests\Integration\Behaviour\Features\Context\ContextFeatureContext
+        - Tests\Integration\Behaviour\Features\Context\FeatureFlagFeatureContext
 
     catalog_price_rule:
       paths:

@@ -51,7 +51,7 @@ class CreateDiscountType extends TranslatorAwareType
             ],
             DiscountType::FREE_GIFT => [
                 'type' => DiscountType::FREE_GIFT,
-                'label' => $this->trans('On cart amount', 'Admin.Catalog.Feature'),
+                'label' => $this->trans('Free gift', 'Admin.Catalog.Feature'),
                 'icon' => 'card_giftcard',
                 'help' => $this->trans('Apply on free gift', 'Admin.Catalog.Feature'),
             ],
@@ -83,6 +83,7 @@ class CreateDiscountType extends TranslatorAwareType
                 'choice_name' => 'type',
                 'expanded' => true,
                 'multiple' => false,
+                'data' => $transformedData['cart_discount'],
                 'block_prefix' => 'discount_type',
                 'attr' => [
                     'class' => 'discount-type',
