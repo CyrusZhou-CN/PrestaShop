@@ -69,6 +69,7 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             default:
                 throw new RuntimeException('Unknown discount type ' . $discountType);
         }
+        $command->setActive(true);
 
         // This part adds automatic values for the initial POC, this is only temporary and
         // should be removed before releasing this new page
