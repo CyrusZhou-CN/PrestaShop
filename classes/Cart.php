@@ -2917,6 +2917,7 @@ class CartCore extends ObjectModel
             'actionFilterDeliveryOptionList',
             [
                 'delivery_option_list' => &$delivery_option_list,
+                'cart' => $this,
             ]
         );
 
