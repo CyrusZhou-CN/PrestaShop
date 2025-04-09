@@ -29,12 +29,12 @@ namespace PrestaShop\PrestaShop\Adapter\Discount\CommandHandler;
 use PrestaShop\PrestaShop\Adapter\CartRule\CartRuleBuilder;
 use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountRepository;
 use PrestaShop\PrestaShop\Core\CommandBus\Attributes\AsCommandHandler;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountCommand;
-use PrestaShop\PrestaShop\Core\Domain\Discount\CommandHandler\AddCartLevelDiscountHandlerInterface;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeGiftDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\CommandHandler\AddFreeGiftDiscountHandlerInterface;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
 
 #[AsCommandHandler]
-class AddCartLevelDiscountHandler implements AddCartLevelDiscountHandlerInterface
+class AddFreeGiftDiscountHandler implements AddFreeGiftDiscountHandlerInterface
 {
     public function __construct(
         private readonly DiscountRepository $discountRepository,
@@ -42,7 +42,7 @@ class AddCartLevelDiscountHandler implements AddCartLevelDiscountHandlerInterfac
     ) {
     }
 
-    public function handle(AddCartLevelDiscountCommand $command): DiscountId
+    public function handle(AddFreeGiftDiscountCommand $command): DiscountId
     {
         $builtCartRule = $this->cartRuleBuilder->build($command);
         $discount = $this->discountRepository->add($builtCartRule);

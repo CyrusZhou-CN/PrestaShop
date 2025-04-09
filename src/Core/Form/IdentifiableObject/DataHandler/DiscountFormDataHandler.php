@@ -31,6 +31,7 @@ use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Context\LanguageContext;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeGiftDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeShippingDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddProductLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
@@ -41,6 +42,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DiscountFormDataHandler implements FormDataHandlerInterface
 {
+    public const PRODUCT_ID = 1;
+    public const COMBINATION_ID = 2;
+
     public function __construct(
         protected readonly CommandBusInterface $commandBus,
         #[Autowire(service: 'prestashop.default.language.context')]
@@ -65,6 +69,12 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             case DiscountType::PRODUCTS_DISCOUNT:
                 $command = new AddProductLevelDiscountCommand();
                 $name = $this->translator->trans('On products amount', [], 'Admin.Catalog.Feature');
+                break;
+            case DiscountType::FREE_GIFT:
+                $command = new AddFreeGiftDiscountCommand();
+                $command->setProductId(self::PRODUCT_ID);
+                $command->setCombinationId(self::COMBINATION_ID);
+                $name = $this->translator->trans('On free gift', [], 'Admin.Catalog.Feature');
                 break;
             default:
                 throw new RuntimeException('Unknown discount type ' . $discountType);
