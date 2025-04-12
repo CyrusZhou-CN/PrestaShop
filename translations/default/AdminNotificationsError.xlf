@@ -353,22 +353,22 @@ Comment: check if some ids are in list_skip_actions and forbid deletion</note>
       <trans-unit id="b4186b9ed7c957a1cd9f4e7ce916e603">
         <source>%s: Incorrect value</source>
         <target>%s: Incorrect value</target>
-        <note>Line: 3928</note>
+        <note>Line: 3927</note>
       </trans-unit>
       <trans-unit id="9c79588566c8069eb2bd441da9a27be1">
         <source>Can't update #%id% status</source>
         <target>Can't update #%id% status</target>
-        <note>Line: 4163</note>
+        <note>Line: 4162</note>
       </trans-unit>
       <trans-unit id="c87956ad745e55231c633c03fe0f0d5b">
         <source>An error occurred while assigning a zone to the selection.</source>
         <target>An error occurred while assigning a zone to the selection.</target>
-        <note>Line: 4193</note>
+        <note>Line: 4192</note>
       </trans-unit>
       <trans-unit id="93463ceee9a3d376b18ee618bc2fffe4">
         <source>You must select at least one element to assign a new zone.</source>
         <target>You must select at least one element to assign a new zone.</target>
-        <note>Line: 4195</note>
+        <note>Line: 4194</note>
       </trans-unit>
       <trans-unit id="0fb45b1d088fda2dfd646ac483a2c1d6">
         <source>You need at least 1 object.</source>
