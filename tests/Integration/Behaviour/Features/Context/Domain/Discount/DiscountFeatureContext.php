@@ -37,6 +37,7 @@ use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountComma
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeGiftDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeShippingDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddOrderLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddProductLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountException;
@@ -101,6 +102,46 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
     {
         try {
             $command = new AddCartLevelDiscountCommand();
+            $this->createDiscount($discountReference, [], $command);
+        } catch (DiscountConstraintException $e) {
+            $this->setLastException($e);
+        }
+    }
+
+    /**
+     * @When I create a order level discount :discountReference with following properties:
+     *
+     * @param string $discountReference
+     * @param TableNode $node
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function createOrderLevelDiscountIfNotExists(string $discountReference, TableNode $node): void
+    {
+        $data = $this->localizeByRows($node);
+        try {
+            $command = new AddOrderLevelDiscountCommand();
+            $this->createDiscount($discountReference, $data, $command);
+        } catch (DiscountConstraintException $e) {
+            $this->setLastException($e);
+        }
+    }
+
+    /**
+     * @When I create a order level discount :discountReference
+     *
+     * @param string $discountReference
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function createSimpleOrderLevelDiscountIfNotExists(string $discountReference): void
+    {
+        try {
+            $command = new AddOrderLevelDiscountCommand();
             $this->createDiscount($discountReference, [], $command);
         } catch (DiscountConstraintException $e) {
             $this->setLastException($e);
@@ -281,7 +322,10 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             $command->setCode($data['code']);
         }
 
-        if ($command instanceof AddCartLevelDiscountCommand || $command instanceof AddProductLevelDiscountCommand) {
+        if ($command instanceof AddCartLevelDiscountCommand
+            || $command instanceof AddProductLevelDiscountCommand
+            || $command instanceof AddOrderLevelDiscountCommand
+        ) {
             if (!empty($data['reduction_percent'])) {
                 $command->setPercentDiscount(new DecimalNumber($data['reduction_percent']));
             }

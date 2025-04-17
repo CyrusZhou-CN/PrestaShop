@@ -32,6 +32,7 @@ use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountComma
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeGiftDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeShippingDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddOrderLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddProductLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Util\DateTime\DateTime as DateTimeUtil;
 
@@ -58,7 +59,7 @@ class CartRuleBuilder
         $cartRule->type = $command->getDiscountType()->getValue();
         $cartRule->free_shipping = $command instanceof AddFreeShippingDiscountCommand;
 
-        if ($command instanceof AddCartLevelDiscountCommand) {
+        if ($command instanceof AddCartLevelDiscountCommand || $command instanceof AddOrderLevelDiscountCommand) {
             if ($command->getPercentDiscount()) {
                 $cartRule->reduction_percent = (float) (string) $command->getPercentDiscount();
                 $cartRule->reduction_amount = 0;

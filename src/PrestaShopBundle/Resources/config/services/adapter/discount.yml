@@ -12,6 +12,11 @@ services:
     public: false
     autoconfigure: true
 
+  PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\AddOrderLevelDiscountHandler:
+    autowire: true
+    public: false
+    autoconfigure: true
+
   PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\AddProductLevelDiscountHandler:
     autowire: true
     public: false
