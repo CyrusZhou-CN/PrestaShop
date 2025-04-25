@@ -20,7 +20,7 @@ Feature: Full UX discount test
   Scenario: Apply two discounts to the cart and get an error
     Given I create an empty cart "dummy_cart" for customer "testCustomer"
     And there is a product in the catalog named "product1" with a price of 30.0 and 1000 items in stock
-    When I create a cart level discount "complete_amount_cart_level_discount" with following properties:
+    When I create a "cart_level" discount "complete_amount_cart_level_discount" with following properties:
       | name[en-US]        | Promotion           |
       | active             | true                |
       | valid_from         | 2025-01-01 11:05:00 |
@@ -38,7 +38,7 @@ Feature: Full UX discount test
       | reduction_amount   | 10.0                |
       | reduction_currency | usd                 |
       | taxIncluded        | true                |
-    When I create a cart level discount "complete_amount_cart_level_discount_2" with following properties:
+    When I create a "cart_level" discount "complete_amount_cart_level_discount_2" with following properties:
       | name[en-US]        | Promotion           |
       | active             | true                |
       | valid_from         | 2025-01-01 11:05:00 |

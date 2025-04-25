@@ -33,17 +33,13 @@ use PHPUnit\Framework\Assert;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\Domain\CartRule\Exception\CartRuleValidityException;
 use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeGiftDiscountCommand;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeShippingDiscountCommand;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddOrderLevelDiscountCommand;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddProductLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Query\GetDiscountForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Discount\QueryResult\DiscountForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
 use PrestaShop\PrestaShop\Core\Util\DateTime\DateTime as DateTimeUtil;
 use RuntimeException;
 use Tests\Integration\Behaviour\Features\Context\Domain\AbstractDomainFeatureContext;
@@ -51,194 +47,6 @@ use Tests\Integration\Behaviour\Features\Context\Util\PrimitiveUtils;
 
 class DiscountFeatureContext extends AbstractDomainFeatureContext
 {
-    /**
-     * @When I create a free shipping discount :discountReference with following properties:
-     *
-     * @param string $discountReference
-     * @param TableNode $node
-     */
-    public function createFreeShippingDiscount(string $discountReference, TableNode $node): void
-    {
-        $data = $this->localizeByRows($node);
-        try {
-            $command = new AddFreeShippingDiscountCommand();
-            $this->createDiscount($discountReference, $data, $command);
-        } catch (DiscountConstraintException $e) {
-            $this->setLastException($e);
-        }
-    }
-
-    /**
-     * @When I create a cart level discount :discountReference with following properties:
-     *
-     * @param string $discountReference
-     * @param TableNode $node
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function createCartLevelDiscountIfNotExists(string $discountReference, TableNode $node): void
-    {
-        $data = $this->localizeByRows($node);
-        try {
-            $command = new AddCartLevelDiscountCommand();
-            $this->createDiscount($discountReference, $data, $command);
-        } catch (DiscountConstraintException $e) {
-            $this->setLastException($e);
-        }
-    }
-
-    /**
-     * @When I create a cart level discount :discountReference
-     *
-     * @param string $discountReference
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function createSimpleCartLevelDiscountIfNotExists(string $discountReference): void
-    {
-        try {
-            $command = new AddCartLevelDiscountCommand();
-            $this->createDiscount($discountReference, [], $command);
-        } catch (DiscountConstraintException $e) {
-            $this->setLastException($e);
-        }
-    }
-
-    /**
-     * @When I create a order level discount :discountReference with following properties:
-     *
-     * @param string $discountReference
-     * @param TableNode $node
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function createOrderLevelDiscountIfNotExists(string $discountReference, TableNode $node): void
-    {
-        $data = $this->localizeByRows($node);
-        try {
-            $command = new AddOrderLevelDiscountCommand();
-            $this->createDiscount($discountReference, $data, $command);
-        } catch (DiscountConstraintException $e) {
-            $this->setLastException($e);
-        }
-    }
-
-    /**
-     * @When I create a order level discount :discountReference
-     *
-     * @param string $discountReference
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function createSimpleOrderLevelDiscountIfNotExists(string $discountReference): void
-    {
-        try {
-            $command = new AddOrderLevelDiscountCommand();
-            $this->createDiscount($discountReference, [], $command);
-        } catch (DiscountConstraintException $e) {
-            $this->setLastException($e);
-        }
-    }
-
-    /**
-     * @When I create a product level discount :discountReference with following properties:
-     *
-     * @param string $discountReference
-     * @param TableNode $node
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function createProductLevelDiscountIfNotExists(string $discountReference, TableNode $node): void
-    {
-        $data = $this->localizeByRows($node);
-        try {
-            $command = new AddProductLevelDiscountCommand();
-            $this->createDiscount($discountReference, $data, $command);
-        } catch (DiscountConstraintException $e) {
-            $this->setLastException($e);
-        }
-    }
-
-    /**
-     * @When I create a product level discount :discountReference
-     *
-     * @param string $discountReference
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function createSimpleProductLevelDiscountIfNotExists(string $discountReference): void
-    {
-        try {
-            $command = new AddProductLevelDiscountCommand();
-            $this->createDiscount($discountReference, [], $command);
-        } catch (DiscountConstraintException $e) {
-            $this->setLastException($e);
-        }
-    }
-
-    /**
-     * @When I create a free shipping discount :discountReference
-     *
-     * @param string $discountReference
-     */
-    public function createFreeShippingDiscountWithNoParameters(string $discountReference): void
-    {
-        try {
-            $command = new AddFreeShippingDiscountCommand();
-            $this->createDiscount($discountReference, [], $command);
-        } catch (DiscountConstraintException $e) {
-            $this->setLastException($e);
-        }
-    }
-
-    /**
-     * @When I create a free gift discount :discountReference
-     *
-     * @param string $discountReference
-     */
-    public function createFreeGiftDiscountWithNoParameters(string $discountReference): void
-    {
-        try {
-            $command = new AddFreeGiftDiscountCommand();
-            $this->createDiscount($discountReference, [], $command);
-        } catch (DiscountConstraintException $e) {
-            $this->setLastException($e);
-        }
-    }
-
-    /**
-     * @When I create a free gift discount :discountReference with following properties:
-     *
-     * @param string $discountReference
-     * @param TableNode $node
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function createFreeGiftDiscountIfNotExists(string $discountReference, TableNode $node): void
-    {
-        $data = $this->localizeByRows($node);
-        try {
-            $command = new AddFreeGiftDiscountCommand();
-            $this->createDiscount($discountReference, $data, $command);
-        } catch (DiscountConstraintException $e) {
-            $this->setLastException($e);
-        }
-    }
-
     /**
      * @Then I should get error that discount field :field is invalid
      */
@@ -280,11 +88,19 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
     }
 
     /**
+     * @When I create a :discountType discount :discountReference with following properties:
+     *
+     * @param string $discountReference
+     * @param TableNode $node
+     *
      * @throws DiscountConstraintException
      * @throws Exception
      */
-    protected function createDiscount(string $cartRuleReference, array $data, AddDiscountCommand $command): void
+    public function createDiscount(string $discountReference, string $discountType, TableNode $node): void
     {
+        $data = $this->localizeByRows($node);
+        $command = new AddDiscountCommand($discountType, $data['name']);
+
         if (isset($data['name'])) {
             $command->setLocalizedNames($data['name']);
         }
@@ -322,24 +138,28 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             $command->setCode($data['code']);
         }
 
-        if ($command instanceof AddCartLevelDiscountCommand
-            || $command instanceof AddProductLevelDiscountCommand
-            || $command instanceof AddOrderLevelDiscountCommand
+        if ($command->getDiscountType()->getValue() === DiscountType::CART_LEVEL
+            || $command->getDiscountType()->getValue() === DiscountType::PRODUCT_LEVEL
+            || $command->getDiscountType()->getValue() === DiscountType::ORDER_LEVEL
         ) {
             if (!empty($data['reduction_percent'])) {
                 $command->setPercentDiscount(new DecimalNumber($data['reduction_percent']));
             }
 
             if (!empty($data['reduction_amount'])) {
-                $command->setAmountDiscount(
-                    new DecimalNumber($data['reduction_amount']),
-                    new CurrencyId($this->getSharedStorage()->get($data['reduction_currency'])),
-                    PrimitiveUtils::castStringBooleanIntoBoolean($data['taxIncluded']),
-                );
+                try {
+                    $command->setAmountDiscount(
+                        new DecimalNumber($data['reduction_amount']),
+                        new CurrencyId($this->getSharedStorage()->get($data['reduction_currency'])),
+                        PrimitiveUtils::castStringBooleanIntoBoolean($data['taxIncluded']),
+                    );
+                } catch (DiscountConstraintException $e) {
+                    $this->setLastException($e);
+                }
             }
         }
 
-        if ($command instanceof AddProductLevelDiscountCommand) {
+        if ($command->getDiscountType()->getValue() === DiscountType::PRODUCT_LEVEL) {
             if (!empty($data['reduction_product'])) {
                 if ((int) $data['reduction_product'] === -1 || (int) $data['reduction_product'] === -2) {
                     $command->setReductionProduct((int) $data['reduction_product']);
@@ -349,7 +169,7 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             }
         }
 
-        if ($command instanceof AddFreeGiftDiscountCommand) {
+        if ($command->getDiscountType()->getValue() === DiscountType::FREE_GIFT) {
             if (!empty($data['gift_product'])) {
                 $command->setProductId($this->referenceToId($data['gift_product']));
             }
@@ -359,9 +179,13 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             }
         }
 
-        /** @var DiscountId $discountId */
-        $discountId = $this->getCommandBus()->handle($command);
-        $this->getSharedStorage()->set($cartRuleReference, $discountId->getValue());
+        try {
+            /** @var DiscountId $discountId */
+            $discountId = $this->getCommandBus()->handle($command);
+            $this->getSharedStorage()->set($discountReference, $discountId->getValue());
+        } catch (DiscountConstraintException $e) {
+            $this->setLastException($e);
+        }
     }
 
     protected function assertDiscountProperties(DiscountForEditing $discountForEditing, array $expectedData): void

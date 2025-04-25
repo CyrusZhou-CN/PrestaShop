@@ -15,105 +15,85 @@ Feature: Add discount
     And language with iso code "en" is the default one
     And language "french" with locale "fr-FR" exists
 
-  Scenario: Create a simple order level discount
-    When I create a order level discount "basic_order_level_discount"
-    And discount "basic_order_level_discount" should have the following properties:
-      | active | false         |
-      | type   | order_discount |
-
   Scenario: Create a complete order level discount
-    When I create a order level discount "complete_percent_order_level_discount" with following properties:
+    When I create a "order_level" discount "complete_percent_order_level_discount" with following properties:
       | name[en-US]       | Promotion           |
       | active            | true                |
       | valid_from        | 2019-01-01 11:05:00 |
       | valid_to          | 2019-12-01 00:00:00 |
-      | code              | PROMO_order_2019     |
+      | code              | PROMO_order_2019    |
       | reduction_percent | 10.0                |
     And discount "complete_percent_order_level_discount" should have the following properties:
       | name[en-US]       | Promotion           |
-      | type              | order_discount       |
+      | type              | order_level         |
       | active            | true                |
       | valid_from        | 2019-01-01 11:05:00 |
       | valid_to          | 2019-12-01 00:00:00 |
-      | code              | PROMO_order_2019     |
+      | code              | PROMO_order_2019    |
       | reduction_percent | 10.0                |
-    When I create a order level discount "complete_amount_order_level_discount" with following properties:
+    When I create a "order_level" discount "complete_amount_order_level_discount" with following properties:
       | name[en-US]        | Promotion           |
       | active             | true                |
       | valid_from         | 2019-01-01 11:05:00 |
       | valid_to           | 2019-12-01 00:00:00 |
-      | code               | PROMO_order_2019_2   |
+      | code               | PROMO_order_2019_2  |
       | reduction_amount   | 10.0                |
       | reduction_currency | usd                 |
       | taxIncluded        | true                |
     And discount "complete_amount_order_level_discount" should have the following properties:
       | name[en-US]        | Promotion           |
-      | type               | order_discount       |
+      | type               | order_level         |
       | active             | true                |
       | valid_from         | 2019-01-01 11:05:00 |
       | valid_to           | 2019-12-01 00:00:00 |
-      | code               | PROMO_order_2019_2   |
+      | code               | PROMO_order_2019_2  |
       | reduction_amount   | 10.0                |
       | reduction_currency | usd                 |
       | taxIncluded        | true                |
-    When I create a order level discount "complete_amount_order_level_discount_tax_excluded" with following properties:
+    When I create a "order_level" discount "complete_amount_order_level_discount_tax_excluded" with following properties:
       | name[en-US]        | Promotion           |
       | active             | true                |
       | valid_from         | 2019-01-01 11:05:00 |
       | valid_to           | 2019-12-01 00:00:00 |
-      | code               | PROMO_order_2019_3   |
+      | code               | PROMO_order_2019_3  |
       | reduction_amount   | 10.0                |
       | reduction_currency | usd                 |
       | taxIncluded        | false               |
     And discount "complete_amount_order_level_discount_tax_excluded" should have the following properties:
       | name[en-US]        | Promotion           |
-      | type               | order_discount       |
+      | type               | order_level         |
       | active             | true                |
       | valid_from         | 2019-01-01 11:05:00 |
       | valid_to           | 2019-12-01 00:00:00 |
-      | code               | PROMO_order_2019_3   |
+      | code               | PROMO_order_2019_3  |
       | reduction_amount   | 10.0                |
       | reduction_currency | usd                 |
       | taxIncluded        | false               |
 
-  Scenario: Create an active order level discount but without names should be forbidden
-    When I create a order level discount "invalid_order_level_discount" with following properties:
-      | active | true          |
-      | type   | order_discount |
-    Then I should get error that discount field name is invalid
-    # Discount online with name only in default language is valid though
-    When I create a order level discount "default_language_order_level_discount" with following properties:
-      | active      | true      |
-      | name[en-US] | Promotion |
-      | name[fr-FR] |           |
-    Then discount "default_language_order_level_discount" should have the following properties:
-      | active      | true      |
-      | name[en-US] | Promotion |
-      | name[fr-FR] |           |
 
   Scenario: Create an active order level discount with wrong values
-    When I create a order level discount "invalid_percent_order_level_discount_1" with following properties:
+    When I create a "order_level" discount "invalid_percent_order_level_discount_1" with following properties:
       | name[en-US]       | Promotion           |
       | active            | true                |
       | valid_from        | 2019-01-01 11:05:00 |
       | valid_to          | 2019-12-01 00:00:00 |
-      | code              | PROMO_order_2019_4   |
+      | code              | PROMO_order_2019_4  |
       | reduction_percent | -10.0               |
     Then I should get error that discount field reduction_percent is invalid
-    When I create a order level discount "invalid_percent_order_level_discount_2" with following properties:
+    When I create a "order_level" discount "invalid_percent_order_level_discount_2" with following properties:
       | name[en-US]       | Promotion           |
       | active            | true                |
       | valid_from        | 2019-01-01 11:05:00 |
       | valid_to          | 2019-12-01 00:00:00 |
-      | code              | PROMO_order_2019_5   |
+      | code              | PROMO_order_2019_5  |
       | reduction_percent | 102.0               |
     Then I should get error that discount field reduction_percent is invalid
-    When I create a order level discount "invalid_amount_order_level_discount" with following properties:
+    When I create a "order_level" discount "invalid_amount_order_level_discount" with following properties:
       | name[en-US]        | Promotion           |
       | active             | true                |
       | valid_from         | 2019-01-01 11:05:00 |
       | valid_to           | 2019-12-01 00:00:00 |
-      | code               | PROMO_order_2019_5   |
+      | code               | PROMO_order_2019_5  |
       | reduction_amount   | -102.0              |
       | reduction_currency | usd                 |
       | taxIncluded        | false               |

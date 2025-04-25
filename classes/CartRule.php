@@ -1350,7 +1350,7 @@ class CartRuleCore extends ObjectModel
             $featureFlagManager = $container->get(FeatureFlagStateCheckerInterface::class);
 
             if ($featureFlagManager !== null && $featureFlagManager->isEnabled(FeatureFlagSettings::FEATURE_FLAG_DISCOUNT)) {
-                if ($this->type === DiscountType::ORDER_DISCOUNT && $this->reduction_percent > 0.00 && $this->reduction_product == 0) {
+                if ($this->type === DiscountType::ORDER_LEVEL && $this->reduction_percent > 0.00 && $this->reduction_product == 0) {
                     $order_products_total = $context->cart->getOrderTotal($use_tax, Cart::ONLY_PRODUCTS, $package_products);
                     $order_shipping_total = $context->cart->getOrderTotal($use_tax, Cart::ONLY_SHIPPING, $package_products);
                     $order_total = $order_products_total + $order_shipping_total;
@@ -1535,7 +1535,7 @@ class CartRuleCore extends ObjectModel
 
                         // The reduction cannot exceed the products total, except when we do not want it to be limited (for the partial use calculation)
                         if ($filter != CartRule::FILTER_ACTION_ALL_NOCAP) {
-                            if ($featureFlagManager !== null && $featureFlagManager->isEnabled(FeatureFlagSettings::FEATURE_FLAG_DISCOUNT) && $this->type === DiscountType::ORDER_DISCOUNT) {
+                            if ($featureFlagManager !== null && $featureFlagManager->isEnabled(FeatureFlagSettings::FEATURE_FLAG_DISCOUNT) && $this->type === DiscountType::ORDER_LEVEL) {
                                 $max_reduction_amount = $this->reduction_tax
                                     ? $cart_amount_ti + $context->cart->getOrderTotal(true, Cart::ONLY_SHIPPING, $package_products)
                                     : $cart_amount_te + $context->cart->getOrderTotal(false, Cart::ONLY_SHIPPING, $package_products);
@@ -1591,7 +1591,7 @@ class CartRuleCore extends ObjectModel
                         $current_cart_amount = max($current_cart_amount - (float) $previous_reduction_amount, 0);
                     }
 
-                    if ($featureFlagManager !== null && $featureFlagManager->isEnabled(FeatureFlagSettings::FEATURE_FLAG_DISCOUNT) && $this->type === DiscountType::ORDER_DISCOUNT) {
+                    if ($featureFlagManager !== null && $featureFlagManager->isEnabled(FeatureFlagSettings::FEATURE_FLAG_DISCOUNT) && $this->type === DiscountType::ORDER_LEVEL) {
                         $current_cart_amount += $this->reduction_tax
                             ? $context->cart->getOrderTotal(true, Cart::ONLY_SHIPPING, $package_products)
                             : $context->cart->getOrderTotal(false, Cart::ONLY_SHIPPING, $package_products);

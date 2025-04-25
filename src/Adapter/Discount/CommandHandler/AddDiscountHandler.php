@@ -28,24 +28,31 @@ namespace PrestaShop\PrestaShop\Adapter\Discount\CommandHandler;
 
 use PrestaShop\PrestaShop\Adapter\CartRule\CartRuleBuilder;
 use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountRepository;
+use PrestaShop\PrestaShop\Adapter\Discount\Validate\DiscountValidator;
 use PrestaShop\PrestaShop\Core\CommandBus\Attributes\AsCommandHandler;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountCommand;
-use PrestaShop\PrestaShop\Core\Domain\Discount\CommandHandler\AddCartLevelDiscountHandlerInterface;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\CommandHandler\AddDiscountHandlerInterface;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
 
 #[AsCommandHandler]
-class AddCartLevelDiscountHandler implements AddCartLevelDiscountHandlerInterface
+class AddDiscountHandler implements AddDiscountHandlerInterface
 {
     public function __construct(
         private readonly DiscountRepository $discountRepository,
-        private readonly CartRuleBuilder $cartRuleBuilder
+        private readonly CartRuleBuilder $cartRuleBuilder,
+        private readonly DiscountValidator $discountValidator,
     ) {
     }
 
-    public function handle(AddCartLevelDiscountCommand $command): DiscountId
+    /**
+     * @throws DiscountConstraintException
+     */
+    public function handle(AddDiscountCommand $command): DiscountId
     {
-        $builtCartRule = $this->cartRuleBuilder->build($command);
-        $discount = $this->discountRepository->add($builtCartRule);
+        $this->discountValidator->validateDiscountPropertiesForType($command);
+        $BuiltCartRule = $this->cartRuleBuilder->build($command);
+        $discount = $this->discountRepository->add($BuiltCartRule);
 
         return new DiscountId((int) $discount->id);
     }

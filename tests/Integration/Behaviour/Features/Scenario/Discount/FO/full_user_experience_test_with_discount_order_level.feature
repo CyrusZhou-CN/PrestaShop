@@ -22,7 +22,7 @@ Feature: Full UX discount test
     And I enable feature flag "discount"
     And there is a product in the catalog named "product1" with a price of 19.812 and 1000 items in stock
     And there is a product in the catalog named "product2" with a price of 20.0 and 1000 items in stock
-    When I create a order level discount "complete_amount_order_level_discount" with following properties:
+    When I create a "order_level" discount "complete_amount_order_level_discount" with following properties:
       | name[en-US]        | Promotion           |
       | active             | true                |
       | valid_from         | 2025-01-01 11:05:00 |
@@ -57,7 +57,7 @@ Feature: Full UX discount test
     And I enable feature flag "discount"
     And there is a product in the catalog named "product1" with a price of 19.812 and 1000 items in stock
     And there is a product in the catalog named "product2" with a price of 20.0 and 1000 items in stock
-    When I create a order level discount "complete_amount_order_level_discount_greater" with following properties:
+    When I create a "order_level" discount "complete_amount_order_level_discount_greater" with following properties:
       | name[en-US]        | Promotion                |
       | active             | true                     |
       | valid_from         | 2025-01-01 11:05:00      |
@@ -92,7 +92,7 @@ Feature: Full UX discount test
     And I enable feature flag "discount"
     And there is a product in the catalog named "product1" with a price of 19.812 and 1000 items in stock
     And there is a product in the catalog named "product2" with a price of 20.0 and 1000 items in stock
-    When I create a order level discount "complete_amount_order_level_discount_too_generous" with following properties:
+    When I create a "order_level" discount "complete_amount_order_level_discount_too_generous" with following properties:
       | name[en-US]        | Promotion                 |
       | active             | true                      |
       | valid_from         | 2025-01-01 11:05:00       |
@@ -126,7 +126,7 @@ Feature: Full UX discount test
     Given I create an empty cart "dummy_cart_2" for customer "testCustomer2"
     And I enable feature flag "discount"
     And there is a product in the catalog named "product3" with a price of 19.9 and 1000 items in stock
-    When I create a order level discount "complete_percent_order_level_discount" with following properties:
+    When I create a "order_level" discount "complete_percent_order_level_discount" with following properties:
       | name[en-US]       | Promotion           |
       | active            | true                |
       | valid_from        | 2025-01-01 11:05:00 |

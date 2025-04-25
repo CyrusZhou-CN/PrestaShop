@@ -28,12 +28,8 @@ namespace PrestaShop\PrestaShop\Adapter\CartRule;
 
 use CartRule;
 use DateTimeImmutable;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddCartLevelDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeGiftDiscountCommand;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeShippingDiscountCommand;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddOrderLevelDiscountCommand;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddProductLevelDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
 use PrestaShop\PrestaShop\Core\Util\DateTime\DateTime as DateTimeUtil;
 
 class CartRuleBuilder
@@ -57,9 +53,9 @@ class CartRuleBuilder
         $cartRule->quantity = $command->getTotalQuantity();
         $cartRule->quantity_per_user = $command->getQuantityPerUser();
         $cartRule->type = $command->getDiscountType()->getValue();
-        $cartRule->free_shipping = $command instanceof AddFreeShippingDiscountCommand;
+        $cartRule->free_shipping = $command->getDiscountType()->getValue() === DiscountType::FREE_SHIPPING;
 
-        if ($command instanceof AddCartLevelDiscountCommand || $command instanceof AddOrderLevelDiscountCommand) {
+        if ($command->getDiscountType()->getValue() === DiscountType::CART_LEVEL || $command->getDiscountType()->getValue() === DiscountType::ORDER_LEVEL) {
             if ($command->getPercentDiscount()) {
                 $cartRule->reduction_percent = (float) (string) $command->getPercentDiscount();
                 $cartRule->reduction_amount = 0;
@@ -71,12 +67,12 @@ class CartRuleBuilder
                 $cartRule->reduction_currency = $command->getAmountDiscount()->getCurrencyId()->getValue();
                 $cartRule->reduction_tax = $command->getAmountDiscount()->isTaxIncluded();
             }
-        } elseif ($command instanceof AddFreeGiftDiscountCommand) {
+        } elseif ($command->getDiscountType()->getValue() === DiscountType::FREE_GIFT) {
             $cartRule->gift_product = $command->getProductId()?->getValue() ?? 0;
             $cartRule->gift_product_attribute = $command->getCombinationId()?->getValue() ?? 0;
         }
 
-        if ($command instanceof AddProductLevelDiscountCommand) {
+        if ($command->getDiscountType()->getValue() === DiscountType::PRODUCT_LEVEL) {
             if ($command->getPercentDiscount()) {
                 $cartRule->reduction_percent = (float) (string) $command->getPercentDiscount();
                 $cartRule->reduction_amount = 0;

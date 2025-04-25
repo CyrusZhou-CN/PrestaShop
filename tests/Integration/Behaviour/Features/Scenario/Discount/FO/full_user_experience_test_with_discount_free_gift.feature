@@ -19,7 +19,7 @@ Feature: Full UX discount test
     Given I create an empty cart "dummy_cart" for customer "testCustomer"
     Given there is a product "hummingbird-tshirt-simple" with name "Hummingbird printed t-shirt"
     And there is a product in the catalog named "product1" with a price of 20.0 and 1000 items in stock
-    When I create a free gift discount "complete_free_gift_discount" with following properties:
+    When I create a "free_gift" discount "complete_free_gift_discount" with following properties:
       | name[en-US]       | Promotion                 |
       | active            | true                      |
       | valid_from        | 2025-01-01 11:05:00       |
@@ -91,7 +91,7 @@ Feature: Full UX discount test
       | location                   | Storage nr1 |
       | available date             | 2021-10-10  |
     And there is a product in the catalog named "product1" with a price of 20.0 and 1000 items in stock
-    When I create a free gift discount "complete_free_combination_discount" with following properties:
+    When I create a "free_gift" discount "complete_free_combination_discount" with following properties:
       | name[en-US]       | Promotion 2             |
       | active            | true                   |
       | valid_from        | 2025-01-01 11:05:00    |

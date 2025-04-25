@@ -26,10 +26,10 @@
 
 namespace PrestaShop\PrestaShop\Core\Domain\Discount\CommandHandler;
 
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddFreeGiftDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
 
-interface AddFreeGiftDiscountHandlerInterface
+interface AddDiscountHandlerInterface
 {
-    public function handle(AddFreeGiftDiscountCommand $command): DiscountId;
+    public function handle(AddDiscountCommand $command): DiscountId;
 }
