@@ -28,25 +28,28 @@ declare(strict_types=1);
 
 namespace PrestaShopBundle\EventListener\Admin\Context;
 
-use PrestaShop\PrestaShop\Core\ConfigurationInterface;
-use PrestaShop\PrestaShop\Core\Context\CountryContextBuilder;
+use PrestaShop\PrestaShop\Core\Context\EmployeeContextBuilder;
+use PrestaShopBundle\Entity\Employee\Employee;
+use PrestaShopBundle\Security\Admin\SessionEmployeeProvider;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Listener dedicated to set up Country context for the Back-Office/Admin application.
+ * Listener dedicated to set up Employee context for the Back-Office/Admin application.
  */
-class CountryContextListener implements EventSubscriberInterface
+class EmployeeContextSubscriber implements EventSubscriberInterface
 {
     /**
-     * Priority higher than Symfony router listener (which is 32)
+     * Priority a bit lower than the FirewallListener
      */
-    public const BEFORE_ROUTER_PRIORITY = 33;
+    public const KERNEL_REQUEST_PRIORITY = 7;
 
     public function __construct(
-        private readonly CountryContextBuilder $countryContextBuilder,
-        private readonly ConfigurationInterface $configuration,
+        private readonly EmployeeContextBuilder $employeeContextBuilder,
+        private readonly Security $security,
+        private readonly SessionEmployeeProvider $sessionEmployeeProvider,
     ) {
     }
 
@@ -54,7 +57,7 @@ class CountryContextListener implements EventSubscriberInterface
     {
         return [
             KernelEvents::REQUEST => [
-                ['onKernelRequest', self::BEFORE_ROUTER_PRIORITY],
+                ['onKernelRequest', self::KERNEL_REQUEST_PRIORITY],
             ],
         ];
     }
@@ -65,6 +68,18 @@ class CountryContextListener implements EventSubscriberInterface
             return;
         }
 
-        $this->countryContextBuilder->setCountryId((int) $this->configuration->get('PS_COUNTRY_DEFAULT'));
+        $employeeId = null;
+        // First see if an employee is logged in
+        if ($this->security->getUser() instanceof Employee) {
+            $employeeId = $this->security->getUser()->getId();
+        }
+        // Then fetch the employee ID from the session
+        if (empty($employeeId)) {
+            $employeeId = $this->sessionEmployeeProvider->getEmployeeFromSession($event->getRequest())?->getId();
+        }
+
+        if (!empty($employeeId)) {
+            $this->employeeContextBuilder->setEmployeeId($employeeId);
+        }
     }
 }

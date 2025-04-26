@@ -32,13 +32,13 @@ use PrestaShop\PrestaShop\Adapter\ContextStateManager;
 use PrestaShop\PrestaShop\Adapter\Employee\EmployeeRepository;
 use PrestaShop\PrestaShop\Core\Context\EmployeeContextBuilder;
 use PrestaShopBundle\Entity\Employee\Employee;
-use PrestaShopBundle\EventListener\Admin\Context\EmployeeContextListener;
+use PrestaShopBundle\EventListener\Admin\Context\EmployeeContextSubscriber;
 use PrestaShopBundle\Security\Admin\SessionEmployeeProvider;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Tests\Unit\PrestaShopBundle\EventListener\ContextEventListenerTestCase;
 
-class EmployeeContextListenerTest extends ContextEventListenerTestCase
+class EmployeeContextSubscriberTest extends ContextEventListenerTestCase
 {
     public function testEmployeeNotFound(): void
     {
@@ -47,7 +47,7 @@ class EmployeeContextListenerTest extends ContextEventListenerTestCase
             $this->createMock(EmployeeRepository::class),
             $this->createMock(ContextStateManager::class),
         );
-        $listener = new EmployeeContextListener(
+        $listener = new EmployeeContextSubscriber(
             $employeeBuilder,
             $this->createMock(Security::class),
             $this->createMock(SessionEmployeeProvider::class),
@@ -66,7 +66,7 @@ class EmployeeContextListenerTest extends ContextEventListenerTestCase
         $employeeMock->method('getId')->willReturn(51);
         $securityMock = $this->createMock(Security::class);
         $securityMock->method('getUser')->willReturn($employeeMock);
-        $listener = new EmployeeContextListener(
+        $listener = new EmployeeContextSubscriber(
             $employeeBuilder,
             $securityMock,
             $this->createMock(SessionEmployeeProvider::class),
@@ -89,7 +89,7 @@ class EmployeeContextListenerTest extends ContextEventListenerTestCase
         $sessionEmployeeProvider = $this->createMock(SessionEmployeeProvider::class);
         $sessionEmployeeProvider->method('getEmployeeFromSession')->willReturn($employeeMock);
 
-        $listener = new EmployeeContextListener(
+        $listener = new EmployeeContextSubscriber(
             $employeeBuilder,
             $this->createMock(Security::class),
             $sessionEmployeeProvider,

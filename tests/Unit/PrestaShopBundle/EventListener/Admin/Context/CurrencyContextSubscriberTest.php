@@ -29,29 +29,29 @@ declare(strict_types=1);
 namespace Tests\Unit\PrestaShopBundle\EventListener\Admin\Context;
 
 use PrestaShop\PrestaShop\Adapter\ContextStateManager;
-use PrestaShop\PrestaShop\Adapter\Country\Repository\CountryRepository;
-use PrestaShop\PrestaShop\Core\Context\CountryContextBuilder;
+use PrestaShop\PrestaShop\Adapter\Currency\Repository\CurrencyRepository;
+use PrestaShop\PrestaShop\Core\Context\CurrencyContextBuilder;
 use PrestaShop\PrestaShop\Core\Context\LanguageContext;
-use PrestaShopBundle\EventListener\Admin\Context\CountryContextListener;
+use PrestaShopBundle\EventListener\Admin\Context\CurrencyContextSubscriber;
 use Symfony\Component\HttpFoundation\Request;
 use Tests\Unit\PrestaShopBundle\EventListener\ContextEventListenerTestCase;
 
-class CountryContextListenerTest extends ContextEventListenerTestCase
+class CurrencyContextSubscriberTest extends ContextEventListenerTestCase
 {
     public function testKernelRequest(): void
     {
-        $countryContextBuilder = new CountryContextBuilder(
-            $this->createMock(CountryRepository::class),
+        $currencyContextBuilder = new CurrencyContextBuilder(
+            $this->createMock(CurrencyRepository::class),
             $this->createMock(ContextStateManager::class),
-            $this->createMock(LanguageContext::class),
+            $this->createMock(LanguageContext::class)
         );
-        $listener = new CountryContextListener(
-            $countryContextBuilder,
-            $this->mockConfiguration(['PS_COUNTRY_DEFAULT' => 42]),
+        $listener = new CurrencyContextSubscriber(
+            $currencyContextBuilder,
+            $this->mockConfiguration(['PS_CURRENCY_DEFAULT' => 42]),
         );
 
         $event = $this->createRequestEvent(new Request());
         $listener->onKernelRequest($event);
-        $this->assertEquals(42, $this->getPrivateField($countryContextBuilder, 'countryId'));
+        $this->assertEquals(42, $this->getPrivateField($currencyContextBuilder, 'currencyId'));
     }
 }

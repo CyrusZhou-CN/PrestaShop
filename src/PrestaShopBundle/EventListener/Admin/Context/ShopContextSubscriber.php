@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace PrestaShopBundle\EventListener\Admin\Context;
 
 use PrestaShop\PrestaShop\Adapter\Feature\MultistoreFeature;
+use PrestaShop\PrestaShop\Adapter\LegacyContext;
 use PrestaShop\PrestaShop\Core\Context\EmployeeContext;
 use PrestaShop\PrestaShop\Core\Context\ShopContextBuilder;
 use PrestaShop\PrestaShop\Core\Domain\Configuration\ShopConfigurationInterface;
@@ -52,12 +53,12 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * Listener dedicated to set up Shop context for the Back-Office/Admin application.
  */
-class ShopContextListener implements EventSubscriberInterface
+class ShopContextSubscriber implements EventSubscriberInterface
 {
     /**
      * Priority lower than EmployeeContextListener so that EmployeeContext is correctly initialized
      */
-    public const KERNEL_REQUEST_PRIORITY = EmployeeContextListener::KERNEL_REQUEST_PRIORITY - 1;
+    public const KERNEL_REQUEST_PRIORITY = EmployeeContextSubscriber::KERNEL_REQUEST_PRIORITY - 1;
 
     /**
      * Priority higher than Symfony router listener (which is 32)
@@ -71,6 +72,7 @@ class ShopContextListener implements EventSubscriberInterface
         private readonly MultistoreFeature $multistoreFeature,
         private readonly RouterInterface $router,
         private readonly Security $security,
+        private readonly LegacyContext $legacyContext,
     ) {
     }
 
@@ -89,9 +91,10 @@ class ShopContextListener implements EventSubscriberInterface
         if (!$event->isMainRequest()) {
             return;
         }
-        $shopConstraint = ShopConstraint::shop((int) $this->configuration->get('PS_SHOP_DEFAULT', null, ShopConstraint::allShops()));
-        $this->shopContextBuilder->setShopId($shopConstraint->getShopId()->getValue());
-        $this->shopContextBuilder->setShopConstraint($shopConstraint);
+
+        $defaultShopId = $this->getConfiguredDefaultShopId();
+        $this->shopContextBuilder->setShopId($defaultShopId);
+        $this->shopContextBuilder->setShopConstraint(ShopConstraint::shop($defaultShopId));
     }
 
     /**
@@ -172,19 +175,20 @@ class ShopContextListener implements EventSubscriberInterface
         }
 
         $shopConstraint = ShopConstraint::allShops();
-        $cookieShopConstraint = $this->getShopConstraintFromTokenAttribute();
-        if ($cookieShopConstraint) {
-            if ($cookieShopConstraint->getShopGroupId()) {
+
+        $tokenAttributeShopConstraint = $this->getShopConstraintFromTokenAttribute();
+        if ($tokenAttributeShopConstraint) {
+            if ($tokenAttributeShopConstraint->getShopGroupId()) {
                 // Check if the employee has permission on selected group if not fallback on single shop context with employee's default shop
-                if ($this->employeeContext->hasAuthorizationOnShopGroup($cookieShopConstraint->getShopGroupId()->getValue())) {
-                    $shopConstraint = $cookieShopConstraint;
+                if ($this->employeeContext->hasAuthorizationOnShopGroup($tokenAttributeShopConstraint->getShopGroupId()->getValue())) {
+                    $shopConstraint = $tokenAttributeShopConstraint;
                 } elseif (!empty($this->employeeContext->getDefaultShopId())) {
                     $shopConstraint = ShopConstraint::shop($this->employeeContext->getDefaultShopId());
                 }
-            } elseif ($cookieShopConstraint->getShopId()) {
+            } elseif ($tokenAttributeShopConstraint->getShopId()) {
                 // Check if employee has authorization on selected shop if not fallback on single shop context with employee's default shop
-                if ($this->employeeContext->hasAuthorizationOnShop($cookieShopConstraint->getShopId()->getValue())) {
-                    $shopConstraint = $cookieShopConstraint;
+                if ($this->employeeContext->hasAuthorizationOnShop($tokenAttributeShopConstraint->getShopId()->getValue())) {
+                    $shopConstraint = $tokenAttributeShopConstraint;
                 } elseif (!empty($this->employeeContext->getDefaultShopId())) {
                     $shopConstraint = ShopConstraint::shop($this->employeeContext->getDefaultShopId());
                 } else {
@@ -216,7 +220,7 @@ class ShopContextListener implements EventSubscriberInterface
     }
 
     /**
-     * Update cookie value and redirect to current url to refresh the context.
+     * Update token attribute value and redirect to current url to refresh the context.
      *
      * @param RequestEvent $requestEvent
      */
@@ -241,6 +245,17 @@ class ShopContextListener implements EventSubscriberInterface
 
         // Update the token attribute value, it will be persisted by Symfony at the end of the redirect request
         $this->security->getToken()->setAttribute(TokenAttributes::SHOP_CONSTRAINT, $parameterShopConstraint);
+
+        // Update legacy cookie shop context to make sure it is synced with the token attribute
+        $legacyCookie = $this->legacyContext->getContext()->cookie;
+        if ($parameterShopConstraint->getShopId()) {
+            $legacyCookie->shopContext = 's-' . $parameterShopConstraint->getShopId()->getValue();
+        } elseif ($parameterShopConstraint->getShopGroupId()) {
+            $legacyCookie->shopContext = 'g-' . $parameterShopConstraint->getShopGroupId()->getValue();
+        } else {
+            $legacyCookie->shopContext = '';
+        }
+        $legacyCookie->write();
 
         // Redirect to same url but remove setShopContext and conf parameters
         return new RedirectResponse(UrlCleaner::cleanUrl(

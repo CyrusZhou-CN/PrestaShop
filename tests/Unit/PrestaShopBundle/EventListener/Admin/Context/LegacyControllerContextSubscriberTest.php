@@ -33,14 +33,14 @@ use PrestaShop\PrestaShop\Core\Context\LanguageContext;
 use PrestaShop\PrestaShop\Core\Context\LegacyControllerContextBuilder;
 use PrestaShop\PrestaShop\Core\Context\ShopContext;
 use PrestaShopBundle\Entity\Repository\TabRepository;
-use PrestaShopBundle\EventListener\Admin\Context\LegacyControllerContextListener;
+use PrestaShopBundle\EventListener\Admin\Context\LegacyControllerContextSubscriber;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Tests\Unit\PrestaShopBundle\EventListener\ContextEventListenerTestCase;
 use Twig\Environment;
 
-class LegacyControllerContextListenerTest extends ContextEventListenerTestCase
+class LegacyControllerContextSubscriberTest extends ContextEventListenerTestCase
 {
     /**
      * @dataProvider getControllerNameValues
@@ -51,7 +51,7 @@ class LegacyControllerContextListenerTest extends ContextEventListenerTestCase
     public function testControllerName(Request $request, string $expectedControllerName): void
     {
         $builder = $this->getBuilder();
-        $legacyControllerContextListener = new LegacyControllerContextListener($builder);
+        $legacyControllerContextListener = new LegacyControllerContextSubscriber($builder);
         $legacyControllerContextListener->onKernelRequest($this->createRequestEvent($request));
         $this->assertEquals($expectedControllerName, $this->getPrivateField($builder, 'controllerName'));
         $this->assertEquals(null, $this->getPrivateField($builder, 'redirectionUrl'));
@@ -83,7 +83,7 @@ class LegacyControllerContextListenerTest extends ContextEventListenerTestCase
     public function testRedirectionUrl(): void
     {
         $builder = $this->getBuilder();
-        $legacyControllerContextListener = new LegacyControllerContextListener($builder);
+        $legacyControllerContextListener = new LegacyControllerContextSubscriber($builder);
         $legacyControllerContextListener->onKernelRequest($this->createRequestEvent(new Request(['back' => 'index.php?toto=tata'])));
         $this->assertEquals('index.php?toto=tata', $this->getPrivateField($builder, 'redirectionUrl'));
     }

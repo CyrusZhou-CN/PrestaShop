@@ -31,16 +31,30 @@ use PrestaShop\PrestaShop\Core\Language\LanguageRepositoryInterface;
 use PrestaShopBundle\Security\Admin\SessionEmployeeInterface;
 use PrestaShopBundle\Security\Admin\SessionEmployeeProvider;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
-class UserLocaleListener
+class UserLocaleSubscriber implements EventSubscriberInterface
 {
+    public const USER_LOCALE_PRIORITY = 15;
+
     public function __construct(
         private readonly ShopConfigurationInterface $configuration,
         private readonly LanguageRepositoryInterface $langRepository,
         private readonly Security $security,
         private readonly SessionEmployeeProvider $sessionEmployeeProvider,
     ) {
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            // Priority is set after Symfony LocaleListener, so it can override Symfony default locale
+            // setting based on request attributes, but before LocaleAwareListener where the translator
+            // locale is set, so we can define the chosen locale based on PrestaShop logic
+            KernelEvents::REQUEST => [['onKernelRequest', self::USER_LOCALE_PRIORITY]],
+        ];
     }
 
     /**

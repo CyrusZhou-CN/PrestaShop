@@ -33,7 +33,7 @@ use PrestaShop\PrestaShop\Adapter\Feature\MultistoreFeature;
 use PrestaShop\PrestaShop\Core\Context\EmployeeContext;
 use PrestaShop\PrestaShop\Core\Context\ShopContextBuilder;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
-use PrestaShopBundle\EventListener\Admin\Context\ShopContextListener;
+use PrestaShopBundle\EventListener\Admin\Context\ShopContextSubscriber;
 use PrestaShopBundle\Routing\LegacyControllerConstants;
 use PrestaShopBundle\Security\Admin\TokenAttributes;
 use Shop;
@@ -46,7 +46,7 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Tests\Unit\PrestaShopBundle\EventListener\ContextEventListenerTestCase;
 
-class ShopContextListenerTest extends ContextEventListenerTestCase
+class ShopContextSubscriberTest extends ContextEventListenerTestCase
 {
     private const PS_SSL_ENABLED = 1;
     private const DEFAULT_SHOP_ID = 42;
@@ -62,13 +62,14 @@ class ShopContextListenerTest extends ContextEventListenerTestCase
             $this->mockMultistoreFeature(false),
         );
 
-        $listener = new ShopContextListener(
+        $listener = new ShopContextSubscriber(
             $shopContextBuilder,
             $this->mockEmployeeContext(),
             $this->mockConfiguration(['PS_SHOP_DEFAULT' => self::DEFAULT_SHOP_ID, 'PS_SSL_ENABLED' => self::PS_SSL_ENABLED]),
             $this->mockMultistoreFeature(false),
             $this->mockRouter(),
             $this->mockSecurity(),
+            $this->mockLegacyContext(),
         );
         $listener->initShopContext($event);
 
@@ -96,13 +97,14 @@ class ShopContextListenerTest extends ContextEventListenerTestCase
             $this->mockMultistoreFeature(true),
         );
 
-        $listener = new ShopContextListener(
+        $listener = new ShopContextSubscriber(
             $shopContextBuilder,
             $this->mockEmployeeContext($employeeData),
             $this->mockConfiguration(['PS_SHOP_DEFAULT' => self::DEFAULT_SHOP_ID, 'PS_SSL_ENABLED' => self::PS_SSL_ENABLED]),
             $this->mockMultistoreFeature(true),
             $this->mockRouter(),
             $this->mockSecurity($expectedShopConstraint),
+            $this->mockLegacyContext(),
         );
         $listener->initShopContext($event);
 
@@ -123,13 +125,14 @@ class ShopContextListenerTest extends ContextEventListenerTestCase
             $this->mockMultistoreFeature(false),
         );
 
-        $listener = new ShopContextListener(
+        $listener = new ShopContextSubscriber(
             $shopContextBuilder,
             $this->mockEmployeeContext(),
             $this->mockConfiguration(['PS_SHOP_DEFAULT' => self::DEFAULT_SHOP_ID, 'PS_SSL_ENABLED' => self::PS_SSL_ENABLED]),
             $this->mockMultistoreFeature(false),
             $this->mockRouter(),
             $this->mockSecurity(),
+            $this->mockLegacyContext(),
         );
         $listener->initShopContext($event);
 
@@ -226,13 +229,15 @@ class ShopContextListenerTest extends ContextEventListenerTestCase
         );
 
         $security = $this->mockSecurity($originalTokenShopConstraint);
-        $listener = new ShopContextListener(
+        $legacyContext = $this->mockLegacyContext();
+        $listener = new ShopContextSubscriber(
             $shopContextBuilder,
             $this->mockEmployeeContext(),
             $this->mockConfiguration(['PS_SHOP_DEFAULT' => self::DEFAULT_SHOP_ID, 'PS_SSL_ENABLED' => self::PS_SSL_ENABLED]),
             $this->mockMultistoreFeature(true),
             $this->mockRouter(),
             $security,
+            $legacyContext,
         );
 
         // Check the initial state of the token attribute
@@ -250,6 +255,14 @@ class ShopContextListenerTest extends ContextEventListenerTestCase
             $this->assertEquals($expectedTokenShopConstraint, $security->getToken()->getAttribute(TokenAttributes::SHOP_CONSTRAINT));
         } else {
             $this->assertFalse($security->getToken()->hasAttribute(TokenAttributes::SHOP_CONSTRAINT));
+        }
+
+        if ($redirectionExpected) {
+            // Check that the legacy cookie was updated, although the query parameter is not passed directly the saved value in the cookie should match it
+            $this->assertEquals($switchParameterValue, $legacyContext->getContext()->cookie->shopContext);
+        } else {
+            // In other case the cookie was not modified and its value remains empty
+            $this->assertEmpty($legacyContext->getContext()->cookie->shopContext);
         }
     }
 

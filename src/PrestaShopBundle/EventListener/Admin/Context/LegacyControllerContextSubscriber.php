@@ -41,7 +41,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * of the legacy Context singleton dependency, but many hooks and code still depend on it, so we propose
  * this alternative dedicated context that is mostly useful for legacy pages.
  */
-class LegacyControllerContextListener implements EventSubscriberInterface
+class LegacyControllerContextSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly LegacyControllerContextBuilder $legacyControllerContextBuilder,
