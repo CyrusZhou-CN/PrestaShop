@@ -30,6 +30,7 @@ use CartRule;
 use Doctrine\DBAL\Connection;
 use PrestaShop\PrestaShop\Adapter\Discount\Validate\DiscountValidator;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\CannotAddDiscountException;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\CannotUpdateDiscountException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountNotFoundException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
 use PrestaShop\PrestaShop\Core\Repository\AbstractObjectModelRepository;
@@ -64,5 +65,17 @@ class DiscountRepository extends AbstractObjectModelRepository
         );
 
         return $cartRule;
+    }
+
+    public function partialUpdate(CartRule $cartRule, array $updatableProperties, int $errorCode): void
+    {
+        $this->cartRuleValidator->validate($cartRule);
+
+        $this->partiallyUpdateObjectModel(
+            $cartRule,
+            $updatableProperties,
+            CannotUpdateDiscountException::class,
+            $errorCode
+        );
     }
 }

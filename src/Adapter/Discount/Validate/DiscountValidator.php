@@ -82,6 +82,7 @@ class DiscountValidator extends AbstractObjectModelValidator
         );
 
         $this->assertCodeIsUnique($cartRule);
+        $this->assertDateRangeIsCorrect($cartRule);
     }
 
     /**
@@ -152,6 +153,13 @@ class DiscountValidator extends AbstractObjectModelValidator
                 sprintf('Cart rule with code "%s" already exists', $code),
                 DiscountConstraintException::NON_UNIQUE_CODE
             );
+        }
+    }
+
+    private function assertDateRangeIsCorrect(CartRule $cartrule): void
+    {
+        if ($cartrule->date_from > $cartrule->date_to) {
+            throw new DiscountConstraintException('Date from cannot be greater than date to.', DiscountConstraintException::DATE_FROM_GREATER_THAN_DATE_TO);
         }
     }
 }

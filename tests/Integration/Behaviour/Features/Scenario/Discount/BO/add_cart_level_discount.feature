@@ -18,6 +18,7 @@ Feature: Add discount
   Scenario: Create a complete cart level discount
     When I create a "cart_level" discount "complete_percent_cart_level_discount" with following properties:
       | name[en-US]       | Promotion           |
+      | name[fr-FR]       | Promotion_fr        |
       | active            | true                |
       | valid_from        | 2019-01-01 11:05:00 |
       | valid_to          | 2019-12-01 00:00:00 |
@@ -25,6 +26,7 @@ Feature: Add discount
       | reduction_percent | 10.0                |
     And discount "complete_percent_cart_level_discount" should have the following properties:
       | name[en-US]       | Promotion           |
+      | name[fr-FR]       | Promotion_fr        |
       | type              | cart_level          |
       | active            | true                |
       | valid_from        | 2019-01-01 11:05:00 |
@@ -33,6 +35,7 @@ Feature: Add discount
       | reduction_percent | 10.0                |
     When I create a "cart_level" discount "complete_amount_cart_level_discount" with following properties:
       | name[en-US]        | Promotion           |
+      | name[fr-FR]       | Promotion_fr        |
       | active             | true                |
       | valid_from         | 2019-01-01 11:05:00 |
       | valid_to           | 2019-12-01 00:00:00 |
@@ -42,6 +45,7 @@ Feature: Add discount
       | taxIncluded        | true                |
     And discount "complete_amount_cart_level_discount" should have the following properties:
       | name[en-US]        | Promotion           |
+      | name[fr-FR]       | Promotion_fr        |
       | type               | cart_level          |
       | active             | true                |
       | valid_from         | 2019-01-01 11:05:00 |
@@ -52,6 +56,7 @@ Feature: Add discount
       | taxIncluded        | true                |
     When I create a "cart_level" discount "complete_amount_cart_level_discount_tax_excluded" with following properties:
       | name[en-US]        | Promotion           |
+      | name[fr-FR]       | Promotion_fr        |
       | active             | true                |
       | valid_from         | 2019-01-01 11:05:00 |
       | valid_to           | 2019-12-01 00:00:00 |
@@ -61,6 +66,7 @@ Feature: Add discount
       | taxIncluded        | false               |
     And discount "complete_amount_cart_level_discount_tax_excluded" should have the following properties:
       | name[en-US]        | Promotion           |
+      | name[fr-FR]       | Promotion_fr        |
       | type               | cart_level          |
       | active             | true                |
       | valid_from         | 2019-01-01 11:05:00 |
@@ -73,6 +79,7 @@ Feature: Add discount
   Scenario: Create an active cart level discount with wrong values
     When I create a "cart_level" discount "invalid_percent_cart_level_discount_1" with following properties:
       | name[en-US]       | Promotion           |
+      | name[fr-FR]       | Promotion_fr        |
       | active            | true                |
       | valid_from        | 2019-01-01 11:05:00 |
       | valid_to          | 2019-12-01 00:00:00 |
@@ -81,6 +88,7 @@ Feature: Add discount
     Then I should get error that discount field reduction_percent is invalid
     When I create a "cart_level" discount "invalid_percent_cart_level_discount_2" with following properties:
       | name[en-US]       | Promotion           |
+      | name[fr-FR]       | Promotion_fr        |
       | active            | true                |
       | valid_from        | 2019-01-01 11:05:00 |
       | valid_to          | 2019-12-01 00:00:00 |
@@ -89,6 +97,7 @@ Feature: Add discount
     Then I should get error that discount field reduction_percent is invalid
     When I create a "cart_level" discount "invalid_amount_cart_level_discount" with following properties:
       | name[en-US]        | Promotion           |
+      | name[fr-FR]       | Promotion_fr        |
       | active             | true                |
       | valid_from         | 2019-01-01 11:05:00 |
       | valid_to           | 2019-12-01 00:00:00 |

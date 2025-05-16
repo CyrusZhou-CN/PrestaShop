@@ -34,6 +34,7 @@ class DiscountForEditing
 {
     public function __construct(
         private readonly int $id,
+        private readonly array $localisedNames,
         private readonly int $priority,
         private readonly bool $active,
         private readonly ?DateTimeImmutable $validFrom,
@@ -154,5 +155,10 @@ class DiscountForEditing
     public function getGiftProductAttributeId(): ?int
     {
         return $this->giftProductAttributeId;
+    }
+
+    public function getLocalisedNames(): array
+    {
+        return $this->localisedNames;
     }
 }

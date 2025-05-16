@@ -52,6 +52,7 @@ class GetDiscountForEditingHandler implements GetDiscountForEditingHandlerInterf
 
         return new DiscountForEditing(
             $query->discountId->getValue(),
+            $cartRule->name,
             $cartRule->priority,
             $cartRule->active,
             new DateTimeImmutable($cartRule->date_from),

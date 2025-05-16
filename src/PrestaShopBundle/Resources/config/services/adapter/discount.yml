@@ -6,6 +6,12 @@ services:
   PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\AddDiscountHandler:
     autoconfigure: true
 
+  PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\UpdateDiscountHandler:
+    autoconfigure: true
+
+  PrestaShop\PrestaShop\Adapter\Discount\Update\Filler\DiscountFiller:
+    autoconfigure: true
+
   PrestaShop\PrestaShop\Adapter\Discount\QueryHandler\GetDiscountForEditingHandler:
     autoconfigure: true
 

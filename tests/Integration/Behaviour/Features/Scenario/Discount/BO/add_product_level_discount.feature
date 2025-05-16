@@ -19,6 +19,7 @@ Feature: Add discount
   Scenario: Create a complete product level discount
     When I create a "product_level" discount "complete_percent_product_level_discount" with following properties:
       | name[en-US]       | Promotion           |
+      | name[fr-FR]       | Promotion_fr        |
       | active            | true                |
       | valid_from        | 2019-01-01 11:05:00 |
       | valid_to          | 2019-12-01 00:00:00 |
@@ -27,6 +28,7 @@ Feature: Add discount
       | reduction_product | product1            |
     And discount "complete_percent_product_level_discount" should have the following properties:
       | name[en-US]       | Promotion           |
+      | name[fr-FR]       | Promotion_fr        |
       | type              | product_level       |
       | active            | true                |
       | valid_from        | 2019-01-01 11:05:00 |

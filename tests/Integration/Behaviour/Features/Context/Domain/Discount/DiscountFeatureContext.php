@@ -34,6 +34,7 @@ use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\Domain\CartRule\Exception\CartRuleValidityException;
 use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Query\GetDiscountForEditing;
@@ -188,6 +189,57 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         }
     }
 
+    /**
+     * @When I update discount :discountType with the following properties:
+     */
+    public function editDiscount(string $discountReference, TableNode $node): void
+    {
+        $data = $this->localizeByRows($node);
+        $discountId = $this->getSharedStorage()->get($discountReference);
+        $command = new UpdateDiscountCommand($discountId);
+
+        if (isset($data['name'])) {
+            $command->setLocalizedNames($data['name']);
+        }
+        if (isset($data['highlight'])) {
+            $command->setHighlightInCart(PrimitiveUtils::castStringBooleanIntoBoolean($data['highlight']));
+        }
+        if (isset($data['allow_partial_use'])) {
+            $command->setAllowPartialUse(PrimitiveUtils::castStringBooleanIntoBoolean($data['allow_partial_use']));
+        }
+        if (isset($data['priority'])) {
+            $command->setPriority((int) $data['priority']);
+        }
+        if (isset($data['active'])) {
+            $command->setActive(PrimitiveUtils::castStringBooleanIntoBoolean($data['active']));
+        }
+        if (isset($data['valid_from'])) {
+            $command->setValidFrom(new DateTimeImmutable($data['valid_from']));
+        }
+        if (isset($data['valid_to'])) {
+            $command->setValidTo(new DateTimeImmutable($data['valid_to']));
+        }
+        if (isset($data['total_quantity'])) {
+            $command->setTotalQuantity((int) $data['total_quantity']);
+        }
+
+        if (isset($data['quantity_per_user'])) {
+            $command->setQuantityPerUser((int) $data['quantity_per_user']);
+        }
+
+        $command->setDescription($data['description'] ?? '');
+        if (!empty($data['code'])) {
+            $command->setCode($data['code']);
+        }
+
+        try {
+            /* @var DiscountId $discountId */
+            $this->getCommandBus()->handle($command);
+        } catch (DiscountConstraintException $e) {
+            $this->setLastException($e);
+        }
+    }
+
     protected function assertDiscountProperties(DiscountForEditing $discountForEditing, array $expectedData): void
     {
         if (isset($expectedData['description'])) {
@@ -270,6 +322,9 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             } else {
                 Assert::assertSame($this->getSharedStorage()->get($expectedData['reduction_product']), $discountForEditing->getReductionProduct());
             }
+        }
+        if (isset($expectedData['name'])) {
+            Assert::assertSame($expectedData['name'], $discountForEditing->getLocalisedNames());
         }
     }
 

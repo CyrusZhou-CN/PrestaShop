@@ -26,11 +26,11 @@
 
 namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataHandler;
 
-use DateTime;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Context\LanguageContext;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
@@ -57,45 +57,30 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
     public function create(array $data)
     {
         // For the moment the names are not sent by the form so we continue to generate it as we did later in the method.
-        $command = new AddDiscountCommand($data['type']->type, $data['names']->value ?? []);
-        switch ($data['type']->type) {
+        $command = new AddDiscountCommand($data['discount_type'], $data['names'] ?? []);
+        switch ($data['discount_type']) {
             case DiscountType::FREE_SHIPPING:
-                $name = $this->translator->trans('On free shipping', [], 'Admin.Catalog.Feature');
                 break;
             case DiscountType::CART_LEVEL:
-                $name = $this->translator->trans('On cart amount', [], 'Admin.Catalog.Feature');
+            case DiscountType::ORDER_LEVEL:
                 $command->setPercentDiscount(new DecimalNumber('50'));
                 break;
             case DiscountType::PRODUCT_LEVEL:
-                $name = $this->translator->trans('On products amount', [], 'Admin.Catalog.Feature');
                 $command->setPercentDiscount(new DecimalNumber('50'));
                 $command->setReductionProduct(1);
                 break;
             case DiscountType::FREE_GIFT:
-                $name = $this->translator->trans('On free gift', [], 'Admin.Catalog.Feature');
                 $command->setProductId(self::PRODUCT_ID);
                 $command->setCombinationId(self::COMBINATION_ID);
                 break;
-            case DiscountType::ORDER_LEVEL:
-                $name = $this->translator->trans('On order amount', [], 'Admin.Catalog.Feature');
-                $command->setPercentDiscount(new DecimalNumber('50'));
-                break;
             default:
-                throw new RuntimeException('Unknown discount type ' . $data['type']->type);
+                throw new RuntimeException('Unknown discount type ' . $data['discount_type']);
         }
 
         $command->setActive(true);
 
-        // This part adds automatic values for the initial POC, this is only temporary and
-        // should be removed before releasing this new page
-
         // Random code based on discount type
-        $command->setCode(strtoupper(uniqid($data['type']->type . '_')));
-        $now = new DateTime();
-        // Default name in the default language only containing the creation date
-        $command->setLocalizedNames([
-            $this->defaultLanguageContext->getId() => $name . ' ' . $now->format($this->defaultLanguageContext->getDateTimeFormat()),
-        ]);
+        $command->setCode(strtoupper(uniqid($data['discount_type'] . '_')));
         $command->setTotalQuantity(100);
 
         /** @var DiscountId $discountId */
@@ -106,6 +91,23 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
 
     public function update($id, array $data)
     {
-        // TODO: Implement update() method.
+        $command = new UpdateDiscountCommand($id);
+        switch ($data['discount_type']) {
+            case DiscountType::FREE_SHIPPING:
+            case DiscountType::CART_LEVEL:
+            case DiscountType::ORDER_LEVEL:
+            case DiscountType::PRODUCT_LEVEL:
+            case DiscountType::FREE_GIFT:
+                break;
+            default:
+                throw new RuntimeException('Unknown discount type ' . $data['discount_type']);
+        }
+        $command
+            ->setLocalizedNames($data['names'])
+        ;
+
+        $discountId = $this->commandBus->handle($command);
+
+        return $discountId->getValue();
     }
 }

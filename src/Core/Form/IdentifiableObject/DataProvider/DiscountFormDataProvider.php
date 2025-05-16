@@ -26,8 +26,17 @@
 
 namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataProvider;
 
+use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Query\GetDiscountForEditing;
+use PrestaShop\PrestaShop\Core\Domain\Discount\QueryResult\DiscountForEditing;
+
 class DiscountFormDataProvider implements FormDataProviderInterface
 {
+    public function __construct(
+        private CommandBusInterface $queryBus,
+    ) {
+    }
+
     public function getDefaultData()
     {
         return [];
@@ -35,6 +44,13 @@ class DiscountFormDataProvider implements FormDataProviderInterface
 
     public function getData($id)
     {
-        return [];
+        /** @var DiscountForEditing $discountForEditing */
+        $discountForEditing = $this->queryBus->handle(new GetDiscountForEditing($id));
+
+        return [
+            'id' => $id,
+            'discount_type' => $discountForEditing->getType()->getValue(),
+            'names' => $discountForEditing->getLocalisedNames(),
+        ];
     }
 }

@@ -19,12 +19,21 @@ admin_discounts_search_grid:
     _legacy_feature_flag: discount
 
 admin_discounts_create:
-  path: /new
-  methods: [ POST ]
+  path: /new/{discountType}
+  methods: [ GET, POST ]
   defaults:
     _controller: 'PrestaShopBundle\Controller\Admin\Sell\Catalog\DiscountController::createAction'
     _legacy_controller: AdminCartRules
     _legacy_link: AdminCartRules:addcartrule
+    _legacy_feature_flag: discount
+
+admin_discount_edit:
+  path: /{discountId}/edit
+  methods: [ GET, POST ]
+  defaults:
+    _controller: 'PrestaShopBundle\Controller\Admin\Sell\Catalog\DiscountController::editAction'
+    _legacy_controller: AdminCartRules
+    _legacy_link: AdminCartRules:updatecartrule
     _legacy_feature_flag: discount
 
 admin_discount_toggle_status:
