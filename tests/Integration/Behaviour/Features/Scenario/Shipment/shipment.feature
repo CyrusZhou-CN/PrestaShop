@@ -1,5 +1,6 @@
-# ./vendor/bin/behat -c tests/Integration/Behaviour/behat.yml -s shipment
+# ./vendor/bin/behat -c tests/Integration/Behaviour/behat.yml -s shipment --tags shipment
 @restore-all-tables-before-feature
+@shipment
 Feature: Retrieving shipment for orders
   As a BO users
   I want to retrieve the list of shipments associated with a specific order

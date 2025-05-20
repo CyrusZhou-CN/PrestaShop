@@ -62,18 +62,19 @@ class ShipmentFeatureContext extends AbstractDomainFeatureContext
         for ($i = 0; $i < count($data); ++$i) {
             $shipmentData = $data[$i];
             $shipment = $shipments[$i];
-            $carrierId = $this->referenceToId($data[$i]['carrier']);
+            $carrierReference = $data[$i]['carrier'];
+            $carrierId = $this->referenceToId($carrierReference);
             $addressId = $this->referenceToId($data[$i]['address']);
 
             if ($shipment->getOrderId() !== $orderId) {
                 throw new RuntimeException('Shipment [' . $shipment->getId() . '] does not belong to order [' . $orderId . ']');
             }
 
-            Assert::assertEquals($shipment->getTrackingNumber(), $shipmentData['tracking_number']);
-            Assert::assertEquals($shipment->getCarrierId(), $carrierId);
-            Assert::assertEquals($shipment->getAddressId(), $addressId);
-            Assert::assertEquals($shipment->getShippingCostTaxExcluded(), $shipmentData['shipping_cost_tax_excl']);
-            Assert::assertEquals($shipment->getShippingCostTaxIncluded(), $shipmentData['shipping_cost_tax_incl']);
+            Assert::assertEquals($shipment->getTrackingNumber(), $shipmentData['tracking_number'], 'Wrong tracking number for ' . $carrierReference);
+            Assert::assertEquals($shipment->getCarrierId(), $carrierId, 'Wrong carrier ID for ' . $carrierReference);
+            Assert::assertEquals($shipment->getAddressId(), $addressId, 'Wrong address ID for ' . $carrierReference);
+            Assert::assertEquals($shipment->getShippingCostTaxExcluded(), $shipmentData['shipping_cost_tax_excl'], 'Wrong shipping cast tax excluded for ' . $carrierReference);
+            Assert::assertEquals($shipment->getShippingCostTaxIncluded(), $shipmentData['shipping_cost_tax_incl'], 'Wrong shipping cast tax included for ' . $carrierReference);
             SharedStorage::getStorage()->set($shipmentData['shipment'], $shipment->getId());
         }
     }

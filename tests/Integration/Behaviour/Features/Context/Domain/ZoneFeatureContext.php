@@ -177,6 +177,22 @@ class ZoneFeatureContext extends AbstractDomainFeatureContext
     }
 
     /**
+     * @Given there is a zone :reference named :name
+     *
+     * @param string $zoneReference
+     * @param string $name
+     */
+    public function assignZoneReference(string $zoneReference, string $name): void
+    {
+        $zoneId = Zone::getIdByName($name);
+        if (empty($zoneId)) {
+            throw new RuntimeException(sprintf('Zone name %s not found', $name));
+        }
+
+        SharedStorage::getStorage()->set($zoneReference, new Zone($zoneId));
+    }
+
+    /**
      * @Given /^zone "(.*)" is (enabled|disabled)?$/
      *
      * @Then /^zone "(.*)" should be (enabled|disabled)?$/

@@ -690,7 +690,6 @@ default:
         - "%paths.base%/Features/Scenario/Shipment"
       contexts:
         - Tests\Integration\Behaviour\Features\Context\Domain\ShipmentFeatureContext
-        - Tests\Integration\Behaviour\Features\Context\Domain\OrderFeatureContext
         - Tests\Integration\Behaviour\Features\Context\FeatureFlagFeatureContext
         - Tests\Integration\Behaviour\Features\Context\CarrierFeatureContext
         - Tests\Integration\Behaviour\Features\Context\Domain\Carrier\CarrierFeatureContext
@@ -729,12 +728,16 @@ default:
         - Tests\Integration\Behaviour\Features\Context\Domain\Product\CommonProductFeatureContext
         - Tests\Integration\Behaviour\Features\Context\Domain\Product\DeleteProductFeatureContext
         - Tests\Integration\Behaviour\Features\Context\Domain\Product\DetailsAssertionFeatureContext
+        - Tests\Integration\Behaviour\Features\Context\Domain\Product\ShippingAssertionFeatureContext
         - Tests\Integration\Behaviour\Features\Context\Domain\Product\StockAssertionFeatureContext
         - Tests\Integration\Behaviour\Features\Context\Domain\Product\UpdateCustomizationFieldsFeatureContext
         - Tests\Integration\Behaviour\Features\Context\Domain\Product\UpdateProductFeatureContext
+        - Tests\Integration\Behaviour\Features\Context\Domain\Product\UpdateShippingFeatureContext
         - Tests\Integration\Behaviour\Features\Context\Domain\Product\UpdateStockFeatureContext
+        - Tests\Integration\Behaviour\Features\Context\Domain\Product\UpdateStatusFeatureContext
         - Tests\Integration\Behaviour\Features\Context\Domain\ProductFeatureContext
         - Tests\Integration\Behaviour\Features\Context\Domain\TaxFeatureContext
+        - Tests\Integration\Behaviour\Features\Context\Domain\TaxRulesGroupFeatureContext
         - Tests\Integration\Behaviour\Features\Context\EmployeeFeatureContext
         - Tests\Integration\Behaviour\Features\Context\LanguageFeatureContext
         - Tests\Integration\Behaviour\Features\Context\LegacyProductFeatureContext
