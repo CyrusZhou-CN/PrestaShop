@@ -82,6 +82,26 @@ class DiscountFiller
             $cartRule->quantity_per_user = $command->getQuantityPerUser();
             $updatableProperties[] = 'quantity_per_user';
         }
+        if (null !== $command->getAmountDiscount()) {
+            $cartRule->reduction_amount = (float) (string) $command->getAmountDiscount()->getAmount();
+            $cartRule->reduction_currency = $command->getAmountDiscount()->getCurrencyId()->getValue();
+            $cartRule->reduction_tax = $command->getAmountDiscount()->isTaxIncluded();
+            $cartRule->reduction_percent = null;
+            $updatableProperties[] = 'reduction_amount';
+            $updatableProperties[] = 'reduction_currency';
+            $updatableProperties[] = 'reduction_tax';
+            $updatableProperties[] = 'reduction_percent';
+        }
+        if (null !== $command->getPercentDiscount()) {
+            $cartRule->reduction_percent = (float) (string) $command->getPercentDiscount();
+            $cartRule->reduction_amount = null;
+            $cartRule->reduction_currency = 0;
+            $cartRule->reduction_tax = false;
+            $updatableProperties[] = 'reduction_percent';
+            $updatableProperties[] = 'reduction_amount';
+            $updatableProperties[] = 'reduction_currency';
+            $updatableProperties[] = 'reduction_tax';
+        }
 
         return $updatableProperties;
     }

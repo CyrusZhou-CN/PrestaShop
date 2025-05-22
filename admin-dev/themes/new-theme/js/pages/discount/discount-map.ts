@@ -1,4 +1,4 @@
-{# **
+/**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
  *
@@ -21,32 +21,15 @@
  * @author    PrestaShop SA and Contributors <contact@prestashop.com>
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
- * #}
+ */
+const discountContainer = '.discount-container';
 
-{% form_theme discountForm '@PrestaShop/Admin/TwigTemplateForm/prestashop_ui_kit.html.twig' %}
-
-{% import '@PrestaShop/Admin/macros.html.twig' as ps %}
-
-{{ form_start(discountForm) }}
-{{ form_errors(discountForm) }}
-<div class="card">
-  <h3 class="card-header">
-    {{ 'Discount information'|trans({}, 'Admin.Catalog.Feature') }}
-  </h3>
-  <div class="card-body">
-    <div class="form-wrapper">
-      {% block discount_form_rest %}
-        {{ form_rest(discountForm) }}
-      {% endblock %}
-    </div>
-  </div>
-  <div class="card-footer">
-    <a href="{{ path('admin_catalog_price_rules_index') }}" class="btn btn-outline-secondary">
-      {{ 'Cancel'|trans({}, 'Admin.Actions') }}
-    </a>
-    <button type="submit" class="btn btn-primary float-right">
-      {{ 'Save'|trans({}, 'Admin.Actions') }}
-    </button>
-  </div>
-</div>
-{{ form_end(discountForm) }}
+export default {
+  currencySelect: '#discount_reduction_currency',
+  currencySelectContainer: '.price-reduction-currency-selector',
+  discountContainer,
+  includeTaxInput: '#discount_reduction_include_tax',
+  reductionTypeSelect: '#discount_reduction_type',
+  reductionValueSymbol: `${discountContainer} .price-reduction-value .input-group .input-group-append .input-group-text,
+   .price-reduction-value .input-group .input-group-prepend .input-group-text`,
+};

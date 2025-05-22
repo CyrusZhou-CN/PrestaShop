@@ -23,10 +23,31 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
+import PriceReductionManager from '@components/form/price-reduction-manager';
+import DiscountMap from '@pages/discount/discount-map';
+
 $(() => {
   window.prestashop.component.initComponents(
     [
       'TranslatableInput',
     ],
   );
+
+  new PriceReductionManager(
+    DiscountMap.reductionTypeSelect,
+    DiscountMap.includeTaxInput,
+    DiscountMap.currencySelect,
+    DiscountMap.reductionValueSymbol,
+    DiscountMap.currencySelectContainer,
+  );
+  toggleCurrency();
+  document.querySelector(DiscountMap.reductionTypeSelect)?.addEventListener('change', toggleCurrency);
+
+  function toggleCurrency(): void {
+    if ($(DiscountMap.reductionTypeSelect).val() === 'percentage') {
+      $(DiscountMap.currencySelect).fadeOut();
+    } else {
+      $(DiscountMap.currencySelect).fadeIn();
+    }
+  }
 });

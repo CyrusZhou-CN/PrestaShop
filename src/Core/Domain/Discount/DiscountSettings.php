@@ -29,4 +29,6 @@ namespace PrestaShop\PrestaShop\Core\Domain\Discount;
 class DiscountSettings
 {
     public const MAX_NAME_LENGTH = 255;
+    public const AMOUNT = 'amount';
+    public const PERCENT = 'percentage';
 }

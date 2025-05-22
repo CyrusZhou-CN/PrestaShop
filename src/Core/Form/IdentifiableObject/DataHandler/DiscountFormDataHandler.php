@@ -29,11 +29,15 @@ namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataHandler;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Context\LanguageContext;
+use PrestaShop\PrestaShop\Core\Domain\Currency\Exception\CurrencyException;
+use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
+use PrestaShop\PrestaShop\Core\Domain\Exception\DomainConstraintException;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -53,6 +57,8 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
 
     /**
      * @throws DiscountConstraintException
+     * @throws DomainConstraintException
+     * @throws CurrencyException
      */
     public function create(array $data)
     {
@@ -63,7 +69,17 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 break;
             case DiscountType::CART_LEVEL:
             case DiscountType::ORDER_LEVEL:
-                $command->setPercentDiscount(new DecimalNumber('50'));
+                if ($data['reduction']['type'] === DiscountSettings::AMOUNT) {
+                    $command->setAmountDiscount(
+                        new DecimalNumber((string) $data['reduction']['value']),
+                        new CurrencyId($data['reduction']['currency']),
+                        (bool) $data['reduction']['include_tax']
+                    );
+                } elseif ($data['reduction']['type'] === DiscountSettings::PERCENT) {
+                    $command->setPercentDiscount(new DecimalNumber((string) $data['reduction']['value']));
+                } else {
+                    throw new RuntimeException('Unknown discount value type ' . $data['reduction']['type']);
+                }
                 break;
             case DiscountType::PRODUCT_LEVEL:
                 $command->setPercentDiscount(new DecimalNumber('50'));
@@ -89,13 +105,30 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         return $discountId->getValue();
     }
 
-    public function update($id, array $data)
+    /**
+     * @throws DomainConstraintException
+     * @throws DiscountConstraintException
+     * @throws CurrencyException
+     */
+    public function update($id, array $data): void
     {
         $command = new UpdateDiscountCommand($id);
         switch ($data['discount_type']) {
             case DiscountType::FREE_SHIPPING:
             case DiscountType::CART_LEVEL:
             case DiscountType::ORDER_LEVEL:
+                if ($data['reduction']['type'] === DiscountSettings::AMOUNT) {
+                    $command->setAmountDiscount(
+                        new DecimalNumber((string) $data['reduction']['value']),
+                        $data['reduction']['currency'],
+                        (bool) $data['reduction']['include_tax']
+                    );
+                } elseif ($data['reduction']['type'] === DiscountSettings::PERCENT) {
+                    $command->setPercentDiscount(new DecimalNumber((string) $data['reduction']['value']));
+                } else {
+                    throw new RuntimeException('Unknown discount value type ' . $data['reduction']['type']);
+                }
+                break;
             case DiscountType::PRODUCT_LEVEL:
             case DiscountType::FREE_GIFT:
                 break;
@@ -106,8 +139,6 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             ->setLocalizedNames($data['names'])
         ;
 
-        $discountId = $this->commandBus->handle($command);
-
-        return $discountId->getValue();
+        $this->commandBus->handle($command);
     }
 }

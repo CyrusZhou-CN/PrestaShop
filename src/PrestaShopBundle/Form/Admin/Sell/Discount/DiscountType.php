@@ -29,6 +29,8 @@ namespace PrestaShopBundle\Form\Admin\Sell\Discount;
 use PrestaShop\PrestaShop\Core\ConstraintValidator\Constraints\DefaultLanguage;
 use PrestaShop\PrestaShop\Core\ConstraintValidator\Constraints\TypedRegex;
 use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType as DiscountTypeVo;
+use PrestaShopBundle\Form\Admin\Type\PriceReductionType;
 use PrestaShopBundle\Form\Admin\Type\TextPreviewType;
 use PrestaShopBundle\Form\Admin\Type\TranslatableType;
 use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
@@ -76,6 +78,20 @@ class DiscountType extends TranslatorAwareType
                 ],
             ])
         ;
+
+        if ($discountType === DiscountTypeVo::CART_LEVEL || $discountType === DiscountTypeVo::ORDER_LEVEL) {
+            $builder
+                ->add('reduction', PriceReductionType::class, [
+                    'currency_select' => true,
+                    'label' => $this->trans('Discount value', 'Admin.Catalog.Feature'),
+                    'label_help_box' => $this->trans('You can choose a minimum amount for the cart either with or without the taxes.', 'Admin.Catalog.Help'),
+                    'required' => false,
+                    'row_attr' => [
+                        'class' => 'discount-container',
+                    ],
+                ])
+            ;
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver)

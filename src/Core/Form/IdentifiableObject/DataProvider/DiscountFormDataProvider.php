@@ -27,6 +27,7 @@
 namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataProvider;
 
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
+use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Query\GetDiscountForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Discount\QueryResult\DiscountForEditing;
 
@@ -46,11 +47,20 @@ class DiscountFormDataProvider implements FormDataProviderInterface
     {
         /** @var DiscountForEditing $discountForEditing */
         $discountForEditing = $this->queryBus->handle(new GetDiscountForEditing($id));
+        $isAmountDiscount = $discountForEditing->getAmountDiscount() !== null;
 
         return [
             'id' => $id,
             'discount_type' => $discountForEditing->getType()->getValue(),
             'names' => $discountForEditing->getLocalisedNames(),
+            'reduction' => [
+                'type' => $isAmountDiscount ? DiscountSettings::AMOUNT : DiscountSettings::PERCENT,
+                'value' => $isAmountDiscount
+                    ? (float) (string) $discountForEditing->getAmountDiscount()
+                    : (float) (string) $discountForEditing->getPercentDiscount(),
+                'currency' => $discountForEditing->getCurrencyId(),
+                'include_tax' => $discountForEditing->isTaxIncluded(),
+            ],
         ];
     }
 }
