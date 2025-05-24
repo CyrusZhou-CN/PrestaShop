@@ -42,8 +42,11 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\NoConfigurationException;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\Event\AuthenticationSuccessEvent;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Unit\PrestaShopBundle\EventListener\ContextEventListenerTestCase;
 
 class ShopContextSubscriberTest extends ContextEventListenerTestCase
@@ -70,6 +73,7 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             $this->mockRouter(),
             $this->mockSecurity(),
             $this->mockLegacyContext(),
+            $this->createMock(TranslatorInterface::class),
         );
         $listener->initShopContext($event);
 
@@ -105,6 +109,7 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             $this->mockRouter(),
             $this->mockSecurity($expectedShopConstraint),
             $this->mockLegacyContext(),
+            $this->createMock(TranslatorInterface::class),
         );
         $listener->initShopContext($event);
 
@@ -133,6 +138,7 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             $this->mockRouter(),
             $this->mockSecurity(),
             $this->mockLegacyContext(),
+            $this->createMock(TranslatorInterface::class),
         );
         $listener->initShopContext($event);
 
@@ -142,7 +148,7 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
         $this->assertEquals($expectedShopConstraint, $event->getRequest()->attributes->get('shopConstraint'));
     }
 
-    public function getMultiShopValues(): iterable
+    public static function getMultiShopValues(): iterable
     {
         yield 'single shop, employee has all permissions' => [
             ShopConstraint::shop(1),
@@ -170,21 +176,9 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
         ];
         yield 'single shop, employee has permission' => [
             ShopConstraint::shop(3),
-            ['authorizeShops' => [3]],
+            ['authorizedShops' => [3]],
             ShopConstraint::shop(3),
             3,
-        ];
-        yield 'single shop, employee has no permission for it so fallback on its default shop' => [
-            ShopConstraint::shop(3),
-            ['authorizedShops' => [1]],
-            ShopConstraint::shop(self::EMPLOYEE_DEFAULT_SHOP_ID),
-            self::EMPLOYEE_DEFAULT_SHOP_ID,
-        ];
-        yield 'shop group, employee has no permission for it so fallback on its default shop' => [
-            ShopConstraint::shopGroup(3),
-            ['authorizedShopGroups' => [1]],
-            ShopConstraint::shop(self::EMPLOYEE_DEFAULT_SHOP_ID),
-            self::EMPLOYEE_DEFAULT_SHOP_ID,
         ];
         yield 'single shop, no employee' => [
             ShopConstraint::shop(3),
@@ -203,15 +197,18 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
     /**
      * @dataProvider getRedirectionValues
      *
-     * @param string $switchParameterValue
+     * @param string|null $switchParameterValue
      * @param ShopConstraint|null $originalTokenShopConstraint
      * @param bool $redirectionExpected
-     * @param ShopConstraint|null $expectedTokenShopConstraint
+     * @param string $expectedCookieValue
+     * @param ShopConstraint $expectedTokenShopConstraint
+     * @param array $employeeData
      */
-    public function testMultiShopRedirection(string $switchParameterValue, ?ShopConstraint $originalTokenShopConstraint, bool $redirectionExpected, ?ShopConstraint $expectedTokenShopConstraint): void
+    public function testMultiShopRedirection(?string $switchParameterValue, ?ShopConstraint $originalTokenShopConstraint, bool $redirectionExpected, string $expectedCookieValue, ShopConstraint $expectedTokenShopConstraint, array $employeeData = []): void
     {
+        $requestParameters = null !== $switchParameterValue ? ['setShopContext' => $switchParameterValue] : [];
         $request = new Request(
-            ['setShopContext' => $switchParameterValue],
+            $requestParameters,
             [], [], [], [],
             [
                 'HTTP_HOST' => 'localhost',
@@ -232,12 +229,13 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
         $legacyContext = $this->mockLegacyContext();
         $listener = new ShopContextSubscriber(
             $shopContextBuilder,
-            $this->mockEmployeeContext(),
+            $this->mockEmployeeContext($employeeData),
             $this->mockConfiguration(['PS_SHOP_DEFAULT' => self::DEFAULT_SHOP_ID, 'PS_SSL_ENABLED' => self::PS_SSL_ENABLED]),
             $this->mockMultistoreFeature(true),
             $this->mockRouter(),
             $security,
             $legacyContext,
+            $this->createMock(TranslatorInterface::class),
         );
 
         // Check the initial state of the token attribute
@@ -251,23 +249,15 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
         $this->assertEquals($redirectionExpected, $event->getResponse() instanceof RedirectResponse);
 
         // Check the updated state of the token attribute
-        if (null !== $expectedTokenShopConstraint) {
-            $this->assertEquals($expectedTokenShopConstraint, $security->getToken()->getAttribute(TokenAttributes::SHOP_CONSTRAINT));
-        } else {
-            $this->assertFalse($security->getToken()->hasAttribute(TokenAttributes::SHOP_CONSTRAINT));
-        }
+        $this->assertEquals($expectedTokenShopConstraint, $security->getToken()->getAttribute(TokenAttributes::SHOP_CONSTRAINT));
 
-        if ($redirectionExpected) {
-            // Check that the legacy cookie was updated, although the query parameter is not passed directly the saved value in the cookie should match it
-            $this->assertEquals($switchParameterValue, $legacyContext->getContext()->cookie->shopContext);
-        } else {
-            // In other case the cookie was not modified and its value remains empty
-            $this->assertEmpty($legacyContext->getContext()->cookie->shopContext);
-        }
+        // This value is only updated when a valid redirection occurs, otherwise it remains empty
+        $this->assertEquals($expectedCookieValue, $legacyContext->getContext()->cookie->shopContext);
     }
 
-    public function getRedirectionValues(): iterable
+    public static function getRedirectionValues(): iterable
     {
+        // Valid redirections since everything is allowed
         yield 'initially all shops, redirect to shop' => [
             // Passed parameter
             's-1',
@@ -275,6 +265,8 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             ShopConstraint::allShops(),
             // Redirection expected
             true,
+            // Expected cookie value
+            's-1',
             // Expected token attribute after handled executed
             ShopConstraint::shop(1),
         ];
@@ -286,6 +278,8 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             null,
             // Redirection expected
             true,
+            // Expected cookie value
+            's-1',
             // Expected token attribute after handled executed
             ShopConstraint::shop(1),
         ];
@@ -294,6 +288,7 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             's-1',
             ShopConstraint::shop(2),
             true,
+            's-1',
             ShopConstraint::shop(1),
         ];
 
@@ -301,6 +296,7 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             's-1',
             ShopConstraint::shopGroup(1),
             true,
+            's-1',
             ShopConstraint::shop(1),
         ];
 
@@ -308,6 +304,7 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             'g-1',
             ShopConstraint::shop(1),
             true,
+            'g-1',
             ShopConstraint::shopGroup(1),
         ];
 
@@ -315,6 +312,7 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             'g-1',
             ShopConstraint::shopGroup(3),
             true,
+            'g-1',
             ShopConstraint::shopGroup(1),
         ];
 
@@ -322,6 +320,7 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             '',
             ShopConstraint::shop(1),
             true,
+            '',
             ShopConstraint::allShops(),
         ];
 
@@ -329,6 +328,7 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             '',
             ShopConstraint::shopGroup(1),
             true,
+            '',
             ShopConstraint::allShops(),
         ];
 
@@ -336,13 +336,16 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             'g-1',
             ShopConstraint::allShops(),
             true,
+            'g-1',
             ShopConstraint::shopGroup(1),
         ];
 
+        // No redirection since we are on the same constraint (and everything is allowed)
         yield 'stay on same shop no redirection' => [
             's-1',
             ShopConstraint::shop(1),
             false,
+            '',
             ShopConstraint::shop(1),
         ];
 
@@ -350,6 +353,7 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             'g-1',
             ShopConstraint::shopGroup(1),
             false,
+            '',
             ShopConstraint::shopGroup(1),
         ];
 
@@ -357,7 +361,186 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             '',
             ShopConstraint::allShops(),
             false,
+            '',
             ShopConstraint::allShops(),
+        ];
+
+        // Now test with explicit data, switch to allowed contexts
+        yield 'initially single shop, redirect to other shop allowed' => [
+            's-1',
+            ShopConstraint::shop(2),
+            true,
+            's-1',
+            ShopConstraint::shop(1),
+            [
+                'authorizedShops' => [1, 2],
+                'defaultShopId' => 2,
+            ],
+        ];
+
+        yield 'initially single shop, redirect to shop group allowed' => [
+            'g-1',
+            ShopConstraint::shop(2),
+            true,
+            'g-1',
+            ShopConstraint::shopGroup(1),
+            [
+                'authorizedShops' => [2],
+                'defaultShopId' => 2,
+                'authorizedShopGroups' => [1, 2],
+            ],
+        ];
+
+        yield 'initially single shop, redirect to all shops allowed' => [
+            '',
+            ShopConstraint::shop(2),
+            true,
+            '',
+            ShopConstraint::allShops(),
+            [
+                'authorizedShops' => [2],
+                'defaultShopId' => 2,
+                'authorizedForAllShops' => true,
+            ],
+        ];
+
+        // Now test with explicit data, the requested context is not allowed so we are forced back to the original context
+        yield 'initially single shop, redirect to other shop not allowed' => [
+            's-1',
+            ShopConstraint::shop(2),
+            true,
+            's-2',
+            ShopConstraint::shop(2),
+            [
+                'authorizedShops' => [2],
+                'defaultShopId' => 2,
+            ],
+        ];
+
+        yield 'initially single shop, redirect to shop group not allowed' => [
+            'g-1',
+            ShopConstraint::shop(2),
+            true,
+            's-2',
+            ShopConstraint::shop(2),
+            [
+                'authorizedShops' => [2],
+                'defaultShopId' => 2,
+                'authorizedShopGroups' => [2],
+            ],
+        ];
+
+        yield 'initially single shop, redirect to all shops not allowed' => [
+            '',
+            ShopConstraint::shop(2),
+            true,
+            's-2',
+            ShopConstraint::shop(2),
+            [
+                'authorizedShops' => [2],
+                'defaultShopId' => 2,
+                'authorizedForAllShops' => false,
+            ],
+        ];
+
+        // Now we don't change the context, but the original one is invalid so we are redirected to the default shop
+        yield 'initially single shop not allowed, redirect to default shop' => [
+            null,
+            ShopConstraint::shop(1),
+            true,
+            's-2',
+            ShopConstraint::shop(2),
+            [
+                'authorizedShops' => [2],
+                'defaultShopId' => 2,
+            ],
+        ];
+
+        yield 'initially shop group not allowed, redirect to default shop' => [
+            null,
+            ShopConstraint::shopGroup(1),
+            true,
+            's-2',
+            ShopConstraint::shop(2),
+            [
+                'authorizedShops' => [2],
+                'defaultShopId' => 2,
+                'authorizedShopGroups' => [2],
+            ],
+        ];
+
+        yield 'initially all shops not allowed, redirect to default shop' => [
+            null,
+            ShopConstraint::allShops(),
+            true,
+            's-1',
+            ShopConstraint::shop(1),
+            [
+                'authorizedShops' => [1],
+                'defaultShopId' => 1,
+                'authorizedForAllShops' => false,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provideLoginShopContext
+     */
+    public function testInitShopContextOnLogin(array $employeeData, ?ShopConstraint $expectedShopConstraint): void
+    {
+        $token = $this->createMock(TokenInterface::class);
+
+        // The test occurs here, the mock validates that the subscriber correctly sets the appropriate attribute on the token
+        if ($expectedShopConstraint) {
+            $token->expects($this->atLeastOnce())->method('setAttribute')->with(TokenAttributes::SHOP_CONSTRAINT, $expectedShopConstraint);
+        } else {
+            $token->expects($this->never())->method('setAttribute');
+        }
+
+        $shopContextBuilder = new ShopContextBuilder(
+            $this->mockShopRepository(self::DEFAULT_SHOP_ID),
+            $this->mockContextStateManager(),
+            $this->mockMultistoreFeature(false),
+        );
+
+        $listener = new ShopContextSubscriber(
+            $shopContextBuilder,
+            $this->mockEmployeeContext($employeeData),
+            $this->mockConfiguration(),
+            $this->mockMultistoreFeature(true),
+            $this->mockRouter(),
+            $this->mockSecurity(),
+            $this->mockLegacyContext(),
+            $this->createMock(TranslatorInterface::class),
+        );
+
+        $event = new AuthenticationSuccessEvent($token);
+        $listener->initShopContextOnLogin($event);
+    }
+
+    public static function provideLoginShopContext(): iterable
+    {
+        yield 'employee has authorization for all shops' => [
+            [
+                'authorizedForAllShops' => true,
+            ],
+            ShopConstraint::allShops(),
+        ];
+
+        yield 'employee not authorize for all shops, but has default shop ID' => [
+            [
+                'authorizedForAllShops' => false,
+                'defaultShopId' => 2,
+            ],
+            ShopConstraint::shop(2),
+        ];
+
+        yield 'employee not authorize for all shops, and no default shop ID' => [
+            [
+                'authorizedForAllShops' => false,
+                'defaultShopId' => 0,
+            ],
+            null,
         ];
     }
 
@@ -400,21 +583,26 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
     {
         $employeeContext = $this->createMock(EmployeeContext::class);
 
-        if (null === $employeeData) {
+        // By default, authorized for everything
+        if (empty($employeeData)) {
             $employeeContext
                 ->method('hasAuthorizationOnShopGroup')
-                ->willReturn(false)
+                ->willReturn(true)
             ;
             $employeeContext
                 ->method('hasAuthorizationOnShop')
-                ->willReturn(false)
+                ->willReturn(true)
+            ;
+            $employeeContext
+                ->method('hasAuthorizationForAllShops')
+                ->willReturn(true)
             ;
             $employeeContext
                 ->method('getDefaultShopId')
-                ->willReturn(0)
+                ->willReturn(self::EMPLOYEE_DEFAULT_SHOP_ID)
             ;
         } else {
-            if (!empty($employeeData['authorizedShopGroups'])) {
+            if (isset($employeeData['authorizedShopGroups'])) {
                 $employeeContext
                     ->method('hasAuthorizationOnShopGroup')
                     ->will($this->returnCallback(function ($shopGroupId) use ($employeeData) {
@@ -424,11 +612,11 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             } else {
                 $employeeContext
                     ->method('hasAuthorizationOnShopGroup')
-                    ->willReturn(true)
+                    ->willReturn(false)
                 ;
             }
 
-            if (!empty($employeeData['authorizedShops'])) {
+            if (isset($employeeData['authorizedShops'])) {
                 $employeeContext
                     ->method('hasAuthorizationOnShop')
                     ->will($this->returnCallback(function ($shopId) use ($employeeData) {
@@ -438,14 +626,33 @@ class ShopContextSubscriberTest extends ContextEventListenerTestCase
             } else {
                 $employeeContext
                     ->method('hasAuthorizationOnShop')
-                    ->willReturn(true)
+                    ->willReturn(false)
                 ;
             }
 
-            $employeeContext
-                ->method('getDefaultShopId')
-                ->willReturn(self::EMPLOYEE_DEFAULT_SHOP_ID)
-            ;
+            if (isset($employeeData['authorizedForAllShops'])) {
+                $employeeContext
+                    ->method('hasAuthorizationForAllShops')
+                    ->willReturn($employeeData['authorizedForAllShops'])
+                ;
+            } else {
+                $employeeContext
+                    ->method('hasAuthorizationForAllShops')
+                    ->willReturn(false)
+                ;
+            }
+
+            if (isset($employeeData['defaultShopId'])) {
+                $employeeContext
+                    ->method('getDefaultShopId')
+                    ->willReturn($employeeData['defaultShopId'])
+                ;
+            } else {
+                $employeeContext
+                    ->method('getDefaultShopId')
+                    ->willReturn(self::EMPLOYEE_DEFAULT_SHOP_ID)
+                ;
+            }
         }
 
         return $employeeContext;

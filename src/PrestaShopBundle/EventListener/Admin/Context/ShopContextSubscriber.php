@@ -45,10 +45,13 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\Exception\NoConfigurationException;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Event\AuthenticationSuccessEvent;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Listener dedicated to set up Shop context for the Back-Office/Admin application.
@@ -73,6 +76,7 @@ class ShopContextSubscriber implements EventSubscriberInterface
         private readonly RouterInterface $router,
         private readonly Security $security,
         private readonly LegacyContext $legacyContext,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -83,7 +87,20 @@ class ShopContextSubscriber implements EventSubscriberInterface
                 ['initDefaultShopContext', self::BEFORE_ROUTER_PRIORITY],
                 ['initShopContext', self::KERNEL_REQUEST_PRIORITY],
             ],
+            AuthenticationSuccessEvent::class => 'initShopContextOnLogin',
         ];
+    }
+
+    public function initShopContextOnLogin(AuthenticationSuccessEvent $authenticationSuccessEvent): void
+    {
+        // Set the initial shop constraint right after the employee successfully logged in
+        if ($this->employeeContext->hasAuthorizationForAllShops()) {
+            $authenticationSuccessEvent->getAuthenticationToken()->setAttribute(TokenAttributes::SHOP_CONSTRAINT, ShopConstraint::allShops());
+            $this->legacyContext->getContext()->cookie->shopContext = '';
+        } elseif ($this->employeeContext->getDefaultShopId()) {
+            $authenticationSuccessEvent->getAuthenticationToken()->setAttribute(TokenAttributes::SHOP_CONSTRAINT, ShopConstraint::shop($this->employeeContext->getDefaultShopId()));
+            $this->legacyContext->getContext()->cookie->shopContext = 's-' . $this->employeeContext->getDefaultShopId();
+        }
     }
 
     public function initDefaultShopContext(RequestEvent $event): void
@@ -119,6 +136,31 @@ class ShopContextSubscriber implements EventSubscriberInterface
         }
 
         $shopConstraint = $this->determineShopConstraint($request);
+
+        // If not shop constraint was definable it means the employee may not be logged in In any case we have no info to setup the
+        // shop context more accurately so we do nothing
+        if (!$shopConstraint) {
+            return;
+        }
+
+        // If the employee is currently on a shop context he is not allowed to, they are redirected to their default shop
+        if ($this->employeeContext->getDefaultShopId() && !$this->isAuthorizedByShopConstraint($shopConstraint)) {
+            $this->addFlashErrorMessage($shopConstraint, $event);
+            if ($event->getRequest()->hasSession() && $event->getRequest()->getSession() instanceof FlashBagAwareSessionInterface) {
+                $event->getRequest()->getSession()->getFlashBag()->add('info', $this->translator->trans(
+                    'You have been automatically switched to your default store.',
+                    [],
+                    'Admin.Notifications.Info',
+                ));
+            }
+
+            $redirectResponse = $this->createShopContextUpdateRedirectResponse(ShopConstraint::shop($this->employeeContext->getDefaultShopId()), $event);
+            $event->setResponse($redirectResponse);
+
+            return;
+        }
+
+        // Now we are sure the shop constraint is valid and we can initialize the ShopContext
         $this->shopContextBuilder->setShopConstraint($shopConstraint);
 
         // Always set a shop ID for the context
@@ -134,9 +176,9 @@ class ShopContextSubscriber implements EventSubscriberInterface
         return (int) $this->configuration->get('PS_SHOP_DEFAULT', null, ShopConstraint::allShops());
     }
 
-    private function determineShopConstraint(Request $request): ShopConstraint
+    private function determineShopConstraint(Request $request): ?ShopConstraint
     {
-        // firstly check if the displayed legacy controller forces All shops mode
+        // Firstly check if the displayed legacy controller forces All shops mode
         $legacyConstraint = $this->getLegacyMultiShopConstraint($request);
         if ($legacyConstraint) {
             return $legacyConstraint;
@@ -167,37 +209,14 @@ class ShopContextSubscriber implements EventSubscriberInterface
      * @throws ShopException
      * @throws ReflectionException
      */
-    private function getMultiShopConstraint(Request $request): ShopConstraint
+    private function getMultiShopConstraint(Request $request): ?ShopConstraint
     {
         $shopConstraint = $this->getShopConstraintFromRouteAttribute($request);
         if ($shopConstraint) {
             return $shopConstraint;
         }
 
-        $shopConstraint = ShopConstraint::allShops();
-
-        $tokenAttributeShopConstraint = $this->getShopConstraintFromTokenAttribute();
-        if ($tokenAttributeShopConstraint) {
-            if ($tokenAttributeShopConstraint->getShopGroupId()) {
-                // Check if the employee has permission on selected group if not fallback on single shop context with employee's default shop
-                if ($this->employeeContext->hasAuthorizationOnShopGroup($tokenAttributeShopConstraint->getShopGroupId()->getValue())) {
-                    $shopConstraint = $tokenAttributeShopConstraint;
-                } elseif (!empty($this->employeeContext->getDefaultShopId())) {
-                    $shopConstraint = ShopConstraint::shop($this->employeeContext->getDefaultShopId());
-                }
-            } elseif ($tokenAttributeShopConstraint->getShopId()) {
-                // Check if employee has authorization on selected shop if not fallback on single shop context with employee's default shop
-                if ($this->employeeContext->hasAuthorizationOnShop($tokenAttributeShopConstraint->getShopId()->getValue())) {
-                    $shopConstraint = $tokenAttributeShopConstraint;
-                } elseif (!empty($this->employeeContext->getDefaultShopId())) {
-                    $shopConstraint = ShopConstraint::shop($this->employeeContext->getDefaultShopId());
-                } else {
-                    $shopConstraint = ShopConstraint::shop($this->getConfiguredDefaultShopId());
-                }
-            }
-        }
-
-        return $shopConstraint;
+        return $this->getShopConstraintFromTokenAttribute();
     }
 
     /**
@@ -236,22 +255,70 @@ class ShopContextSubscriber implements EventSubscriberInterface
         }
 
         $parameterShopConstraint = $this->getShopConstraintFromParameter($shopContextUrlParameter);
-        $tokenShopConstraint = $this->getShopConstraintFromTokenAttribute();
 
         // If the requested shop constraint is the current one nothing to change
+        $tokenShopConstraint = $this->getShopConstraintFromTokenAttribute();
         if (null !== $tokenShopConstraint && $parameterShopConstraint->isEqual($tokenShopConstraint)) {
             return null;
         }
 
+        if (!$this->isAuthorizedByShopConstraint($parameterShopConstraint)) {
+            $this->addFlashErrorMessage($parameterShopConstraint, $requestEvent);
+            $updatedShopConstraint = $tokenShopConstraint;
+        } else {
+            $updatedShopConstraint = $parameterShopConstraint;
+        }
+
+        return $this->createShopContextUpdateRedirectResponse($updatedShopConstraint, $requestEvent);
+    }
+
+    private function addFlashErrorMessage(ShopConstraint $invalidShopConstraint, RequestEvent $requestEvent): void
+    {
+        if ($requestEvent->getRequest()->hasSession() && $requestEvent->getRequest()->getSession() instanceof FlashBagAwareSessionInterface) {
+            if ($invalidShopConstraint->forAllShops()) {
+                $errorMessage = $this->translator->trans(
+                    'Authorization not allowed for all stores.',
+                    [],
+                    'Admin.Notifications.Error',
+                );
+            } elseif ($invalidShopConstraint->getShopId()) {
+                $errorMessage = $this->translator->trans(
+                    'Authorization not allowed for this store.',
+                    [],
+                    'Admin.Notifications.Error',
+                );
+            } elseif ($invalidShopConstraint->getShopGroupId()) {
+                $errorMessage = $this->translator->trans(
+                    'Authorization not allowed for this group of stores.',
+                    [],
+                    'Admin.Notifications.Error',
+                );
+            } else {
+                $errorMessage = $this->translator->trans(
+                    'Authorization not allowed for this store context.',
+                    [],
+                    'Admin.Notifications.Error',
+                );
+            }
+
+            $requestEvent->getRequest()->getSession()->getFlashBag()->add(
+                'error',
+                $errorMessage,
+            );
+        }
+    }
+
+    private function createShopContextUpdateRedirectResponse(ShopConstraint $updatedShopConstraint, RequestEvent $requestEvent): RedirectResponse
+    {
         // Update the token attribute value, it will be persisted by Symfony at the end of the redirect request
-        $this->security->getToken()->setAttribute(TokenAttributes::SHOP_CONSTRAINT, $parameterShopConstraint);
+        $this->security->getToken()->setAttribute(TokenAttributes::SHOP_CONSTRAINT, $updatedShopConstraint);
 
         // Update legacy cookie shop context to make sure it is synced with the token attribute
         $legacyCookie = $this->legacyContext->getContext()->cookie;
-        if ($parameterShopConstraint->getShopId()) {
-            $legacyCookie->shopContext = 's-' . $parameterShopConstraint->getShopId()->getValue();
-        } elseif ($parameterShopConstraint->getShopGroupId()) {
-            $legacyCookie->shopContext = 'g-' . $parameterShopConstraint->getShopGroupId()->getValue();
+        if ($updatedShopConstraint->getShopId()) {
+            $legacyCookie->shopContext = 's-' . $updatedShopConstraint->getShopId()->getValue();
+        } elseif ($updatedShopConstraint->getShopGroupId()) {
+            $legacyCookie->shopContext = 'g-' . $updatedShopConstraint->getShopGroupId()->getValue();
         } else {
             $legacyCookie->shopContext = '';
         }
@@ -312,5 +379,22 @@ class ShopContextSubscriber implements EventSubscriberInterface
         } catch (NoConfigurationException|ReflectionException) {
             return null;
         }
+    }
+
+    private function isAuthorizedByShopConstraint(ShopConstraint $shopConstraint): bool
+    {
+        if ($shopConstraint->getShopGroupId()) {
+            return $this->employeeContext->hasAuthorizationOnShopGroup($shopConstraint->getShopGroupId()->getValue());
+        }
+
+        if ($shopConstraint->getShopId()) {
+            return $this->employeeContext->hasAuthorizationOnShop($shopConstraint->getShopId()->getValue());
+        }
+
+        if ($shopConstraint->forAllShops()) {
+            return $this->employeeContext->hasAuthorizationForAllShops();
+        }
+
+        return false;
     }
 }

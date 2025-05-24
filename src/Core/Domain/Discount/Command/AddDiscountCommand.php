@@ -266,13 +266,13 @@ class AddDiscountCommand
     /**
      * @throws DomainConstraintException
      */
-    public function setAmountDiscount(DecimalNumber $amountDiscount, CurrencyId $currencyId, bool $taxIncluded): self
+    public function setAmountDiscount(DecimalNumber $amountDiscount, int $currencyId, bool $taxIncluded): self
     {
         if ($amountDiscount->isLowerThanZero()) {
             throw new DiscountConstraintException(sprintf('Money amount cannot be lower than zero, %s given', $amountDiscount), DiscountConstraintException::INVALID_DISCOUNT_VALUE_CANNOT_BE_NEGATIVE);
         }
 
-        $this->amountDiscount = new Money($amountDiscount, $currencyId, $taxIncluded);
+        $this->amountDiscount = new Money($amountDiscount, new CurrencyId($currencyId), $taxIncluded);
 
         return $this;
     }

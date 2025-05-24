@@ -30,7 +30,6 @@ use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Context\LanguageContext;
 use PrestaShop\PrestaShop\Core\Domain\Currency\Exception\CurrencyException;
-use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
@@ -72,7 +71,7 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 if ($data['reduction']['type'] === DiscountSettings::AMOUNT) {
                     $command->setAmountDiscount(
                         new DecimalNumber((string) $data['reduction']['value']),
-                        new CurrencyId($data['reduction']['currency']),
+                        (int) $data['reduction']['currency'],
                         (bool) $data['reduction']['include_tax']
                     );
                 } elseif ($data['reduction']['type'] === DiscountSettings::PERCENT) {

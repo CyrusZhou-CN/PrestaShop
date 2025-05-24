@@ -205,6 +205,13 @@ class ToolsCore
         $link = Context::getContext()->link;
         if (!preg_match('@^https?://@i', $url) && $link) {
             $baseUrl = rtrim($link->getAdminBaseLink(), '/');
+
+            // Removes physical_uri from baseUrl to avoid duplicate admin path
+            $physicalUri = Context::getContext()->shop->physical_uri;
+            if (str_starts_with($url, $physicalUri)) {
+                $url = substr($url, strlen($physicalUri));
+            }
+
             if (!str_contains($url, basename(_PS_ADMIN_DIR_))) {
                 $baseUrl .= '/' . basename(_PS_ADMIN_DIR_);
             }

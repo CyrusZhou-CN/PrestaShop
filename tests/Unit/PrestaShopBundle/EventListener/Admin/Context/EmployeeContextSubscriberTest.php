@@ -30,6 +30,7 @@ namespace Tests\Unit\PrestaShopBundle\EventListener\Admin\Context;
 
 use PrestaShop\PrestaShop\Adapter\ContextStateManager;
 use PrestaShop\PrestaShop\Adapter\Employee\EmployeeRepository;
+use PrestaShop\PrestaShop\Adapter\Shop\Repository\ShopRepository;
 use PrestaShop\PrestaShop\Core\Context\EmployeeContextBuilder;
 use PrestaShopBundle\Entity\Employee\Employee;
 use PrestaShopBundle\EventListener\Admin\Context\EmployeeContextSubscriber;
@@ -46,6 +47,7 @@ class EmployeeContextSubscriberTest extends ContextEventListenerTestCase
         $employeeBuilder = new EmployeeContextBuilder(
             $this->createMock(EmployeeRepository::class),
             $this->createMock(ContextStateManager::class),
+            $this->createMock(ShopRepository::class),
         );
         $listener = new EmployeeContextSubscriber(
             $employeeBuilder,
@@ -61,6 +63,7 @@ class EmployeeContextSubscriberTest extends ContextEventListenerTestCase
         $employeeBuilder = new EmployeeContextBuilder(
             $this->createMock(EmployeeRepository::class),
             $this->createMock(ContextStateManager::class),
+            $this->createMock(ShopRepository::class),
         );
         $employeeMock = $this->createMock(Employee::class);
         $employeeMock->method('getId')->willReturn(51);
@@ -82,6 +85,7 @@ class EmployeeContextSubscriberTest extends ContextEventListenerTestCase
         $employeeBuilder = new EmployeeContextBuilder(
             $this->createMock(EmployeeRepository::class),
             $this->createMock(ContextStateManager::class),
+            $this->createMock(ShopRepository::class),
         );
         $employeeMock = $this->createMock(Employee::class);
         $employeeMock->method('getId')->willReturn(51);

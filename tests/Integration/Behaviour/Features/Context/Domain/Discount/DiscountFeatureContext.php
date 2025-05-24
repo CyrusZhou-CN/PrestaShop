@@ -32,7 +32,6 @@ use Exception;
 use PHPUnit\Framework\Assert;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\Domain\CartRule\Exception\CartRuleValidityException;
-use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
@@ -151,7 +150,7 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
                 try {
                     $command->setAmountDiscount(
                         new DecimalNumber($data['reduction_amount']),
-                        new CurrencyId($this->getSharedStorage()->get($data['reduction_currency'])),
+                        $this->getSharedStorage()->get($data['reduction_currency']),
                         PrimitiveUtils::castStringBooleanIntoBoolean($data['taxIncluded']),
                     );
                 } catch (DiscountConstraintException $e) {

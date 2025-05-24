@@ -1,9 +1,7 @@
-// Import utils
 import testContext from '@utils/testContext';
+import {expect} from 'chai';
 
-// Import commonTests
 import {deleteAPIClientTest} from '@commonTests/BO/advancedParameters/authServer';
-import {ModuleApiInfo} from '@data/types/module';
 
 import {
   type APIRequestContext,
@@ -15,11 +13,11 @@ import {
   type BrowserContext,
   FakerAPIClient,
   FakerModule,
+  type ModuleApiInfo,
   type Page,
   utilsAPI,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
-import {expect} from 'chai';
 
 const baseContext: string = 'functional_API_endpoints_modules_getModules';
 
