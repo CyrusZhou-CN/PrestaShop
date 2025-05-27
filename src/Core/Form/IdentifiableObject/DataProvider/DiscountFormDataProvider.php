@@ -51,15 +51,19 @@ class DiscountFormDataProvider implements FormDataProviderInterface
 
         return [
             'id' => $id,
-            'discount_type' => $discountForEditing->getType()->getValue(),
-            'names' => $discountForEditing->getLocalisedNames(),
-            'reduction' => [
-                'type' => $isAmountDiscount ? DiscountSettings::AMOUNT : DiscountSettings::PERCENT,
-                'value' => $isAmountDiscount
-                    ? (float) (string) $discountForEditing->getAmountDiscount()
-                    : (float) (string) $discountForEditing->getPercentDiscount(),
-                'currency' => $discountForEditing->getCurrencyId(),
-                'include_tax' => $discountForEditing->isTaxIncluded(),
+            'information' => [
+                'discount_type' => $discountForEditing->getType()->getValue(),
+                'names' => $discountForEditing->getLocalisedNames(),
+            ],
+            'value' => [
+                'reduction' => [
+                    'type' => $isAmountDiscount ? DiscountSettings::AMOUNT : DiscountSettings::PERCENT,
+                    'value' => $isAmountDiscount
+                        ? (float) (string) $discountForEditing->getAmountDiscount()
+                        : (float) (string) $discountForEditing->getPercentDiscount(),
+                    'currency' => $discountForEditing->getCurrencyId(),
+                    'include_tax' => $discountForEditing->isTaxIncluded(),
+                ],
             ],
         ];
     }

@@ -1,3 +1,4 @@
+<?php
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -22,14 +23,33 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-const discountContainer = '.discount-container';
 
-export default {
-  currencySelect: '#discount_value_reduction_currency',
-  currencySelectContainer: '.price-reduction-currency-selector',
-  discountContainer,
-  includeTaxInput: '#discount_value_reduction_include_tax',
-  reductionTypeSelect: '#discount_value_reduction_type',
-  reductionValueSymbol: `${discountContainer} .price-reduction-value .input-group .input-group-append .input-group-text,
-   .price-reduction-value .input-group .input-group-prepend .input-group-text`,
-};
+namespace PrestaShopBundle\Form\Admin\Sell\Discount;
+
+use PrestaShopBundle\Form\Admin\Type\CardType;
+use PrestaShopBundle\Form\Admin\Type\PriceReductionType;
+use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
+use Symfony\Component\Form\FormBuilderInterface;
+
+class DiscountValueType extends TranslatorAwareType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        $builder
+            ->add('reduction', PriceReductionType::class, [
+                'currency_select' => true,
+                'label' => $this->trans('Discount value', 'Admin.Catalog.Feature'),
+                'label_help_box' => $this->trans('You can choose a minimum amount for the cart either with or without the taxes.', 'Admin.Catalog.Help'),
+                'required' => false,
+                'row_attr' => [
+                    'class' => 'discount-container',
+                ],
+            ])
+        ;
+    }
+
+    public function getParent()
+    {
+        return CardType::class;
+    }
+}

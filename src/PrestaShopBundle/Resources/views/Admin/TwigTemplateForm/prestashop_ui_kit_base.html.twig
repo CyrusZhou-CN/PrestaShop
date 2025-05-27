@@ -195,7 +195,7 @@
     {{- block('form_disabling_switch') -}}
     </{{ labelTag }}>
   {%- endif -%}
-  {% if label_subtitle is defined %}
+  {% if label_subtitle is defined and label_subtitle is not empty %}
     <p class="subtitle">{{ label_subtitle|raw('html') }}</p>
   {% endif %}
 {%- endblock form_label -%}
@@ -1502,7 +1502,7 @@
               aria-expanded="{% if isExpanded %}true{% else %}false{% endif %}"
               aria-controls="{{ child.vars.id }}_accordion">
               <span class="accordion-form-button-label">{{ child.vars.label }}</span>
-              {% if child.vars.label_subtitle is defined %}
+              {% if child.vars.label_subtitle is defined and child.vars.label_subtitle is not empty %}
                 <span class="accordion-form-button-sub-label">{{ child.vars.label_subtitle }}</span>
               {% endif %}
               <i class="material-icons"></i>
@@ -1571,6 +1571,26 @@
         {% endif %}
       </div>
     {% endfor %}
+  </div>
+{% endblock %}
+
+{%- block card_row -%}
+  {% if label_subtitle is defined and label_subtitle is not empty %}
+    {% set cardSubtitle = label_subtitle %}
+  {% endif %}
+  <div class="card">
+    {{ form_label(form, null, {label_tag_name: 'h3', label_attr: {class: 'card-header'}, required: false, label_subtitle: null}) }}
+    <div class="card-body">
+      {# Subtitle is rendered insiade the card body to prevent padding offsets #}
+      {% if cardSubtitle is defined %}
+        <p class="subtitle">{{ cardSubtitle|raw('html') }}</p>
+      {% endif %}
+
+      <div class="form-wrapper">
+        {{ form_errors(form) }}
+        {{ form_widget(form) }}
+      </div>
+    </div>
   </div>
 {% endblock %}
 

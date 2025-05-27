@@ -62,22 +62,23 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
     public function create(array $data)
     {
         // For the moment the names are not sent by the form so we continue to generate it as we did later in the method.
-        $command = new AddDiscountCommand($data['discount_type'], $data['names'] ?? []);
-        switch ($data['discount_type']) {
+        $discountType = $data['information']['discount_type'];
+        $command = new AddDiscountCommand($discountType, $data['information']['names'] ?? []);
+        switch ($discountType) {
             case DiscountType::FREE_SHIPPING:
                 break;
             case DiscountType::CART_LEVEL:
             case DiscountType::ORDER_LEVEL:
-                if ($data['reduction']['type'] === DiscountSettings::AMOUNT) {
+                if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
                     $command->setAmountDiscount(
-                        new DecimalNumber((string) $data['reduction']['value']),
-                        (int) $data['reduction']['currency'],
-                        (bool) $data['reduction']['include_tax']
+                        new DecimalNumber((string) $data['value']['reduction']['value']),
+                        (int) $data['value']['reduction']['currency'],
+                        (bool) $data['value']['reduction']['include_tax']
                     );
-                } elseif ($data['reduction']['type'] === DiscountSettings::PERCENT) {
-                    $command->setPercentDiscount(new DecimalNumber((string) $data['reduction']['value']));
+                } elseif ($data['value']['reduction']['type'] === DiscountSettings::PERCENT) {
+                    $command->setPercentDiscount(new DecimalNumber((string) $data['value']['reduction']['value']));
                 } else {
-                    throw new RuntimeException('Unknown discount value type ' . $data['reduction']['type']);
+                    throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
                 }
                 break;
             case DiscountType::PRODUCT_LEVEL:
@@ -89,13 +90,13 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 $command->setCombinationId(self::COMBINATION_ID);
                 break;
             default:
-                throw new RuntimeException('Unknown discount type ' . $data['discount_type']);
+                throw new RuntimeException('Unknown discount type ' . $discountType);
         }
 
         $command->setActive(true);
 
         // Random code based on discount type
-        $command->setCode(strtoupper(uniqid($data['discount_type'] . '_')));
+        $command->setCode(strtoupper(uniqid($discountType . '_')));
         $command->setTotalQuantity(100);
 
         /** @var DiscountId $discountId */
@@ -112,30 +113,31 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
     public function update($id, array $data): void
     {
         $command = new UpdateDiscountCommand($id);
-        switch ($data['discount_type']) {
+        $discountType = $data['information']['discount_type'];
+        switch ($discountType) {
             case DiscountType::FREE_SHIPPING:
             case DiscountType::CART_LEVEL:
             case DiscountType::ORDER_LEVEL:
-                if ($data['reduction']['type'] === DiscountSettings::AMOUNT) {
+                if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
                     $command->setAmountDiscount(
-                        new DecimalNumber((string) $data['reduction']['value']),
-                        $data['reduction']['currency'],
-                        (bool) $data['reduction']['include_tax']
+                        new DecimalNumber((string) $data['value']['reduction']['value']),
+                        $data['value']['reduction']['currency'],
+                        (bool) $data['value']['reduction']['include_tax']
                     );
-                } elseif ($data['reduction']['type'] === DiscountSettings::PERCENT) {
-                    $command->setPercentDiscount(new DecimalNumber((string) $data['reduction']['value']));
+                } elseif ($data['value']['reduction']['type'] === DiscountSettings::PERCENT) {
+                    $command->setPercentDiscount(new DecimalNumber((string) $data['value']['reduction']['value']));
                 } else {
-                    throw new RuntimeException('Unknown discount value type ' . $data['reduction']['type']);
+                    throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
                 }
                 break;
             case DiscountType::PRODUCT_LEVEL:
             case DiscountType::FREE_GIFT:
                 break;
             default:
-                throw new RuntimeException('Unknown discount type ' . $data['discount_type']);
+                throw new RuntimeException('Unknown discount type ' . $discountType);
         }
         $command
-            ->setLocalizedNames($data['names'])
+            ->setLocalizedNames($data['information']['names'])
         ;
 
         $this->commandBus->handle($command);

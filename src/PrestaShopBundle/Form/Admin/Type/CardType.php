@@ -1,3 +1,4 @@
+<?php
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -22,14 +23,15 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-const discountContainer = '.discount-container';
 
-export default {
-  currencySelect: '#discount_value_reduction_currency',
-  currencySelectContainer: '.price-reduction-currency-selector',
-  discountContainer,
-  includeTaxInput: '#discount_value_reduction_include_tax',
-  reductionTypeSelect: '#discount_value_reduction_type',
-  reductionValueSymbol: `${discountContainer} .price-reduction-value .input-group .input-group-append .input-group-text,
-   .price-reduction-value .input-group .input-group-prepend .input-group-text`,
-};
+namespace PrestaShopBundle\Form\Admin\Type;
+
+use Symfony\Component\Form\AbstractType;
+
+/**
+ * This form type is used as a container for sub forms, it will be displayed as a Bootstrap card,
+ * its label is used as the card title and its children are displayed in the card body.
+ */
+class CardType extends AbstractType
+{
+}

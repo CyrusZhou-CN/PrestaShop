@@ -31,7 +31,7 @@ class DiscountFormOptionsProvider implements FormOptionsProviderInterface
     public function getOptions(int $id, array $data): array
     {
         return [
-            'discount_type' => $data['discount_type'] ?? '',
+            'discount_type' => $data['information']['discount_type'] ?? '',
         ];
     }
 

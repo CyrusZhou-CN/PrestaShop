@@ -26,18 +26,10 @@
 
 namespace PrestaShopBundle\Form\Admin\Sell\Discount;
 
-use PrestaShop\PrestaShop\Core\ConstraintValidator\Constraints\DefaultLanguage;
-use PrestaShop\PrestaShop\Core\ConstraintValidator\Constraints\TypedRegex;
-use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType as DiscountTypeVo;
-use PrestaShopBundle\Form\Admin\Type\PriceReductionType;
-use PrestaShopBundle\Form\Admin\Type\TextPreviewType;
-use PrestaShopBundle\Form\Admin\Type\TranslatableType;
 use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Length;
 
 class DiscountType extends TranslatorAwareType
 {
@@ -46,49 +38,19 @@ class DiscountType extends TranslatorAwareType
         parent::buildForm($builder, $options);
 
         $discountType = $options['discount_type'];
-
         $builder
-            ->add('discount_type', TextPreviewType::class, [
-                'data' => $discountType,
-                'label' => $this->trans('Discount Type', 'Admin.Catalog.Feature'),
-                'required' => false,
-            ])
-            ->add('names', TranslatableType::class, [
-                'label' => $this->trans('Discount Name', 'Admin.Catalog.Feature'),
-                'label_help_box' => $this->trans('This will be displayed in the cart summary, as well as on the invoice.', 'Admin.Catalog.Help'),
-                'required' => true,
-                'type' => TextType::class,
-                'constraints' => [
-                    new DefaultLanguage(),
-                ],
-                'options' => [
-                    'constraints' => [
-                        new TypedRegex([
-                            'type' => 'generic_name',
-                        ]),
-                        new Length([
-                            'max' => DiscountSettings::MAX_NAME_LENGTH,
-                            'maxMessage' => $this->trans(
-                                'This field cannot be longer than %limit% characters',
-                                'Admin.Notifications.Error',
-                                ['%limit%' => DiscountSettings::MAX_NAME_LENGTH]
-                            ),
-                        ]),
-                    ],
-                ],
+            ->add('information', DiscountInformationType::class, [
+                'discount_type' => $discountType,
             ])
         ;
 
         if ($discountType === DiscountTypeVo::CART_LEVEL || $discountType === DiscountTypeVo::ORDER_LEVEL) {
             $builder
-                ->add('reduction', PriceReductionType::class, [
-                    'currency_select' => true,
-                    'label' => $this->trans('Discount value', 'Admin.Catalog.Feature'),
-                    'label_help_box' => $this->trans('You can choose a minimum amount for the cart either with or without the taxes.', 'Admin.Catalog.Help'),
-                    'required' => false,
-                    'row_attr' => [
-                        'class' => 'discount-container',
-                    ],
+                ->add('value', DiscountValueType::class, [
+                    'label' => $this->trans('Choose a discount value', 'Admin.Catalog.Feature'),
+                    'label_subtitle' => $discountType === DiscountTypeVo::CART_LEVEL ?
+                        $this->trans('This discount applies on cart.', 'Admin.Catalog.Feature') :
+                        $this->trans('This discount applies on order.', 'Admin.Catalog.Feature'),
                 ])
             ;
         }
@@ -99,6 +61,7 @@ class DiscountType extends TranslatorAwareType
         parent::configureOptions($resolver);
         $resolver->setDefaults([
             'label' => false,
+            'form_theme' => '@PrestaShop/Admin/TwigTemplateForm/prestashop_ui_kit_base.html.twig',
         ]);
         $resolver->setRequired([
             'discount_type',
