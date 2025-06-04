@@ -520,6 +520,8 @@ class OrderCore extends ObjectModel
         $delivery = false;
         $paid = false;
         $shipped = false;
+        $email = false;
+
         if ($filters > 0) {
             if ($filters & OrderState::FLAG_NO_HIDDEN) {
                 $no_hidden = true;
@@ -535,6 +537,9 @@ class OrderCore extends ObjectModel
             }
             if ($filters & OrderState::FLAG_SHIPPED) {
                 $shipped = true;
+            }
+            if ($filters & OrderState::FLAG_EMAIL) {
+                $email = true;
             }
         }
 
@@ -555,6 +560,7 @@ class OrderCore extends ObjectModel
             ' . ($delivery ? ' AND os.delivery = 1' : '') . '
             ' . ($paid ? ' AND os.paid = 1' : '') . '
             ' . ($shipped ? ' AND os.shipped = 1' : '') . '
+            ' . ($email ? ' AND os.send_email = 1' : '') . '
             ' . ((int) $id_order_state ? ' AND oh.`id_order_state` = ' . (int) $id_order_state : '') . '
             ORDER BY oh.date_add DESC, oh.id_order_history DESC');
             if ($no_hidden) {
