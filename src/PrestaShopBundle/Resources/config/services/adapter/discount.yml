@@ -6,6 +6,9 @@ services:
   PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\AddDiscountHandler:
     autoconfigure: true
 
+  PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\DeleteDiscountHandler:
+    autoconfigure: true
+
   PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\UpdateDiscountHandler:
     autoconfigure: true
 

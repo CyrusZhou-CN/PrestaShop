@@ -33,9 +33,11 @@ use PHPUnit\Framework\Assert;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\Domain\CartRule\Exception\CartRuleValidityException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\DeleteDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountException;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountNotFoundException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Query\GetDiscountForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Discount\QueryResult\DiscountForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
@@ -43,6 +45,7 @@ use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
 use PrestaShop\PrestaShop\Core\Util\DateTime\DateTime as DateTimeUtil;
 use RuntimeException;
 use Tests\Integration\Behaviour\Features\Context\Domain\AbstractDomainFeatureContext;
+use Tests\Integration\Behaviour\Features\Context\Util\NoExceptionAlthoughExpectedException;
 use Tests\Integration\Behaviour\Features\Context\Util\PrimitiveUtils;
 
 class DiscountFeatureContext extends AbstractDomainFeatureContext
@@ -236,6 +239,30 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             $this->getCommandBus()->handle($command);
         } catch (DiscountConstraintException $e) {
             $this->setLastException($e);
+        }
+    }
+
+    /**
+     * @Then I delete discount :discountReference:
+     */
+    public function deleteDiscount(string $discountReference): void
+    {
+        $discountId = $this->getSharedStorage()->get($discountReference);
+        $command = new DeleteDiscountCommand($discountId);
+
+        $this->getCommandBus()->handle($command);
+    }
+
+    /**
+     * @Then discount :discountReference should not exist anymore:
+     */
+    public function assertDiscountIsNotFound(string $discountReference): void
+    {
+        try {
+            $this->getDiscountForEditing($discountReference);
+            throw new NoExceptionAlthoughExpectedException(sprintf('Discount "%s" was found, but it was expected to be deleted', $discountReference));
+        } catch (DiscountNotFoundException $e) {
+            $this->getSharedStorage()->clear($discountReference);
         }
     }
 

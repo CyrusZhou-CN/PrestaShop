@@ -30,6 +30,7 @@ use CartRule;
 use Doctrine\DBAL\Connection;
 use PrestaShop\PrestaShop\Adapter\Discount\Validate\DiscountValidator;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\CannotAddDiscountException;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\CannotDeleteDiscountException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\CannotUpdateDiscountException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountNotFoundException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
@@ -77,5 +78,10 @@ class DiscountRepository extends AbstractObjectModelRepository
             CannotUpdateDiscountException::class,
             $errorCode
         );
+    }
+
+    public function delete(DiscountId $discountId): void
+    {
+        $this->deleteObjectModel($this->get($discountId), CannotDeleteDiscountException::class);
     }
 }
