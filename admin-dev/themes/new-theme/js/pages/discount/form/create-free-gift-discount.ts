@@ -21,16 +21,34 @@
  * @author    PrestaShop SA and Contributors <contact@prestashop.com>
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
- */
-const discountContainer = '.discount-container';
+*/
 
-export default {
-  currencySelect: '#discount_value_reduction_currency',
-  currencySelectContainer: '.price-reduction-currency-selector',
-  discountContainer,
-  includeTaxInput: '#discount_value_reduction_include_tax',
-  reductionTypeSelect: '#discount_value_reduction_type',
-  reductionValueSymbol: `${discountContainer} .price-reduction-value .input-group .input-group-append .input-group-text,
-   .price-reduction-value .input-group .input-group-prepend .input-group-text`,
-  freeGiftProductSearchContainer: '#discount_free_gift',
-};
+import {EventEmitter} from 'events';
+import EntitySearchInput from '@components/entity-search-input';
+import DiscountMap from '@pages/discount/discount-map';
+
+const {$} = window;
+export default class CreateFreeGiftDiscount {
+  eventEmitter: EventEmitter;
+
+  $freeGiftSearchInput: JQuery;
+
+  entitySearchInput!: EntitySearchInput;
+
+  /**
+   * @param {EventEmitter} eventEmitter
+   */
+  constructor(eventEmitter: EventEmitter) {
+    this.$freeGiftSearchInput = $(DiscountMap.freeGiftProductSearchContainer);
+    this.eventEmitter = eventEmitter;
+
+    if (this.$freeGiftSearchInput.length) {
+      const autocompleteUrl = (document.querySelector(DiscountMap.freeGiftProductSearchContainer) as HTMLElement)
+        ?.dataset.remoteUrl;
+      this.entitySearchInput = new EntitySearchInput(
+        this.$freeGiftSearchInput,
+        {remoteUrl: autocompleteUrl},
+      );
+    }
+  }
+}

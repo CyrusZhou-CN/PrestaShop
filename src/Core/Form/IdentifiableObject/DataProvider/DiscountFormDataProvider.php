@@ -26,15 +26,36 @@
 
 namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataProvider;
 
+use PrestaShop\PrestaShop\Adapter\Attribute\Repository\AttributeRepository;
+use PrestaShop\PrestaShop\Adapter\Product\Repository\ProductRepository;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
+use PrestaShop\PrestaShop\Core\Context\LanguageContext;
+use PrestaShop\PrestaShop\Core\Context\ShopContext;
 use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Query\GetDiscountForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Discount\QueryResult\DiscountForEditing;
+use PrestaShop\PrestaShop\Core\Domain\Language\ValueObject\LanguageId;
+use PrestaShop\PrestaShop\Core\Domain\Product\Combination\Exception\CombinationConstraintException;
+use PrestaShop\PrestaShop\Core\Domain\Product\Combination\ValueObject\CombinationId;
+use PrestaShop\PrestaShop\Core\Domain\Product\Exception\ProductConstraintException;
+use PrestaShop\PrestaShop\Core\Domain\Product\Exception\ProductNotFoundException;
+use PrestaShop\PrestaShop\Core\Domain\Product\Image\Provider\ProductImageProviderInterface;
+use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductId;
+use PrestaShop\PrestaShop\Core\Domain\Shop\Exception\ShopAssociationNotFound;
+use PrestaShop\PrestaShop\Core\Domain\Shop\Exception\ShopException;
+use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopId;
+use PrestaShop\PrestaShop\Core\Product\Combination\NameBuilder\CombinationNameBuilder;
 
 class DiscountFormDataProvider implements FormDataProviderInterface
 {
     public function __construct(
-        private CommandBusInterface $queryBus,
+        private readonly CommandBusInterface $queryBus,
+        private readonly ProductRepository $productRepository,
+        private readonly CombinationNameBuilder $combinationNameBuilder,
+        private readonly ProductImageProviderInterface $productImageProvider,
+        private readonly LanguageContext $languageContext,
+        private readonly AttributeRepository $attributeRepository,
+        private readonly ShopContext $shopContext,
     ) {
     }
 
@@ -43,17 +64,24 @@ class DiscountFormDataProvider implements FormDataProviderInterface
         return [];
     }
 
+    /**
+     * @throws ShopException
+     * @throws ProductNotFoundException
+     * @throws ProductConstraintException
+     * @throws CombinationConstraintException
+     */
     public function getData($id)
     {
         /** @var DiscountForEditing $discountForEditing */
         $discountForEditing = $this->queryBus->handle(new GetDiscountForEditing($id));
         $isAmountDiscount = $discountForEditing->getAmountDiscount() !== null;
+        $details = $this->getGiftDetails($discountForEditing);
 
         return [
             'id' => $id,
             'information' => [
                 'discount_type' => $discountForEditing->getType()->getValue(),
-                'names' => $discountForEditing->getLocalisedNames(),
+                'names' => $discountForEditing->getLocalizedNames(),
             ],
             'value' => [
                 'reduction' => [
@@ -65,6 +93,57 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                     'include_tax' => $discountForEditing->isTaxIncluded(),
                 ],
             ],
+            'free_gift' => [
+                [
+                    'product_id' => $discountForEditing->getGiftProductId(),
+                    'combination_id' => $discountForEditing->getGiftCombinationId(),
+                    'name' => $details['name'],
+                    'image' => $details['imageUrl'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @throws ShopAssociationNotFound
+     * @throws ShopException
+     * @throws ProductConstraintException
+     * @throws ProductNotFoundException
+     * @throws CombinationConstraintException
+     */
+    private function getGiftDetails(DiscountForEditing $discountForEditing): array
+    {
+        $name = '';
+        $imageUrl = '';
+        if (!empty($discountForEditing->getGiftProductId())) {
+            $product = $this->productRepository->getProductByDefaultShop(new ProductId($discountForEditing->getGiftProductId()));
+            $name = $product->name[$this->languageContext->getId()];
+
+            if (!empty($discountForEditing->getGiftCombinationId())) {
+                $attributesInformations = $this->attributeRepository->getAttributesInfoByCombinationIds(
+                    [new CombinationId($discountForEditing->getGiftCombinationId())],
+                    new LanguageId($this->languageContext->getId())
+                );
+
+                $name = $this->combinationNameBuilder->buildFullName(
+                    $name,
+                    $attributesInformations[$discountForEditing->getGiftCombinationId()]
+                );
+                $imageUrl = $this->productImageProvider->getCombinationCoverUrl(
+                    new CombinationId($discountForEditing->getGiftCombinationId()),
+                    new ShopId($this->shopContext->getId())
+                );
+            } else {
+                $imageUrl = $this->productImageProvider->getProductCoverUrl(
+                    new ProductId($discountForEditing->getGiftProductId()),
+                    new ShopId($this->shopContext->getId())
+                );
+            }
+        }
+
+        return [
+            'name' => $name,
+            'imageUrl' => $imageUrl,
         ];
     }
 }

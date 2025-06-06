@@ -43,9 +43,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DiscountFormDataHandler implements FormDataHandlerInterface
 {
-    public const PRODUCT_ID = 1;
-    public const COMBINATION_ID = 2;
-
     public function __construct(
         protected readonly CommandBusInterface $commandBus,
         #[Autowire(service: 'prestashop.default.language.context')]
@@ -86,8 +83,8 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 $command->setReductionProduct(1);
                 break;
             case DiscountType::FREE_GIFT:
-                $command->setProductId(self::PRODUCT_ID);
-                $command->setCombinationId(self::COMBINATION_ID);
+                $command->setProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));
+                $command->setCombinationId((int) ($data['free_gift'][0]['combination_id'] ?? 0));
                 break;
             default:
                 throw new RuntimeException('Unknown discount type ' . $discountType);
@@ -131,7 +128,10 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 }
                 break;
             case DiscountType::PRODUCT_LEVEL:
+                break;
             case DiscountType::FREE_GIFT:
+                $command->setProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));
+                $command->setCombinationId((int) ($data['free_gift'][0]['combination_id'] ?? 0));
                 break;
             default:
                 throw new RuntimeException('Unknown discount type ' . $discountType);

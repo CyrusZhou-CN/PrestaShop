@@ -27,12 +27,18 @@
 namespace PrestaShopBundle\Form\Admin\Sell\Discount;
 
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType as DiscountTypeVo;
+use PrestaShopBundle\Form\Admin\Type\EntitySearchInputType;
+use PrestaShopBundle\Form\Admin\Type\ProductSearchType;
 use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DiscountType extends TranslatorAwareType
 {
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
@@ -51,6 +57,20 @@ class DiscountType extends TranslatorAwareType
                     'label_subtitle' => $discountType === DiscountTypeVo::CART_LEVEL ?
                         $this->trans('This discount applies on cart.', 'Admin.Catalog.Feature') :
                         $this->trans('This discount applies on order.', 'Admin.Catalog.Feature'),
+                ])
+            ;
+        }
+
+        if ($discountType === DiscountTypeVo::FREE_GIFT) {
+            $builder
+                ->add('free_gift', ProductSearchType::class, [
+                    'layout' => EntitySearchInputType::LIST_LAYOUT,
+                    'label' => $this->trans('Free gift', 'Admin.Catalog.Feature'),
+                    'label_help_box' => $this->trans('You can choose a free gift.', 'Admin.Catalog.Help'),
+                    'include_combinations' => true,
+                    'empty_state' => $this->trans('No product selected', 'Admin.Catalog.Feature'),
+                    'identifier_field' => 'gift_product',
+                    'required' => true,
                 ])
             ;
         }

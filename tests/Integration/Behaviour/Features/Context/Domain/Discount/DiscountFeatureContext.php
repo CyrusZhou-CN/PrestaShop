@@ -350,7 +350,7 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             }
         }
         if (isset($expectedData['name'])) {
-            Assert::assertSame($expectedData['name'], $discountForEditing->getLocalisedNames());
+            Assert::assertSame($expectedData['name'], $discountForEditing->getLocalizedNames());
         }
     }
 

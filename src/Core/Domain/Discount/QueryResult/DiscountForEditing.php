@@ -34,7 +34,7 @@ class DiscountForEditing
 {
     public function __construct(
         private readonly int $id,
-        private readonly array $localisedNames,
+        private readonly array $localizedNames,
         private readonly int $priority,
         private readonly bool $active,
         private readonly ?DateTimeImmutable $validFrom,
@@ -53,7 +53,7 @@ class DiscountForEditing
         private readonly ?bool $taxIncluded,
         private readonly ?int $reductionProduct,
         private readonly ?int $giftProductId,
-        private readonly ?int $giftProductAttributeId,
+        private readonly ?int $giftCombinationId,
     ) {
     }
 
@@ -152,13 +152,13 @@ class DiscountForEditing
         return $this->giftProductId;
     }
 
-    public function getGiftProductAttributeId(): ?int
+    public function getGiftCombinationId(): ?int
     {
-        return $this->giftProductAttributeId;
+        return $this->giftCombinationId;
     }
 
-    public function getLocalisedNames(): array
+    public function getLocalizedNames(): array
     {
-        return $this->localisedNames;
+        return $this->localizedNames;
     }
 }

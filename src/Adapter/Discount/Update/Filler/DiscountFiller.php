@@ -102,6 +102,14 @@ class DiscountFiller
             $updatableProperties[] = 'reduction_currency';
             $updatableProperties[] = 'reduction_tax';
         }
+        if (null !== $command->getProductId()) {
+            $cartRule->gift_product = $command->getProductId()->getValue();
+            $updatableProperties[] = 'gift_product';
+        }
+        if (null !== $command->getCombinationId()) {
+            $cartRule->gift_product_attribute = $command->getCombinationId()->getValue();
+            $updatableProperties[] = 'gift_product_attribute';
+        }
 
         return $updatableProperties;
     }
