@@ -90,6 +90,12 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 throw new RuntimeException('Unknown discount type ' . $discountType);
         }
 
+        // this is not implemented yet it will be possible to implement it after the merge of jo's PR
+        //        $conditionsCommand = new UpdateDiscountConditionsCommand();
+        //        $conditionsCommand->setConditionApplicationType($data['conditions']['condition_application_type']);
+        //        $conditionsCommand->conditionType($data['conditions']['condition_type']);
+        //        $conditionsCommand->setMinimumAmount($data['conditions']['minimal_amount'] ?? []);
+
         $command->setActive(true);
 
         // Random code based on discount type
@@ -99,6 +105,7 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         /** @var DiscountId $discountId */
         $discountId = $this->commandBus->handle($command);
 
+        //        $this->commandBus->handle($conditionsCommand);
         return $discountId->getValue();
     }
 
@@ -140,6 +147,13 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             ->setLocalizedNames($data['information']['names'])
         ;
 
+        // this is not implemented yet it will be possible to implement it after the merge of jo's PR
+        //        $conditionsCommand = new UpdateDiscountConditionsCommand();
+        //        $conditionsCommand->setConditionApplicationType($data['conditions']['condition_application_type']);
+        //        $conditionsCommand->setConditionType($data['conditions']['condition_type']);
+        //        $conditionsCommand->setMinimumAmount($data['conditions']['minimal_amount'] ?? 0);
+
         $this->commandBus->handle($command);
+        //        $this->commandBus->handle($conditionsCommand);
     }
 }

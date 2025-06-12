@@ -52,3 +52,136 @@
     }
   }
 }
+
+.discount-conditions-wrapper {
+  margin-bottom: 20px;
+}
+
+.form-section {
+  padding: 15px;
+  margin-bottom: 25px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.form-section > label {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.shipping-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.option-card {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  padding: 15px;
+  cursor: pointer;
+  background: #fff;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.option-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+}
+
+.option-card.active {
+  background-color: #e3f2fd;
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.option-card input[type="radio"] {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  margin: 0;
+}
+
+.option-label {
+  display: block;
+  padding-right: 30px;
+  cursor: pointer;
+}
+
+.option-label strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.option-label p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.3;
+  color: #6c757d;
+}
+
+.cart-conditions-section {
+  margin-top: 20px;
+}
+
+.condition-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.condition-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.condition-item:hover {
+  background-color: #f8f9fa;
+  border-color: #007bff;
+}
+
+.condition-item input[type="radio"] {
+  flex-shrink: 0;
+  margin-top: 2px;
+  margin-right: 10px;
+}
+
+.condition-item label {
+  flex: 1;
+  margin: 0;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+}
+
+.condition-controls {
+  padding: 10px;
+  margin-top: 10px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .shipping-options {
+    flex-direction: column;
+  }
+
+  .option-card {
+    min-width: auto;
+  }
+}
+

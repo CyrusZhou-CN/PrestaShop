@@ -101,6 +101,17 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                     'image' => $details['imageUrl'],
                 ],
             ],
+            // this is not implemented yet it will be possible to implement it after the merge of jo's PR
+            //            'condition_type' => $discountForEditing->getConditionType(),
+            //            'condition_application_type' => $discountForEditing->getConditionApplicationType(),
+            //            'conditions' => [
+            //                'minimal_amount' => [
+            //                    'value' => $discountForEditing->getAmountDiscount(),
+            //                    'type' => !empty($discountForEditing->getAmountDiscount()) ? 'amount' : 'percent',
+            //                    'currency' => $discountForEditing->getCurrencyId(),
+            //                    'include_tax' => $discountForEditing->isTaxIncluded(),
+            //                ],
+            //            ],
         ];
     }
 

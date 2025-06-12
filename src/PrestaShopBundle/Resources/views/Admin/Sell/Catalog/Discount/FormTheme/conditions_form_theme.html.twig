@@ -1,0 +1,81 @@
+{# **
+ * Copyright since 2007 PrestaShop SA and Contributors
+ * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/OSL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to https://devdocs.prestashop.com/ for more information.
+ *
+ * @author    PrestaShop SA and Contributors <contact@prestashop.com>
+ * @copyright Since 2007 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
+ * #}
+{{ encore_entry_link_tags('discount') }}
+
+{% block _discount_conditions_widget %}
+  <div class="discount-conditions-wrapper">
+    {# Section Apply free shipping #}
+    <div class="form-section shipping-section">
+      {{ form_label(form.condition_application_type) }}
+      <div class="shipping-options">
+        {% for choice in form.condition_application_type %}
+          <div class="option-card {% if choice.vars.checked %}active{% endif %}" data-choice="{{ choice.vars.value }}">
+            {{ form_widget(choice) }}
+            <label for="{{ choice.vars.id }}" class="option-label">
+              {% if choice.vars.value == 'none' %}
+                <strong>None</strong>
+                <p>No condition applied.</p>
+              {% elseif choice.vars.value == 'on_cart' %}
+                <strong>On cart</strong>
+                <p>Based on specific product(s), product segment, purchase amount or product quantity.</p>
+              {% elseif choice.vars.value == 'on_delivery' %}
+                <strong>On delivery</strong>
+                <p>Based on specific carrier(s) or country(ies).</p>
+              {% endif %}
+            </label>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# Section Cart conditions #}
+    <div class="form-section cart-conditions-section" id="cart-conditions-section"
+         {% if form.condition_application_type.vars.data != 'on_cart' %}style="display: none;"{% endif %}>
+      {{ form_label(form.condition_type) }}
+      <div class="condition-options">
+        {% for choice in form.condition_type %}
+          <div class="condition-item" data-condition="{{ choice.vars.value }}">
+            {{ form_widget(choice) }}
+            {% if choice.vars.value == 'minimal_amount' %}
+              <div class="condition-controls" id="amount-controls"
+                   {% if not choice.vars.checked %}style="display: none;"{% endif %}>
+                {{ form_widget(form.minimal_amount) }}
+              </div>
+            {% elseif choice.vars.value == 'minimal_amount' and form.minimum_quantity is defined %}
+              <div class="condition-controls" id="quantity-controls"
+                   {% if not choice.vars.checked %}style="display: none;"{% endif %}>
+                {{ form_widget(form.minimum_quantity) }}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block javascripts %}
+  <script src="{{ asset('themes/new-theme/public/discount_form.bundle.js') }}"></script>
+{% endblock %}

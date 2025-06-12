@@ -48,6 +48,7 @@ class DiscountType extends TranslatorAwareType
             ->add('information', DiscountInformationType::class, [
                 'discount_type' => $discountType,
             ])
+            ->add('conditions', DiscountConditionsType::class)
         ;
 
         if ($discountType === DiscountTypeVo::CART_LEVEL || $discountType === DiscountTypeVo::ORDER_LEVEL) {
