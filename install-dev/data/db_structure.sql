@@ -178,6 +178,7 @@ CREATE TABLE `PREFIX_cart_rule` (
   `minimum_amount_tax` tinyint(1) NOT NULL DEFAULT '0',
   `minimum_amount_currency` int unsigned NOT NULL DEFAULT '0',
   `minimum_amount_shipping` tinyint(1) NOT NULL DEFAULT '0',
+  `minimum_product_quantity` int(10) unsigned NOT NULL DEFAULT 0,
   `country_restriction` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `carrier_restriction` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `group_restriction` tinyint(1) unsigned NOT NULL DEFAULT '0',
@@ -2836,7 +2837,8 @@ CREATE TABLE `PREFIX_image_type` (
   `manufacturers` TINYINT(1) DEFAULT 1 NOT NULL,
   `suppliers`     TINYINT(1) DEFAULT 1 NOT NULL,
   `stores`        TINYINT(1) DEFAULT 1 NOT NULL,
-  UNIQUE KEY `UNIQ_907C95215E237E06` (`name`),
+  `theme_name`    VARCHAR(255) DEFAULT NULL,
+  UNIQUE KEY `UNIQ_907C95215E237E0614E48A3B` (`name`, `theme_name`),
   PRIMARY KEY (`id_image_type`)
 ) ENGINE=ENGINE_TYPE DEFAULT CHARSET=utf8mb4 COLLATION;
 

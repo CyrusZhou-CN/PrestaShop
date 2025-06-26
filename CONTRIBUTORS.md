@@ -90,6 +90,7 @@ GitHub contributors:
 - Arnaud Dohogne
 - Arnaud Lemercier
 - Arnaud Schaeffer
+- Arnaud Scoté
 - Arnaud104
 - Arťom Evsin
 - Ashish Sharawat

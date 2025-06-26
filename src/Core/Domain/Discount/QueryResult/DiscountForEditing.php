@@ -28,6 +28,7 @@ namespace PrestaShop\PrestaShop\Core\Domain\Discount\QueryResult;
 
 use DateTimeImmutable;
 use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroup;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
 
 class DiscountForEditing
@@ -54,6 +55,12 @@ class DiscountForEditing
         private readonly ?int $reductionProduct,
         private readonly ?int $giftProductId,
         private readonly ?int $giftCombinationId,
+        private readonly int $minimumProductQuantity,
+        private readonly array $productConditions,
+        private readonly ?DecimalNumber $minimumAmount,
+        private readonly ?int $minimumAmountCurrencyId,
+        private readonly ?bool $minimumAmountTaxIncluded,
+        private readonly ?bool $minimumAmountShippingIncluded,
     ) {
     }
 
@@ -160,5 +167,38 @@ class DiscountForEditing
     public function getLocalizedNames(): array
     {
         return $this->localizedNames;
+    }
+
+    public function getMinimumProductQuantity(): int
+    {
+        return $this->minimumProductQuantity;
+    }
+
+    /**
+     * @return ProductRuleGroup[]
+     */
+    public function getProductConditions(): array
+    {
+        return $this->productConditions;
+    }
+
+    public function getMinimumAmount(): ?DecimalNumber
+    {
+        return $this->minimumAmount;
+    }
+
+    public function getMinimumAmountCurrencyId(): ?int
+    {
+        return $this->minimumAmountCurrencyId;
+    }
+
+    public function getMinimumAmountTaxIncluded(): ?bool
+    {
+        return $this->minimumAmountTaxIncluded;
+    }
+
+    public function getMinimumAmountShippingIncluded(): ?bool
+    {
+        return $this->minimumAmountShippingIncluded;
     }
 }

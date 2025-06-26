@@ -352,6 +352,21 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         if (isset($expectedData['name'])) {
             Assert::assertSame($expectedData['name'], $discountForEditing->getLocalizedNames());
         }
+        if (isset($expectedData['minimum_product_quantity'])) {
+            Assert::assertEquals($expectedData['minimum_product_quantity'], $discountForEditing->getMinimumProductQuantity());
+        }
+        if (isset($expectedData['minimum_amount'])) {
+            Assert::assertSame((float) $expectedData['minimum_amount'], (float) (string) $discountForEditing->getMinimumAmount(), 'Unexpected minimum amount');
+        }
+        if (isset($expectedData['minimum_amount_currency'])) {
+            Assert::assertSame($this->getSharedStorage()->get($expectedData['minimum_amount_currency']), $discountForEditing->getMinimumAmountCurrencyId(), 'Unexpected minimum amount currency');
+        }
+        if (isset($expectedData['minimum_amount_tax_included'])) {
+            Assert::assertSame(PrimitiveUtils::castStringBooleanIntoBoolean($expectedData['minimum_amount_tax_included']), $discountForEditing->getMinimumAmountTaxIncluded(), 'Unexpected minimum amount tax included');
+        }
+        if (isset($expectedData['minimum_amount_shipping_included'])) {
+            Assert::assertSame(PrimitiveUtils::castStringBooleanIntoBoolean($expectedData['minimum_amount_shipping_included']), $discountForEditing->getMinimumAmountShippingIncluded(), 'Unexpected minimum amount shipping included');
+        }
     }
 
     protected function getDiscountForEditing(string $discountReference): DiscountForEditing

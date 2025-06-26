@@ -33,7 +33,11 @@ use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\CannotAddDiscountExcept
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\CannotDeleteDiscountException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\CannotUpdateDiscountException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountNotFoundException;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRule;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroup;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleType;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
+use PrestaShop\PrestaShop\Core\Exception\InvalidArgumentException;
 use PrestaShop\PrestaShop\Core\Repository\AbstractObjectModelRepository;
 
 /**
@@ -66,6 +70,72 @@ class DiscountRepository extends AbstractObjectModelRepository
         );
 
         return $cartRule;
+    }
+
+    /**
+     * @param DiscountId $discountId
+     *
+     * @return ProductRuleGroup[]
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getProductRulesGroup(DiscountId $discountId): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('*')
+            ->from($this->dbPrefix . 'cart_rule_product_rule_group', 'prg')
+            ->where('prg.id_cart_rule = :discountId')
+            ->setparameter('discountId', $discountId->getValue())
+        ;
+
+        $groupsResult = $qb->executeQuery()->fetchAllAssociative();
+        if (empty($groupsResult)) {
+            return [];
+        }
+
+        $productRulesGroups = [];
+        foreach ($groupsResult as $groupData) {
+            $qb = $this->connection->createQueryBuilder();
+            $qb
+                ->select('*')
+                ->from($this->dbPrefix . 'cart_rule_product_rule', 'pr')
+                ->where('pr.id_product_rule_group = :productRuleGroupId')
+                ->setparameter('productRuleGroupId', (int) $groupData['id_product_rule_group'])
+            ;
+            $productRulesResult = $qb->executeQuery()->fetchAllAssociative();
+
+            $productRules = [];
+            if (!empty($productRulesResult)) {
+                foreach ($productRulesResult as $productRuleData) {
+                    $qb = $this->connection->createQueryBuilder();
+                    $qb
+                        ->select('*')
+                        ->from($this->dbPrefix . 'cart_rule_product_rule_value', 'prv')
+                        ->where('prv.id_product_rule = :productRuleId')
+                        ->setparameter('productRuleId', $productRuleData['id_product_rule'])
+                    ;
+                    $productRuleValuesResult = $qb->executeQuery()->fetchAllAssociative();
+                    $itemIds = [];
+                    if (!empty($productRuleValuesResult)) {
+                        foreach ($productRuleValuesResult as $productRuleValueData) {
+                            $itemIds[] = (int) $productRuleValueData['id_item'];
+                        }
+                    }
+
+                    $productType = ProductRuleType::tryFrom((string) $productRuleData['type']);
+                    if (empty($productType)) {
+                        throw new InvalidArgumentException(sprintf('Unknow product rule type %s', (string) $productRuleData['type']));
+                    }
+
+                    $productRules[] = new ProductRule($productType, $itemIds);
+                }
+            }
+
+            $productRulesGroups[] = new ProductRuleGroup((int) $groupData['quantity'], $productRules);
+        }
+
+        return $productRulesGroups;
     }
 
     public function partialUpdate(CartRule $cartRule, array $updatableProperties, int $errorCode): void

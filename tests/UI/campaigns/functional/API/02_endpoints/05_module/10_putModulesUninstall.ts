@@ -20,7 +20,7 @@ import {
   FakerModule,
 } from '@prestashop-core/ui-testing';
 
-const baseContext: string = 'functional_API_endpoints_modules_putModulesUninstall';
+const baseContext: string = 'functional_API_endpoints_module_putModulesUninstall';
 
 describe('API : PUT /modules/uninstall', async () => {
   let apiContext: APIRequestContext;

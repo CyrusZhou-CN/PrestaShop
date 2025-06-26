@@ -23,6 +23,8 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
+import DiscountMap from '@pages/discount/discount-map';
+
 $(() => {
   const discountGrid = new window.prestashop.component.Grid('discount');
 
@@ -35,4 +37,17 @@ $(() => {
   discountGrid.addExtension(new window.prestashop.component.GridExtensions.SubmitBulkActionExtension());
   discountGrid.addExtension(new window.prestashop.component.GridExtensions.BulkActionCheckboxExtension());
   discountGrid.addExtension(new window.prestashop.component.GridExtensions.FiltersSubmitButtonEnablerExtension());
+
+  // Check the type selected and update the submit button state
+  const discountTypeRadios = document.querySelectorAll<HTMLInputElement>(DiscountMap.discountTypeRadios);
+  discountTypeRadios.forEach((discountTypeRadio: HTMLInputElement) => {
+    discountTypeRadio.addEventListener('change', () => {
+      const discountTypeSubmit = document.querySelector<HTMLInputElement>(DiscountMap.discountTypeSubmit);
+
+      if (discountTypeSubmit) {
+        discountTypeSubmit.disabled = discountTypeRadio.value === '';
+        discountTypeSubmit.classList.toggle('disabled', discountTypeRadio.value === '');
+      }
+    });
+  });
 });

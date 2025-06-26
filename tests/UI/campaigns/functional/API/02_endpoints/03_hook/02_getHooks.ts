@@ -1,6 +1,6 @@
 import testContext from '@utils/testContext';
 
-const baseContext: string = 'functional_API_endpoints_hooks_getHooks';
+const baseContext: string = 'functional_API_endpoints_hook_getHooks';
 
 describe('API : GET /hooks', async () => {
   // @todo : https://github.com/PrestaShop/PrestaShop/issues/35616

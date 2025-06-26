@@ -24,7 +24,30 @@ needs please refer to https://devdocs.prestashop.com/ for more information.
 Changelog for PrestaShop 9
 
 ####################################
-#   v9.0.0 RC 1 - (2024-05-02)
+#   v9.0.0 - (2025-06-06)
+####################################
+
+- Back Office:
+  - Improvement:
+    - #38841: Small refacto LegacyControllerContext (by @boherm)
+    - #38849: Change criteria to hide invalid endpoints (by @jolelievre)
+    - #38783: Update API module and improve CQRS not found filtering in API (by @jolelievre)
+  - Bug fix:
+    - #38199: Fix: Cannot use 'type' => 'file' on HelperOptions on PS 9.0.x (by @Codencode)
+    - #38795: Fix LegacyControllerContextBuilder to use physicalUri (by @boherm)
+- Core:
+  - Improvement:
+    - #38820: Update Symfony components after 6.4.22 release (by @nicosomb)
+    - #38491: OrderSlipCreator Hook actionOrderSlipAdd => add order slip object to hook param (by @Mch0)
+- Tests:
+  - Improvement:
+    - #38793: Functional Tests : API : Check endpoints (by @Progi1984)
+    - #38789: Functional Tests : API : `PATCH /product/{productId}` (by @Progi1984)
+  - Bug fix:
+    - #38749: TextWithLengthCounterType : Support for existing CSS class (by @Progi1984)
+
+####################################
+#   v9.0.0 RC 1 - (2025-05-23)
 ####################################
 
 - Back Office:
@@ -34,6 +57,9 @@ Changelog for PrestaShop 9
     - #38400: Enable api platform path scanning for entity (by @tleon)
     - #37638: Switch carrier feature flag to stable and enabled by default (by @jolelievre)
   - Improvement:
+    - #38755: API operations filtered when CQRS classes not found (by @jolelievre)
+    - #38736: Improve multi shop permissions (by @jolelievre)
+    - #38712: Prevent data from hooks from overriding local translated module data (by @jolelievre)
     - #38557: Improve OpenApi configuration to include OAuth scopes dynamically (by @jolelievre)
     - #38526: UI tests adaptation for classic  (by @jolelievre)
     - #38502: Optimise anonymous route checking (by @jolelievre)
@@ -44,6 +70,14 @@ Changelog for PrestaShop 9
     - #38073: Check mail template directory before reading (by @matthieu-rolland)
     - #38142: Fix: improve link styling for better identification – issue #38122 (by @tblivet)
   - Bug fix:
+    - #38745: Enabling theme of add/update shop in a multistore context (by @boherm)
+    - #38048: Fix: Unable to configure a module that utilizes a modern controller (by @Codencode)
+    - #38731: Fix showcase-card image for attribute page (by @boherm)
+    - #38599: Fixed Order States Provider for Order Listing (by @Progi1984)
+    - #38251: Fix: Query to select most used tax rule is simply ridicoulous (by @Codencode)
+    - #38703: Revert modification in OrderLazyArray that breaks the UI tests (by @jolelievre)
+    - #38572: Fix spinner on mobile resolution (by @boherm)
+    - #38323: Fix: Webservice link_rewrite validation error on Product creation due to Tools::str2url in PS8 (by @Codencode)
     - #37996: Fix: BO Employee - Setting More as default page cannot load the page (by @Codencode)
     - #37874: Fix: BO > Movements - Search results is undefined and loads forever (by @Codencode)
     - #38027: Fix: BO export - Cannot export subcategories (by @Codencode)
@@ -82,9 +116,14 @@ Changelog for PrestaShop 9
   - Refactoring:
     - #38093: Improve message on exception (by @Hlavtox)
 - Front Office:
+  - New feature:
+    - #38691: Add hook displayCartExtraProductInfo to display cart extra product information (by @jf-viguier)
+    - #38371: Feat - Add hook actionCartDuplicate (by @unlocomqx)
   - Improvement:
     - #38488: Add new hook actionGetPdfRenderer to use a custom inherited tcpdf ren… (by @Markus-Gurkcity)
   - Bug fix:
+    - #38679: Filter out modules that return empty payment options (by @jolelievre)
+    - #38552: Use id_customization for matching cart and order products (by @unlocomqx)
     - #38265: Fix and refactor category controller for non existent categories (by @Hlavtox)
     - #38257: Fix: Address Fields Disappear After Changing Country on Checkout Page (by @Codencode)
     - #38303: Add missing function strpos for smarty templates (by @jolelievre)
@@ -98,6 +137,11 @@ Changelog for PrestaShop 9
     - #38467: Single file XLF catalog (by @jolelievre)
     - #37947: Add new hook in object presenter (by @web-cooking-factory)
   - Improvement:
+    - #38767: Fix image type entity (by @boherm)
+    - #38765: Preliminary steps for RC (by @jolelievre)
+    - #38694: Updated PrestaShop Packages (by @github-actions[bot])
+    - #38576: Update Symfony components after 6.4.21 release (by @nicosomb)
+    - #38583: Update changelog 9.0.0 RC 1 (by @jolelievre)
     - #37535: Add path parameter to Htaccess Create action hook - #37534 (by @Pliciweb)
     - #38527: Add support for {categories} keyword in category seo urls, Fixes #38181 (by @tswfi)
     - #37611: Remove configuration of AEUC_LABEL_TAX_INC_EXC from module ps_legalco… (by @Markus-Gurkcity)
@@ -111,6 +155,8 @@ Changelog for PrestaShop 9
     - #37964: Fixed license header (by @mattgoud)
     - #37943: Chore: [release-8.2.1] - composer : update classic-theme package to 2… (by @mattgoud)
   - Bug fix:
+    - #38701: Stabilize composer create test db (by @jolelievre)
+    - #38633: Improve language for installer and downgrade league/oauth2-server to 8.5 (by @boherm)
     - #38575: Update dependencies (by @jolelievre)
     - #38498: Remove dynamic county access (by @jolelievre)
     - #38482: Remove carrier display on pdf for virtual orders (by @boherm)
@@ -122,6 +168,8 @@ Changelog for PrestaShop 9
     - #37890: Fix preview mode for combination products (by @boherm)
 - Installer:
   - Improvement:
+    - #38764: Update default catalog 9.0.x (by @ps-jarvis)
+    - #38698: Block execution while cache clear is running in install endpoints (by @jolelievre)
     - #38501: Update default catalog 9.0.x (by @ps-jarvis)
     - #38235: Display the error reported by the module when the installation of PrestaShop fails because of it (by @Quetzacoalt91)
     - #38077: Add demo product env parameter for cli install via docker (by @matthieu-rolland)
@@ -132,6 +180,13 @@ Changelog for PrestaShop 9
     - #38341: Fix: product carrier delete (by @fox-john)
 - Tests:
   - Improvement:
+    - #38747: Functional Tests : Bump `@prestashop-core/ui-testing` (by @Progi1984)
+    - #38733: Functional Tests : Migrate `@utils/globals` into `ui-testing-library` (by @Progi1984)
+    - #38714: Functional Tests : Migrate to `@prestashop-core/ui-testing` (Part 8) (by @Progi1984)
+    - #38689: Functional Tests : Bump @prestashop-core/ui-testing (by @Progi1984)
+    - #38620: Functional Tests : Migrate to `@prestashop-core/ui-testing` (Part 7) (by @Progi1984)
+    - #38595: Functional Tests : Bump `@prestashop-core/ui-testing` (by @Progi1984)
+    - #38436: Functional Tests : Stabilisation "functional:FO:hummingbird:08-12" (by @Progi1984)
     - #38569: Stabilize UI tests for new product module (by @jolelievre)
     - #38564: Stabilize tests UI for modules, especially faceted search (by @jolelievre)
     - #38547: Stabilize UI tests for brand and supplier (by @jolelievre)
@@ -168,9 +223,8 @@ Changelog for PrestaShop 9
     - #38210: Functional Tests : Stabilisation "functional:FO:hummingbird:08-12" (by @Progi1984)
     - #38205: Functional Tests : Stabilisation "functional:BO:catalog:07-08" (by @Progi1984)
 
-
 ####################################
-#   v9.0.0 Beta 1 - (2024-02-03)
+#   v9.0.0 Beta 1 - (2025-02-03)
 ####################################
 
 - Back Office:

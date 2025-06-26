@@ -26,6 +26,7 @@ admin_discounts_create:
     _legacy_controller: AdminCartRules
     _legacy_link: AdminCartRules:addcartrule
     _legacy_feature_flag: discount
+    discountType: null
 
 admin_discount_edit:
   path: /{discountId}/edit

@@ -33,12 +33,12 @@ use PrestaShop\PrestaShop\Core\Domain\Discount\Command\DeleteDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountNotFoundException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Query\GetDiscountForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Discount\QueryResult\DiscountForEditing;
-use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
 use PrestaShop\PrestaShop\Core\Form\IdentifiableObject\Builder\FormBuilderInterface;
 use PrestaShop\PrestaShop\Core\Form\IdentifiableObject\Handler\FormHandlerInterface;
 use PrestaShop\PrestaShop\Core\Grid\GridFactoryInterface;
 use PrestaShop\PrestaShop\Core\Search\Filters\DiscountFilters;
 use PrestaShopBundle\Controller\Admin\PrestaShopAdminController;
+use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountTypeSelectorType;
 use PrestaShopBundle\Security\Attribute\AdminSecurity;
 use PrestaShopBundle\Security\Attribute\DemoRestricted;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -64,39 +64,7 @@ class DiscountController extends PrestaShopAdminController
         GridFactoryInterface $discountFactory,
     ): Response {
         $discountGrid = $discountFactory->getGrid($discountFilters);
-
-        $discountTypes = [
-            DiscountType::CART_LEVEL => [
-                'type' => DiscountType::CART_LEVEL,
-                'label' => $this->trans('On cart amount', [], 'Admin.Catalog.Feature'),
-                'icon' => 'shopping_cart',
-                'help' => $this->trans('Apply on total cart', [], 'Admin.Catalog.Feature'),
-            ],
-            DiscountType::PRODUCT_LEVEL => [
-                'type' => DiscountType::PRODUCT_LEVEL,
-                'label' => $this->trans('On catalog products', [], 'Admin.Catalog.Feature'),
-                'icon' => 'shoppingmode',
-                'help' => $this->trans('Apply on catalog products', [], 'Admin.Catalog.Feature'),
-            ],
-            DiscountType::FREE_GIFT => [
-                'type' => DiscountType::FREE_GIFT,
-                'label' => $this->trans('Free gift', [], 'Admin.Catalog.Feature'),
-                'icon' => 'card_giftcard',
-                'help' => $this->trans('Apply on free gift', [], 'Admin.Catalog.Feature'),
-            ],
-            DiscountType::FREE_SHIPPING => [
-                'type' => DiscountType::FREE_SHIPPING,
-                'label' => $this->trans('On free shipping', [], 'Admin.Catalog.Feature'),
-                'icon' => 'local_shipping',
-                'help' => $this->trans('Apply on shipping fees', [], 'Admin.Catalog.Feature'),
-            ],
-            DiscountType::ORDER_LEVEL => [
-                'type' => DiscountType::ORDER_LEVEL,
-                'label' => $this->trans('On total order', [], 'Admin.Catalog.Feature'),
-                'icon' => 'article',
-                'help' => $this->trans('Apply on cart and shipping fees', [], 'Admin.Catalog.Feature'),
-            ],
-        ];
+        $discountTypeForm = $this->createForm(DiscountTypeSelectorType::class);
 
         return $this->render('@PrestaShop/Admin/Sell/Catalog/Discount/index.html.twig', [
             'enableSidebar' => true,
@@ -110,7 +78,7 @@ class DiscountController extends PrestaShopAdminController
                     'modal_target' => '#createDiscountModal',
                 ],
             ],
-            'discountTypes' => $discountTypes,
+            'discountTypeForm' => $discountTypeForm->createView(),
         ]);
     }
 
@@ -122,11 +90,21 @@ class DiscountController extends PrestaShopAdminController
         FormBuilderInterface $formBuilder,
         #[Autowire(service: 'prestashop.core.form.identifiable_object.handler.discount_form_handler')]
         FormHandlerInterface $formHandler,
-        string $discountType,
+        ?string $discountType = null,
     ) {
+        // The first call to the create page doesn't contain the discountType in the url, but the POST data does
+        // So we can redirect to the proper page, accessed via a GET method and a proper CSRF token
+        if (empty($discountType) && $request->request->has('discount_type_selector')) {
+            $submittedData = $request->request->all('discount_type_selector');
+            if (!empty($submittedData['discount_type_selector'])) {
+                return $this->redirectToRoute('admin_discounts_create', ['discountType' => $submittedData['discount_type_selector']]);
+            }
+        }
+
         $form = $formBuilder->getForm([], [
             'discount_type' => $discountType,
         ]);
+
         try {
             $form->handleRequest($request);
             $result = $formHandler->handle($form);

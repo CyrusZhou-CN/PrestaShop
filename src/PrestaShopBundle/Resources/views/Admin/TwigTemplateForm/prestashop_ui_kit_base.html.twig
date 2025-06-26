@@ -695,7 +695,7 @@
         </div>
     {%- else -%}
         {%- set attr = attr|merge({class: (attr.class|default('') ~ ' form-check-input')|trim}) -%}
-        <div class="form-check form-check-radio form-radio{{ 'radio-inline' in parent_label_class ? ' form-check-inline' }}">
+        <div class="form-check form-check-radio form-radio{{ 'radio-inline' in parent_label_class ? ' form-check-inline' }}{% if form.vars.valid != true %} has-error{% endif %}">
             {{- form_label(form, null, {widget: block('base_radio_widget')}) -}}
         </div>
     {%- endif -%}
@@ -1089,8 +1089,8 @@
       </div>
     {% endif %}
 
-    {% set attr = attr|merge({'data-max-length': form.vars.max_length, maxlength: form.vars.max_length, class: 'js-countable-input'}) -%}
     {% set attr = attr|merge(input_attr) -%}
+    {% set attr = attr|merge({'data-max-length': form.vars.max_length, maxlength: form.vars.max_length, class: (attr.class|default('') ~ ' js-countable-input')|trim}) -%}
 
     {% if form.vars.input == 'input' %}
       {{- block('form_widget_simple') -}}
@@ -1480,6 +1480,40 @@
   {% endif %}
 </div>
 {% endblock %}
+
+{%- block toggle_children_choice_widget -%}
+  {%- set attr = attr|merge({
+    class: (attr.class|default('') ~ ' toggle-children-choice')|trim,
+  }) -%}
+  <div {{ block('widget_attributes') }}>
+    {%- set selectAttr = form.children_selector.vars.attr|merge({
+      class: (form.children_selector.vars.attr.class|default('') ~ ' toggle-children-choice-select')|trim,
+    }) -%}
+
+    {# Check for errors in the children and propagate the error class in the children #}
+    {% for childName, child in form %}
+      {% if child.vars.valid != true %}
+        {# Search for matching choice child and update its attributes #}
+        {% for choiceChildName, choiceChild in form.children_selector %}
+          {% if choiceChild.vars.value == childName %}
+            {{ update_form_vars(choiceChild, {valid: false}) }}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+
+    {{ form_row(form.children_selector, {attr: selectAttr}) }}
+    <div class="toggle-children-choice-container">
+      {% for childName, child in form %}
+        {% if childName != 'children_selector' %}
+          <div class="toggle-children-choice-child{% if form.children_selector.vars.value != childName %} d-none{% endif %}" data-toggle-name="{{ childName }}">
+            {{ form_row(child, {label: false}) }}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+{%- endblock -%}
 
 {%- block accordion_widget -%}
   {%- set attr = attr|merge({

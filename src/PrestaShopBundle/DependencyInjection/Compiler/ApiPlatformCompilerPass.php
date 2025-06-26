@@ -50,6 +50,7 @@ class ApiPlatformCompilerPass implements CompilerPassInterface
 
         // The service is not accessible during early compiler phase so build it manually
         $apiResourceScopesExtractor = ApiResourceScopesExtractorFactory::build(
+            $container,
             $container->getParameter('kernel.environment'),
             $container->getParameter('prestashop.module_dir'),
             $container->getParameter('prestashop.installed_modules'),
@@ -62,6 +63,7 @@ class ApiPlatformCompilerPass implements CompilerPassInterface
             }
         }
 
+        // Update parameter of the APIPlatform framework so these scopes are displayed in the Swagger UI
         $container->setParameter('api_platform.oauth.scopes', $scopes);
     }
 

@@ -29,4 +29,6 @@ namespace PrestaShop\PrestaShop\Core\Domain\Discount\Exception;
 class CannotUpdateDiscountException extends DiscountException
 {
     public const FAILED_UPDATE_DISCOUNT = 1;
+
+    public const FAILED_UPDATE_CONDITIONS = 2;
 }

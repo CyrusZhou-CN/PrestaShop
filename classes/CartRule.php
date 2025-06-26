@@ -76,6 +76,7 @@ class CartRuleCore extends ObjectModel
     public $minimum_amount_currency;
     /** @var bool */
     public $minimum_amount_shipping;
+    public $minimum_product_quantity;
     /** @var bool */
     public $country_restriction;
     /** @var bool */
@@ -134,6 +135,7 @@ class CartRuleCore extends ObjectModel
             'minimum_amount_tax' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
             'minimum_amount_currency' => ['type' => self::TYPE_INT, 'validate' => 'isInt'],
             'minimum_amount_shipping' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+            'minimum_product_quantity' => ['type' => self::TYPE_INT, 'validate' => 'isInt'],
             'country_restriction' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
             'carrier_restriction' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
             'group_restriction' => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
@@ -883,6 +885,13 @@ class CartRuleCore extends ObjectModel
                 return $r;
             } elseif (!$r && !$display_error) {
                 return false;
+            }
+        }
+
+        // Check if the minimal product quantity is met (if defined)
+        if ($this->minimum_product_quantity) {
+            if ($cart->nbProducts() < $this->minimum_product_quantity) {
+                return (!$display_error) ? false : $this->trans('You cannot use this voucher with these products', [], 'Shop.Notifications.Error');
             }
         }
 

@@ -30,7 +30,9 @@ declare(strict_types=1);
 namespace Tests\Integration\Behaviour\Features\Context\Domain;
 
 use Behat\Gherkin\Node\TableNode;
+use Exception;
 use PHPUnit\Framework\Assert;
+use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\SwitchShipmentCarrierCommand;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Query\GetOrderShipments;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Query\GetShipmentProducts;
 use RuntimeException;
@@ -38,6 +40,21 @@ use Tests\Integration\Behaviour\Features\Context\SharedStorage;
 
 class ShipmentFeatureContext extends AbstractDomainFeatureContext
 {
+    /**
+     * @When I switch the carrier for shipment :shipmentReference to :carrierReference
+     */
+    public function switchShipmentCarrier(string $shipmentReference, string $carrierReference): void
+    {
+        $shipmentId = SharedStorage::getStorage()->get($shipmentReference);
+        $carrierId = $this->referenceToId($carrierReference);
+
+        try {
+            $this->getCommandBus()->handle(new SwitchShipmentCarrierCommand($shipmentId, $carrierId));
+        } catch (Exception $error) {
+            throw new RuntimeException(sprintf('Error while switching shipment "%s" to carrier "%s" : %s', $shipmentReference, $carrierReference, $error->getMessage()));
+        }
+    }
+
     /**
      * @Then the order :orderReference should have the following shipments:
      *

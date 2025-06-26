@@ -28,14 +28,18 @@ namespace PrestaShopBundle\ApiPlatform\Scopes;
 
 use ApiPlatform\Metadata\Resource\Factory\AttributesResourceMetadataCollectionFactory;
 use PrestaShop\PrestaShop\Adapter\Environment;
+use PrestaShop\PrestaShop\Core\FeatureFlag\DisabledFeatureFlagStateChecker;
+use Psr\Container\ContainerInterface;
 
 class ApiResourceScopesExtractorFactory
 {
-    public static function build(string $environmentName, string $moduleDir, array $installedModules, array $enabledModules, string $projectDir): ApiResourceScopesExtractor
+    public static function build(ContainerInterface $container, string $environmentName, string $moduleDir, array $installedModules, array $enabledModules, string $projectDir): ApiResourceScopesExtractor
     {
         return new ApiResourceScopesExtractor(
             new AttributesResourceMetadataCollectionFactory(),
             new Environment('dev' === $environmentName, $environmentName),
+            new DisabledFeatureFlagStateChecker(),
+            $container,
             $moduleDir,
             $installedModules,
             $enabledModules,

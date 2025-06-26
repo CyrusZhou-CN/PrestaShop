@@ -25,6 +25,7 @@
 <div class="modal fade" id="createDiscountModal" tabindex="-1" aria-hidden="true" role="dialog">
   <div class="modal-dialog" role="document">
     <!-- Modal content-->
+    {{ form_start(discountTypeForm, {action: path('admin_discounts_create')}) }}
     <div class="modal-content">
       <div class="modal-header">
         <h4 class="modal-title module-modal-title">{{ 'Select discount type'|trans({}, 'Admin.Catalog.Feature') }}</h4>
@@ -33,20 +34,16 @@
         </button>
       </div>
       <div class="modal-body">
-          {% for discountType in discountTypes %}
-            <div class="discount-type">
-              <div class="card-body form-check-radio">
-                <label class="form-check-label discount-modal-list">
-                  <div class="discount-label">
-                    <a class="discount-type" href="{{ path('admin_discounts_create', {discountType: discountType.type}) }}">{{ discountType.label }}</a>
-                    <small class="form-text discount-help">{{ discountType.help }}</small>
-                  </div>
-                  <i class="material-icons discount-type-icon">{{ discountType.icon }}</i>
-                </label>
-              </div>
-            </div>
-          {% endfor %}
+        {{ form_row(discountTypeForm) }}
       </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+          {{ 'Cancel'|trans({}, 'Admin.Actions') }}
+        </button>
+        <button id="discountTypeSubmit" type="submit" class="btn btn-primary disabled" disabled="disabled">
+          {{ 'Create discount'|trans({}, 'Admin.Catalog.Feature') }}
+        </button>
     </div>
   </div>
+  {{ form_end(discountTypeForm) }}
 </div>

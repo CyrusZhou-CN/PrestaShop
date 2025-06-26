@@ -33,6 +33,7 @@ $(() => {
   window.prestashop.component.initComponents(
     [
       'TranslatableInput',
+      'ToggleChildrenChoice',
     ],
   );
   new CreateFreeGiftDiscount(eventEmitter);
@@ -54,60 +55,4 @@ $(() => {
       $(DiscountMap.currencySelect).fadeIn();
     }
   }
-
-  const conditionApplicationChoices = document.querySelectorAll('input[name$="[condition_application_type]"]');
-  const conditionsSection = document.getElementById('cart-conditions-section');
-
-  function toggleCartConditions() {
-    const selectedInput = document.querySelector(
-      'input[name$="[condition_application_type]"]:checked',
-    ) as HTMLInputElement | null;
-
-    const selectedValue = selectedInput?.value;
-
-    if (conditionsSection) {
-      conditionsSection.style.display = selectedValue === 'on_cart' ? 'block' : 'none';
-    }
-  }
-
-  conditionApplicationChoices.forEach((choice) => {
-    choice.addEventListener('change', toggleCartConditions);
-  });
-
-  conditionApplicationChoices.forEach((choice) => {
-    choice.addEventListener('change', function (this: HTMLInputElement) {
-      document.querySelectorAll('.option-card').forEach((card) => {
-        card.classList.remove('active');
-      });
-      this.closest('.option-card')?.classList.add('active');
-    });
-  });
-
-  const conditionChoices = document.querySelectorAll('input[name$="[condition_type]"]');
-
-  function toggleConditionControls() {
-    const selectedInput = document.querySelector('input[name$="[condition_type]"]:checked') as HTMLInputElement | null;
-    const selectedValue = selectedInput?.value;
-
-    document.querySelectorAll('.condition-controls').forEach((control) => {
-      (control as HTMLElement).style.display = 'none'; // eslint-disable-line
-    });
-
-    if (selectedValue === 'minimal_amount') {
-      const amountControls = document.getElementById('amount-controls');
-
-      if (amountControls) amountControls.style.display = 'block';
-    } else if (selectedValue === 'minimum_quantity') {
-      const quantityControls = document.getElementById('quantity-controls');
-
-      if (quantityControls) quantityControls.style.display = 'block';
-    }
-  }
-
-  conditionChoices.forEach((choice) => {
-    choice.addEventListener('change', toggleConditionControls);
-  });
-
-  toggleCartConditions();
-  toggleConditionControls();
 });

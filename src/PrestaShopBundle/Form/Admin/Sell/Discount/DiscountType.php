@@ -33,6 +33,9 @@ use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * This is the form root element for discount form.
+ */
 class DiscountType extends TranslatorAwareType
 {
     /**
@@ -48,7 +51,9 @@ class DiscountType extends TranslatorAwareType
             ->add('information', DiscountInformationType::class, [
                 'discount_type' => $discountType,
             ])
-            ->add('conditions', DiscountConditionsType::class)
+            ->add('conditions', DiscountConditionsType::class, [
+                'label' => $this->trans('Product conditions', 'Admin.Catalog.Feature'),
+            ])
         ;
 
         if ($discountType === DiscountTypeVo::CART_LEVEL || $discountType === DiscountTypeVo::ORDER_LEVEL) {

@@ -4,37 +4,31 @@ import testContext from '@utils/testContext';
 // Import commonTests
 import {deleteAPIClientTest} from '@commonTests/BO/advancedParameters/authServer';
 
+import {expect} from 'chai';
 import {
   type APIRequestContext,
   boApiClientsPage,
   boApiClientsCreatePage,
   boDashboardPage,
   boLoginPage,
-  boModuleManagerPage,
   type BrowserContext,
   FakerAPIClient,
-  FakerModule,
-  type ModuleInfo,
   type Page,
   utilsAPI,
-  utilsCore,
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
 
-import {expect} from 'chai';
+const baseContext: string = 'functional_API_endpoints_apiClient_getApiClients';
 
-const baseContext: string = 'functional_API_endpoints_modules_putModulesToggleStatus';
-
-describe('API : PUT /modules/toggle-status', async () => {
+describe('API : GET /api-clients', async () => {
   let apiContext: APIRequestContext;
   let browserContext: BrowserContext;
   let page: Page;
   let clientSecret: string;
   let accessToken: string;
-  let moduleInfo1: ModuleInfo;
-  let moduleInfo2: ModuleInfo;
+  let jsonResponse: any;
 
-  const clientScope: string = 'module_write';
+  const clientScope: string = 'api_client_read';
   const clientData: FakerAPIClient = new FakerAPIClient({
     enabled: true,
     scopes: [
@@ -135,85 +129,97 @@ describe('API : PUT /modules/toggle-status', async () => {
     });
   });
 
-  describe('BackOffice : Fetch two modules', async () => {
-    it('should go to \'Modules > Module Manager\' page', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'goToModulesPage', baseContext);
+  describe('API : Fetch Data', async () => {
+    it('should request the endpoint /api-clients', async function () {
+      await testContext.addContextItem(this, 'testIdentifier', 'requestEndpoint', baseContext);
 
-      await boDashboardPage.goToSubMenu(page, boDashboardPage.modulesParentLink, boDashboardPage.moduleManagerLink);
-      await boModuleManagerPage.closeSfToolBar(page);
-      await boModuleManagerPage.filterByStatus(page, 'installed');
+      const apiResponse = await apiContext.get('api-clients', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      expect(apiResponse.status()).to.eq(200);
+      expect(utilsAPI.hasResponseHeader(apiResponse, 'Content-Type')).to.eq(true);
+      expect(utilsAPI.getResponseHeader(apiResponse, 'Content-Type')).to.contains('application/json');
 
-      const pageTitle = await boModuleManagerPage.getPageTitle(page);
-      expect(pageTitle).to.contains(boModuleManagerPage.pageTitle);
+      jsonResponse = await apiResponse.json();
     });
 
-    it('should fetch modules', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'fetchModules', baseContext);
+    it('should check the JSON Response keys', async function () {
+      await testContext.addContextItem(this, 'testIdentifier', 'checkResponseKeys', baseContext);
+      expect(jsonResponse).to.have.all.keys(
+        'totalItems',
+        'orderBy',
+        'sortOrder',
+        'limit',
+        'offset',
+        'filters',
+        'items',
+      );
 
-      const isModule1Visible = await boModuleManagerPage.searchModule(page, {tag: 'statscarrier'} as FakerModule);
-      expect(isModule1Visible).to.be.equal(true);
-      moduleInfo1 = await boModuleManagerPage.getModuleInformationNth(page, 1);
+      expect(jsonResponse.totalItems).to.be.gt(0);
 
-      const isModule2Visible = await boModuleManagerPage.searchModule(page, {tag: 'pagesnotfound'} as FakerModule);
-      expect(isModule2Visible).to.be.equal(true);
-      moduleInfo2 = await boModuleManagerPage.getModuleInformationNth(page, 1);
+      for (let i:number = 0; i < jsonResponse.totalItems; i++) {
+        expect(jsonResponse.items[i]).to.have.all.keys(
+          'apiClientId',
+          'clientId',
+          'clientName',
+          'description',
+          'externalIssuer',
+          'enabled',
+          'lifetime',
+        );
+      }
     });
   });
 
-  [
-    {
-      status: false,
-      verb: 'disable',
-    },
-    {
-      status: true,
-      verb: 'enable',
-    },
-  ].forEach((arg: {status: boolean, verb: string}, index: number) => {
-    describe(`API : Update modules (${utilsCore.capitalize(arg.verb)})`, async () => {
-      it('should request the endpoint /modules/toggle-status', async function () {
-        await testContext.addContextItem(this, 'testIdentifier', `requestEndpoint${index}`, baseContext);
+  describe('BackOffice : Expected data', async () => {
+    it('should filter list by id', async function () {
+      await testContext.addContextItem(this, 'testIdentifier', 'checkJSONItems', baseContext);
 
-        const apiResponse = await apiContext.put('modules/toggle-status', {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: {
-            modules: [
-              moduleInfo1.technicalName,
-              moduleInfo2.technicalName,
-            ],
-            enabled: arg.status,
-          },
-        });
+      for (let idxItem: number = 0; idxItem < jsonResponse.totalItems; idxItem++) {
+        await boDashboardPage.goToSubMenu(
+          page,
+          boDashboardPage.advancedParametersLink,
+          boDashboardPage.adminAPILink,
+        );
 
-        expect(apiResponse.status()).to.eq(204);
+        const pageTitle = await boApiClientsPage.getPageTitle(page);
+        expect(pageTitle).to.eq(boApiClientsPage.pageTitle);
 
-        const response = (await apiResponse.body()).toString();
-        expect(response).to.be.equal('');
-      });
-    });
+        const numAPIClients = await boApiClientsPage.getNumberOfElementInGrid(page);
+        expect(numAPIClients).to.be.equal(1);
 
-    describe(`BackOffice : Check modules are ${arg.verb}d`, async () => {
-      it('should check module status by technical name', async function () {
-        await testContext.addContextItem(this, 'testIdentifier', `checkModules${index}`, baseContext);
+        const apiClientId = parseInt((await boApiClientsPage.getTextColumn(page, 'id_api_client', 1)).toString(), 10);
+        expect(apiClientId).to.equal(jsonResponse.items[idxItem].apiClientId);
 
-        await boDashboardPage.goToSubMenu(page, boDashboardPage.modulesParentLink, boDashboardPage.moduleManagerLink);
-        await boModuleManagerPage.closeSfToolBar(page);
+        const clientId = await boApiClientsPage.getTextColumn(page, 'client_id', 1);
+        expect(clientId).to.equal(jsonResponse.items[idxItem].clientId);
 
-        const pageTitle = await boModuleManagerPage.getPageTitle(page);
-        expect(pageTitle).to.contains(boModuleManagerPage.pageTitle);
+        const clientName = await boApiClientsPage.getTextColumn(page, 'client_name', 1);
+        expect(clientName).to.equal(jsonResponse.items[idxItem].clientName);
 
-        const modules: ModuleInfo[] = [
-          moduleInfo1,
-          moduleInfo2,
-        ];
+        const externalIssuer = await boApiClientsPage.getTextColumn(page, 'external_issuer', 1);
+        expect(externalIssuer).to.equal(
+          jsonResponse.items[idxItem].externalIssuer === null
+            ? ''
+            : jsonResponse.items[idxItem].externalIssuer,
+        );
 
-        for (let idxModule = 0; idxModule < modules.length; idxModule++) {
-          const isModuleEnabled = await boModuleManagerPage.isModuleStatus(page, modules[idxModule].technicalName, 'enable');
-          expect(isModuleEnabled).to.eq(arg.status);
-        }
-      });
+        const enabled = await boApiClientsPage.getStatus(page, 1);
+        expect(enabled).to.equal(jsonResponse.items[idxItem].enabled);
+
+        await boApiClientsPage.goToEditAPIClientPage(page, 1);
+
+        const pageTitleEdit = await boApiClientsCreatePage.getPageTitle(page);
+        expect(pageTitleEdit).to.eq(boApiClientsCreatePage.pageTitleEdit(jsonResponse.items[idxItem].clientName));
+
+        const description = await boApiClientsCreatePage.getValue(page, 'description');
+        expect(description).to.equal(jsonResponse.items[idxItem].description);
+
+        const lifetime = parseInt(await boApiClientsCreatePage.getValue(page, 'tokenLifetime'), 10);
+        expect(lifetime).to.equal(jsonResponse.items[idxItem].lifetime);
+      }
     });
   });
 

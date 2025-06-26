@@ -12,8 +12,16 @@ services:
   PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\UpdateDiscountHandler:
     autoconfigure: true
 
+  PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\UpdateDiscountConditionsHandler:
+    autoconfigure: true
+
   PrestaShop\PrestaShop\Adapter\Discount\Update\Filler\DiscountFiller:
     autoconfigure: true
+
+  PrestaShop\PrestaShop\Adapter\Discount\Update\DiscountConditionsUpdater:
+    autoconfigure: true
+    arguments:
+      $dbPrefix: '%database_prefix%'
 
   PrestaShop\PrestaShop\Adapter\Discount\QueryHandler\GetDiscountForEditingHandler:
     autoconfigure: true

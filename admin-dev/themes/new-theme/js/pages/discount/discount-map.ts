@@ -33,4 +33,6 @@ export default {
   reductionValueSymbol: `${discountContainer} .price-reduction-value .input-group .input-group-append .input-group-text,
    .price-reduction-value .input-group .input-group-prepend .input-group-text`,
   freeGiftProductSearchContainer: '#discount_free_gift',
+  discountTypeRadios: '#discount_type_selector_discount_type_selector input[type="radio"]',
+  discountTypeSubmit: '#discountTypeSubmit',
 };

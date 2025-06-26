@@ -1,9 +1,9 @@
 import testContext from '@utils/testContext';
 
-const baseContext: string = 'functional_API_endpoints_cartRule_putCartRuleId';
+const baseContext: string = 'functional_API_endpoints_hook_putHookStatusId';
 
-describe('API : PUT /cart-rule', async () => {
-  // @todo : https://github.com/PrestaShop/PrestaShop/issues/34505
+describe('API : PUT /hook-status', async () => {
+  // @todo : https://github.com/PrestaShop/PrestaShop/issues/34507
   it('should test the API', async function () {
     await testContext.addContextItem(this, 'testIdentifier', 'testAPI', baseContext);
 

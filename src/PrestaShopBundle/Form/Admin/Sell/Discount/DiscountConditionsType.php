@@ -26,77 +26,52 @@
 
 namespace PrestaShopBundle\Form\Admin\Sell\Discount;
 
-use PrestaShopBundle\Form\Admin\Type\CardType;
-use PrestaShopBundle\Form\Admin\Type\PriceReductionType;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use PrestaShopBundle\Form\Admin\Type\EnrichedChoiceType;
+use PrestaShopBundle\Form\Admin\Type\ToggleChildrenChoiceType;
+use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class DiscountConditionsType extends AbstractType
+class DiscountConditionsType extends TranslatorAwareType
 {
+    public const CART_CONDITIONS = 'cart_conditions';
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('condition_application_type', ChoiceType::class, [
-                'choices' => [
-                    'None' => 'none',
-                    'On cart' => 'on_cart',
-                    'On delivery' => 'on_delivery',
-                ],
-                'expanded' => true,
-                'multiple' => false,
-                'data' => 'on_cart',
-                'label' => 'Apply free shipping',
-                'choice_attr' => function ($choice, $key, $value) {
-                    return ['class' => 'shipping-choice'];
-                },
-                'row_attr' => ['class' => 'shipping-section-row'],
-            ])
-            ->add('condition_type', ChoiceType::class, [
-                'choices' => [
-                    'Specific products' => 'specific_products',
-                    'Product segment' => 'product_segment',
-                    'Minimum purchase amount' => 'minimal_amount',
-                    'Minimum product quantity' => 'minimum_quantity',
-                ],
-                'expanded' => true,
-                'multiple' => false,
-                'data' => 'minimal_amount',
-                'label' => 'Cart conditions',
-                'choice_attr' => function ($choice, $key, $value) {
-                    return ['class' => 'cart-condition-choice'];
-                },
-                'row_attr' => ['class' => 'cart-conditions-row'],
-            ])
-            ->add('minimal_amount', PriceReductionType::class, [
-                'currency_select' => true,
-                'label' => false,
+            ->add(self::CART_CONDITIONS, CartConditionsType::class, [
+                'label' => $this->trans('Cart conditions', 'Admin.Catalog.Feature'),
+                'label_tag_name' => 'h3',
                 'required' => false,
-                'row_attr' => [
-                    'class' => 'discount-container minimum-amount-container',
-                ],
-            ]);
+            ])
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         parent::configureOptions($resolver);
         $resolver->setDefaults([
+            'required' => false,
             'form_theme' => '@PrestaShop/Admin/Sell/Catalog/Discount/FormTheme/conditions_form_theme.html.twig',
+            // Override the ToggleChildrenChoiceType choice type
+            'choice_type' => EnrichedChoiceType::class,
+            'choice_options' => [
+                'flex_direction' => 'row',
+                'choice_attr' => [
+                    $this->trans('Cart conditions', 'Admin.Catalog.Feature') => [
+                        'help' => $this->trans('Based on specific product(s) or product segment', 'Admin.Catalog.Feature'),
+                    ],
+                ],
+                'placeholder' => $this->trans('None', 'Admin.Catalog.Feature'),
+                'placeholder_attr' => [
+                    'help' => $this->trans('No condition applied.', 'Admin.Catalog.Feature'),
+                ],
+            ],
         ]);
-    }
-
-    public function finishView(FormView $view, FormInterface $form, array $options): void
-    {
-        $view->children['condition_application_type']->vars['attr']['class'] = 'shipping-section';
-        $view->children['condition_type']->vars['attr']['class'] = 'cart-conditions-section';
     }
 
     public function getParent()
     {
-        return CardType::class;
+        return ToggleChildrenChoiceType::class;
     }
 }

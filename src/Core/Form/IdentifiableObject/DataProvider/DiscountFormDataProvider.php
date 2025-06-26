@@ -77,6 +77,16 @@ class DiscountFormDataProvider implements FormDataProviderInterface
         $isAmountDiscount = $discountForEditing->getAmountDiscount() !== null;
         $details = $this->getGiftDetails($discountForEditing);
 
+        $selectedCondition = 'none';
+        $selectedCartCondition = 'none';
+        if ($discountForEditing->getMinimumProductQuantity()) {
+            $selectedCondition = 'cart_conditions';
+            $selectedCartCondition = 'minimum_product_quantity';
+        } elseif ($discountForEditing->getMinimumAmount()) {
+            $selectedCondition = 'cart_conditions';
+            $selectedCartCondition = 'minimum_amount';
+        }
+
         return [
             'id' => $id,
             'information' => [
@@ -101,17 +111,18 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                     'image' => $details['imageUrl'],
                 ],
             ],
-            // this is not implemented yet it will be possible to implement it after the merge of jo's PR
-            //            'condition_type' => $discountForEditing->getConditionType(),
-            //            'condition_application_type' => $discountForEditing->getConditionApplicationType(),
-            //            'conditions' => [
-            //                'minimal_amount' => [
-            //                    'value' => $discountForEditing->getAmountDiscount(),
-            //                    'type' => !empty($discountForEditing->getAmountDiscount()) ? 'amount' : 'percent',
-            //                    'currency' => $discountForEditing->getCurrencyId(),
-            //                    'include_tax' => $discountForEditing->isTaxIncluded(),
-            //                ],
-            //            ],
+            'conditions' => [
+                'children_selector' => $selectedCondition,
+                'cart_conditions' => [
+                    'children_selector' => $selectedCartCondition,
+                    'minimum_product_quantity' => $discountForEditing->getMinimumProductQuantity(),
+                    'minimum_amount' => [
+                        'value' => $discountForEditing->getMinimumAmount() ? (float) (string) $discountForEditing->getMinimumAmount() : null,
+                        'currency' => $discountForEditing->getMinimumAmountCurrencyId(),
+                        'include_tax' => $discountForEditing->getMinimumAmountTaxIncluded(),
+                    ],
+                ],
+            ],
         ];
     }
 

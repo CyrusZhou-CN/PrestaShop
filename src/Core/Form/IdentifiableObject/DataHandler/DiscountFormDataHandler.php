@@ -32,11 +32,14 @@ use PrestaShop\PrestaShop\Core\Context\LanguageContext;
 use PrestaShop\PrestaShop\Core\Domain\Currency\Exception\CurrencyException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountConditionsCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
 use PrestaShop\PrestaShop\Core\Domain\Exception\DomainConstraintException;
+use PrestaShopBundle\Form\Admin\Sell\Discount\CartConditionsType;
+use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountConditionsType;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -90,12 +93,6 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 throw new RuntimeException('Unknown discount type ' . $discountType);
         }
 
-        // this is not implemented yet it will be possible to implement it after the merge of jo's PR
-        //        $conditionsCommand = new UpdateDiscountConditionsCommand();
-        //        $conditionsCommand->setConditionApplicationType($data['conditions']['condition_application_type']);
-        //        $conditionsCommand->conditionType($data['conditions']['condition_type']);
-        //        $conditionsCommand->setMinimumAmount($data['conditions']['minimal_amount'] ?? []);
-
         $command->setActive(true);
 
         // Random code based on discount type
@@ -104,8 +101,8 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
 
         /** @var DiscountId $discountId */
         $discountId = $this->commandBus->handle($command);
+        $this->updateDiscountConditions($discountId->getValue(), $data);
 
-        //        $this->commandBus->handle($conditionsCommand);
         return $discountId->getValue();
     }
 
@@ -146,14 +143,33 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         $command
             ->setLocalizedNames($data['information']['names'])
         ;
-
-        // this is not implemented yet it will be possible to implement it after the merge of jo's PR
-        //        $conditionsCommand = new UpdateDiscountConditionsCommand();
-        //        $conditionsCommand->setConditionApplicationType($data['conditions']['condition_application_type']);
-        //        $conditionsCommand->setConditionType($data['conditions']['condition_type']);
-        //        $conditionsCommand->setMinimumAmount($data['conditions']['minimal_amount'] ?? 0);
-
         $this->commandBus->handle($command);
-        //        $this->commandBus->handle($conditionsCommand);
+        $this->updateDiscountConditions($id, $data);
+    }
+
+    private function updateDiscountConditions(int $discountId, array $data): void
+    {
+        $conditionsCommand = new UpdateDiscountConditionsCommand($discountId);
+
+        // If no setter is called and the UpdateDiscountConditionsCommand is left empty, this will result in removing all
+        // the conditions, that's because DiscountConditionsUpdater::update starts by removing/resetting all the conditions
+        // and then apply new ones Since there are no conditions specified it is equivalent to removing all
+        // It works for now, but it may cause unstability or unexpected behaviour, hence:
+        // todo: we should force UpdateDiscountConditionsCommand to have at least one condition, alternatively we'll need
+        //       a ClearDiscountConditionsCommand to clean everything on purpose
+        if ($data['conditions']['children_selector'] === DiscountConditionsType::CART_CONDITIONS) {
+            if ($data['conditions']['cart_conditions']['children_selector'] === CartConditionsType::MINIMUM_PRODUCT_QUANTITY) {
+                $conditionsCommand->setMinimumProductsQuantity($data['conditions']['cart_conditions']['minimum_product_quantity']);
+            } elseif ($data['conditions']['cart_conditions']['children_selector'] === CartConditionsType::MINIMUM_AMOUNT) {
+                $conditionsCommand->setMinimumAmount(
+                    new DecimalNumber((string) $data['conditions']['cart_conditions']['minimum_amount']['value']),
+                    $data['conditions']['cart_conditions']['minimum_amount']['currency'],
+                    $data['conditions']['cart_conditions']['minimum_amount']['tax_included'],
+                    $data['conditions']['cart_conditions']['minimum_amount']['shipping_included'],
+                );
+            }
+        }
+
+        $this->commandBus->handle($conditionsCommand);
     }
 }

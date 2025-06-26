@@ -34,3 +34,34 @@ Feature: Retrieving shipment for orders
       | product_name                | quantity |
       | Mug The best is yet to come |        1 |
       | Mug Today is a good day     |        2 |
+
+  Scenario: Switch shipment carrier
+    Given the order "bo_order1" should have the following shipments:
+      | shipment  | carrier         | tracking_number | address | shipping_cost_tax_excl | shipping_cost_tax_incl |
+      | shipment1 | default_carrier |                 | US      |                    7.0 |                   7.42 |
+    Given group "visitor" named "Visitor" exists
+    Given group "guest" named "Guest" exists
+    Given I add new zone "zone1" with following properties:
+      | name    | zone1 |
+      | enabled | true  |
+    When I create carrier "new_carrier" with specified properties:
+      | name             | Blyet Carrier                      |
+      | grade            | 1                                  |
+      | trackingUrl      | http://example.com/track.php?num=@ |
+      | active           | true                               |
+      | max_width        | 1454                               |
+      | max_height       | 1234                               |
+      | max_depth        | 1111                               |
+      | max_weight       | 3864                               |
+      | group_access     | visitor, guest                     |
+      | delay[en-US]     | Shipping delay                     |
+      | shippingHandling | false                              |
+      | zones            | zone1                              |
+      | isFree           | true                               |
+      | shippingMethod   | weight                             |
+      | taxRuleGroup     | US-AL Rate (4%)                    |
+      | rangeBehavior    | disabled                           |
+    When I switch the carrier for shipment "shipment1" to "new_carrier"
+    Then the order "bo_order1" should have the following shipments:
+      | shipment  | carrier         | tracking_number | address | shipping_cost_tax_excl | shipping_cost_tax_incl |
+      | shipment1 | new_carrier     |                 | US      |                    7.0 |                   7.42 |

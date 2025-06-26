@@ -296,6 +296,11 @@
       <title>Customer account displayed in Front Office</title>
       <description>This hook displays new elements on the customer account page</description>
     </hook>
+    <hook id="displayCustomerAccountTop">
+      <name>displayCustomerAccountTop</name>
+      <title>Customer account displayed in Front Office (Top part)</title>
+      <description>This hook displays new elements on the customer account page on Top</description>
+    </hook>
     <hook id="actionOrderSlipAdd">
       <name>actionOrderSlipAdd</name>
       <title>Order slip creation</title>
@@ -5428,10 +5433,15 @@
       <title>Triggers after getting product attributes groups</title>
       <description>Allows to modify product attributes groups after they are retrieved from the database.</description>
     </hook>
-	  <hook id="actionGetPdfRenderer">
+    <hook id="actionGetPdfRenderer">
       <name>actionGetPdfRenderer</name>
       <title>Provide a PDF renderer</title>
       <description>This hook allows to provide a custom PDF renderer to generate PDF files</description>
+    </hook>
+    <hook id="actionGetPdfTemplateObject">
+      <name>actionGetPdfTemplateObject</name>
+      <title>Get PDF template object</title>
+      <description>This hook allows to recieve a PDF template object from modules</description>
     </hook>
     <hook id="displayAdminStoreInformation">
       <name>displayAdminStoreInformation</name>
