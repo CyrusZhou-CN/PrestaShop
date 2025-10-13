@@ -530,7 +530,7 @@ describe('BO - Catalog - Products : CRUD product with combinations', async () =>
     it('should check the product header details', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkEditedProductHeaderDetails', baseContext);
 
-      const taxValue = await utilsCore.percentage(pricingData.priceTaxExcluded, 20);
+      const taxValue = utilsCore.percentage(pricingData.priceTaxExcluded, 20);
 
       const productHeaderSummary = await boProductsCreatePage.getProductHeaderSummary(page);
       await Promise.all([
@@ -559,7 +559,7 @@ describe('BO - Catalog - Products : CRUD product with combinations', async () =>
     it('should check all product information', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkProductInformation', baseContext);
 
-      const taxValue = await utilsCore.percentage(pricingData.priceTaxExcluded + secondCombinationData.impactOnPriceTExc, 20);
+      const taxValue = utilsCore.percentage(pricingData.priceTaxExcluded + secondCombinationData.impactOnPriceTExc, 20);
 
       const result = await foClassicProductPage.getProductInformation(page);
       await Promise.all([

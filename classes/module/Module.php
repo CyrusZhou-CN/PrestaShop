@@ -35,6 +35,8 @@ use PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException;
 use PrestaShop\PrestaShop\Core\Foundation\Filesystem\FileSystem;
 use PrestaShop\PrestaShop\Core\Module\Legacy\ModuleInterface;
 use PrestaShop\PrestaShop\Core\Module\ModuleOverrideChecker;
+use PrestaShop\PrestaShop\Core\Module\Parser\ModuleParser;
+use PrestaShop\PrestaShop\Core\Module\Parser\ModuleParserException;
 use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
 use PrestaShop\PrestaShop\Core\Security\Permission;
 use PrestaShop\TranslationToolsBundle\Translation\Helper\DomainHelper;
@@ -164,8 +166,6 @@ abstract class ModuleCore implements ModuleInterface
     /** @var string Module web path (eg. '/shop/modules/modulename/') */
     protected $_path = null;
     /**
-     * @since 1.5.0.1
-     *
      * @var string Module local path (eg. '/home/prestashop/modules/modulename/')
      */
     protected $local_path = null;
@@ -200,7 +200,10 @@ abstract class ModuleCore implements ModuleInterface
     /** @var array Array filled with cache permissions (modules / employee profiles) */
     protected static $cache_lgc_access = [];
 
-    /** @var Context */
+    /** @var ModuleParser */
+    protected static ModuleParser $moduleParser;
+
+    /** @var Context|null */
     protected $context;
 
     /** @var Smarty_Data|Smarty_Internal_TemplateBase */
@@ -760,11 +763,35 @@ abstract class ModuleCore implements ModuleInterface
         return null;
     }
 
-    public static function getModuleVersion(ModuleCore|stdClass $module): string
+    public static function getModuleVersion(ModuleCore|stdClass|string $module): string
     {
-        $moduleConfig = self::loadModuleXMLConfig($module->name);
+        $moduleName = is_string($module) ? $module : $module->name;
+        $moduleFilePath = _PS_MODULE_DIR_ . $moduleName . '/' . $moduleName . '.php';
+        $parser = static::getModuleParser();
+        try {
+            $parsedModuleInfos = $parser->parseModule($moduleFilePath);
+            if (!empty($parsedModuleInfos['version'])) {
+                return $parsedModuleInfos['version'];
+            }
+        } catch (ModuleParserException) {
+            // Do nothing, fallback XML config file
+        }
 
-        return $moduleConfig['version'] ?? $module->version;
+        $moduleConfig = self::loadModuleXMLConfig($moduleName);
+        if (!empty($moduleConfig['version'])) {
+            return $moduleConfig['version'];
+        }
+
+        return is_object($module) && property_exists($module, 'version') ? $module->version : '';
+    }
+
+    protected static function getModuleParser(): ModuleParser
+    {
+        if (!isset(static::$moduleParser)) {
+            static::$moduleParser = new ModuleParser();
+        }
+
+        return static::$moduleParser;
     }
 
     /**
@@ -969,7 +996,6 @@ abstract class ModuleCore implements ModuleInterface
      *
      * @return bool
      *
-     * @since 1.4.1
      * @deprecated since 1.7
      * @see  PrestaShop\PrestaShop\Core\Module\ModuleManager->enable($name)
      */
@@ -1104,8 +1130,6 @@ abstract class ModuleCore implements ModuleInterface
      * @param array|string $name
      *
      * @return bool
-     *
-     * @since 1.7
      */
     public static function disableAllByName($name)
     {
@@ -1131,7 +1155,6 @@ abstract class ModuleCore implements ModuleInterface
      *
      * @return bool
      *
-     * @since 1.4.1
      * @deprecated since 1.7
      * @see  PrestaShop\PrestaShop\Core\Module\ModuleManager->disable($name)
      */
@@ -2446,8 +2469,6 @@ abstract class ModuleCore implements ModuleInterface
     /**
      * Get realpath of a template of current module (check if template is overridden too).
      *
-     * @since 1.5.0
-     *
      * @param string $template
      *
      * @return string|null
@@ -2778,8 +2799,6 @@ abstract class ModuleCore implements ModuleInterface
     /**
      * Get module errors.
      *
-     * @since 1.5.0
-     *
      * @return array errors
      */
     public function getErrors()
@@ -2789,8 +2808,6 @@ abstract class ModuleCore implements ModuleInterface
 
     /**
      * Get module messages confirmation.
-     *
-     * @since 1.5.0
      *
      * @return array conf
      */
@@ -2802,8 +2819,6 @@ abstract class ModuleCore implements ModuleInterface
     /**
      * Get local path for module.
      *
-     * @since 1.5.0
-     *
      * @return string
      */
     public function getLocalPath()
@@ -2813,8 +2828,6 @@ abstract class ModuleCore implements ModuleInterface
 
     /**
      * Get uri path for module.
-     *
-     * @since 1.5.0
      *
      * @return string
      */

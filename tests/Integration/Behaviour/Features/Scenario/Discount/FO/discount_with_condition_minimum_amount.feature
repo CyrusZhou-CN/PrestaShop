@@ -5,12 +5,11 @@ Feature: Full UX discount test
   PrestaShop allows discounts with minimum amount as the condition
 
   Background:
-    Given there is a customer named "testCustomer" whose email is "pub@prestashop.com"
+    Given there is a customer named "testCustomer" whose email is "pub2@prestashop.com"
     Given language with iso code "en" is the default one
     And language "french" with locale "fr-FR" exists
     Given shop "shop1" with name "test_shop" exists
     And there is a currency named "usd" with iso code "USD" and exchange rate of 0.92
-    And shop configuration for "PS_CART_RULE_FEATURE_ACTIVE" is set to 1
 
   Scenario: Create a complete discount with free shipping using new CQRS
     And there is a product in the catalog named "product1" with a price of 10.00 and 1000 items in stock

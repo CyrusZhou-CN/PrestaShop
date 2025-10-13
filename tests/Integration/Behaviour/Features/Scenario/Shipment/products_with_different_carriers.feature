@@ -58,6 +58,21 @@ Feature: Product associated with different carriers
     Then product bottle_of_beer should have following shipping information:
       | carriers | [beer_carrier] |
     And I enable product "bottle_of_beer"
+    When I add product "bottle_of_sparking_water" with following information:
+      | name[en-US] | bottle of sparking water |
+      | type        | standard       |
+    When I update product "bottle_of_sparking_water" stock with following information:
+      | delta_quantity | 51  |
+      | location       | dtc |
+    And product "bottle_of_sparking_water" should have following stock information:
+      | quantity | 51  |
+      | location | dtc |
+    And I assign product bottle_of_sparking_water with following carriers:
+      | beer_carrier |
+    Then product bottle_of_sparking_water should have following shipping information:
+      | carriers | [beer_carrier] |
+    And I enable product "bottle_of_sparking_water"
+
     When I add product "saucisson" with following information:
       | name[en-US] | saucisson |
       | type        | standard  |
@@ -77,6 +92,7 @@ Feature: Product associated with different carriers
     Given I create an empty cart "dummy_cart" for customer "testCustomer"
     And I select "US" address as delivery and invoice address for customer "testCustomer" in cart "dummy_cart"
     And I add 1 products "bottle of beer" to the cart "dummy_cart"
+    And I add 2 products "bottle_of_sparking_water" to the cart "dummy_cart"
     And I add 2 products "saucisson" to the cart "dummy_cart"
     And I add order "bo_order1" with the following details:
       | cart                | dummy_cart                 |
@@ -91,6 +107,77 @@ Feature: Product associated with different carriers
     Then the shipment "shipment1" should have the following products:
       | product_name   | quantity |
       | bottle of beer | 1        |
+      | bottle of sparking water | 2        |
     Then the shipment "shipment2" should have the following products:
       | product_name | quantity |
       | saucisson    | 2        |
+
+  Scenario: Retrieve available shipments for merge action
+    Then order "bo_order1" should get available shipments for product "bottle of beer":
+      | shipment_name                  | can_handle_merge |
+      | Shipment 1 Beer carrier        | 1             |
+      | Shipment 2 Saucisson carrier   | 0             |
+    Then order "bo_order1" should get available shipments for product "saucisson":
+      | shipment_name                  | can_handle_merge |
+      | Shipment 1 Beer carrier        | 0             |
+      | Shipment 2 Saucisson carrier   | 1             |
+
+  Scenario: Splitting a shipment
+    Given I create carrier "pickup_carrier" with specified properties:
+      | name | Pickup |
+    And I assign product "saucisson" with following carriers:
+      | pickup_carrier |
+    And I split the shipment "shipment2" to create a new shipment with "pickup_carrier" with following products:
+      | product_name | quantity |
+      | saucisson    | 1        |
+    And the shipment "shipment2" should have the following products:
+      | product_name | quantity |
+      | saucisson    | 1        |
+    And the order "bo_order1" should have "3" shipments:
+    Then the shipment "shipment3" should have the following products:
+      | product_name | quantity |
+      | saucisson    | 1        |
+
+  Scenario: Merge product into a shipment with specified quantity
+    Given I merge product from "shipment2" into "shipment1" with following information:
+      | product_name | quantity |
+      | saucisson    | 1        |
+    Then the shipment "shipment1" should have the following products:
+      | product_name   | quantity |
+      | bottle of beer | 1        |
+      | bottle of sparking water | 2        |
+      | saucisson      | 1        |
+    And the shipment "shipment2" should have the following products:
+      | product_name   | quantity |
+      | saucisson      | 1        |
+    And the shipment "shipment2" should be deleted
+
+  Scenario: Merge product into a shipment with full quantity
+    Given I merge product from "shipment3" into "shipment1" with following information:
+      | product_name | quantity |
+      | saucisson    | 1        |
+    Then the shipment "shipment1" should have the following products:
+      | product_name   | quantity |
+      | bottle of beer | 1        |
+      | bottle of sparking water | 2        |
+      | saucisson      | 2        |
+    And the shipment "shipment2" should be deleted
+
+  Scenario: Retrieve available shipments for merge action
+    Then order "bo_order1" should get available shipments for product "bottle of beer":
+      | shipment_name                  | can_handle_merge |
+      | Shipment 1 Beer carrier        | 1             |
+      | Shipment 2 Saucisson carrier   | 0             |
+    Then order "bo_order1" should get available shipments for product "saucisson":
+      | shipment_name                  | can_handle_merge |
+      | Shipment 1 Beer carrier        | 0             |
+      | Shipment 2 Saucisson carrier   | 1             |
+
+  Scenario: Delete product from a existing shipment:
+    When I remove product from the shipment "shipment1" with following properties:
+    | product_name |
+    | bottle of beer |
+    Then the shipment "shipment1" should have the following products:
+    | product_name | quantity |
+    |  bottle of sparking water   |     2    |
+    |  saucisson   |     2    |

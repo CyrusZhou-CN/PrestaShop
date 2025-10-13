@@ -188,7 +188,7 @@ describe('BO - Advanced Parameters - Performance : Optional features', async () 
     expect(pageTitle).to.contains(dataProducts.demo_6.name);
 
     const productPrice = await foClassicProductPage.getProductPrice(page);
-    const discountValue = await utilsCore.percentage(dataProducts.demo_6.combinations[0].price, groupDiscount);
+    const discountValue = utilsCore.percentage(dataProducts.demo_6.combinations[0].price, groupDiscount);
     expect(productPrice).to.contains((dataProducts.demo_6.combinations[0].price - discountValue).toFixed(2));
   });
 

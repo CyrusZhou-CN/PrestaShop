@@ -23,24 +23,17 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
 */
 
-import {EventEmitter} from 'events';
 import EntitySearchInput from '@components/entity-search-input';
 import DiscountMap from '@pages/discount/discount-map';
 
 const {$} = window;
 export default class CreateFreeGiftDiscount {
-  eventEmitter: EventEmitter;
-
   $freeGiftSearchInput: JQuery;
 
   entitySearchInput!: EntitySearchInput;
 
-  /**
-   * @param {EventEmitter} eventEmitter
-   */
-  constructor(eventEmitter: EventEmitter) {
+  constructor() {
     this.$freeGiftSearchInput = $(DiscountMap.freeGiftProductSearchContainer);
-    this.eventEmitter = eventEmitter;
 
     if (this.$freeGiftSearchInput.length) {
       const autocompleteUrl = (document.querySelector(DiscountMap.freeGiftProductSearchContainer) as HTMLElement)

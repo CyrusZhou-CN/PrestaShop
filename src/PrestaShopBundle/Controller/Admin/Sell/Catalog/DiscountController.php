@@ -110,6 +110,8 @@ class DiscountController extends PrestaShopAdminController
             $result = $formHandler->handle($form);
 
             if ($result->isSubmitted() && $result->isValid()) {
+                $this->addFlash('success', $this->trans('Successful creation', [], 'Admin.Notifications.Success'));
+
                 return $this->redirectToRoute('admin_discount_edit', ['discountId' => $result->getIdentifiableObjectId()]);
             }
         } catch (Exception $e) {

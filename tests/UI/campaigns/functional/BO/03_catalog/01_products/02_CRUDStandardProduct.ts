@@ -134,7 +134,7 @@ describe('BO - Catalog - Products : CRUD standard product', async () => {
     it('should check the product header details', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkProductHeaderDetails', baseContext);
 
-      const taxValue = await utilsCore.percentage(newProductData.priceTaxExcluded, newProductData.tax);
+      const taxValue = utilsCore.percentage(newProductData.priceTaxExcluded, newProductData.tax);
 
       const productHeaderSummary = await boProductsCreatePage.getProductHeaderSummary(page);
       await Promise.all([
@@ -171,7 +171,7 @@ describe('BO - Catalog - Products : CRUD standard product', async () => {
     it('should check all product information', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkProductInformation', baseContext);
 
-      const taxValue = await utilsCore.percentage(newProductData.priceTaxExcluded, newProductData.tax);
+      const taxValue = utilsCore.percentage(newProductData.priceTaxExcluded, newProductData.tax);
 
       const result = await foClassicProductPage.getProductInformation(page);
       await Promise.all([
@@ -205,7 +205,7 @@ describe('BO - Catalog - Products : CRUD standard product', async () => {
     it('should check the product header details', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkEditedProductHeaderDetails', baseContext);
 
-      const taxValue = await utilsCore.percentage(editProductData.priceTaxExcluded, editProductData.tax);
+      const taxValue = utilsCore.percentage(editProductData.priceTaxExcluded, editProductData.tax);
 
       const productHeaderSummary = await boProductsCreatePage.getProductHeaderSummary(page);
       await Promise.all([
@@ -235,7 +235,7 @@ describe('BO - Catalog - Products : CRUD standard product', async () => {
     it('should check all product information', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkEditedProductInformation', baseContext);
 
-      const taxValue = await utilsCore.percentage(editProductData.priceTaxExcluded, editProductData.tax);
+      const taxValue = utilsCore.percentage(editProductData.priceTaxExcluded, editProductData.tax);
 
       const result = await foClassicProductPage.getProductInformation(page);
       await Promise.all([

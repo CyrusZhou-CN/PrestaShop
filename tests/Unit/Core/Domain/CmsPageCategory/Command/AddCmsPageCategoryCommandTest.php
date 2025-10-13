@@ -38,14 +38,12 @@ class AddCmsPageCategoryCommandTest extends TestCase
         $this->expectException(CmsPageCategoryConstraintException::class);
         $this->expectExceptionCode(CmsPageCategoryConstraintException::INVALID_CATEGORY_NAME);
 
-        $incorrectName = [
-            1 => 'hashtag #',
-        ];
-
         $command = new AddCmsPageCategoryCommand(
-            $incorrectName,
             [
-                1 => 'hashtag',
+                1 => 'somecategoryname >',
+            ],
+            [
+                1 => 'somecategoryname',
             ],
             1,
             true
@@ -59,10 +57,10 @@ class AddCmsPageCategoryCommandTest extends TestCase
         $incorrectId = '1';
         $command = new AddCmsPageCategoryCommand(
             [
-                1 => 'hashtag',
+                1 => 'somecategoryname',
             ],
             [
-                1 => 'hashtag',
+                1 => 'somecategoryname',
             ],
             /* @phpstan-ignore-next-line */
             $incorrectId,
@@ -90,7 +88,7 @@ class AddCmsPageCategoryCommandTest extends TestCase
         $command = new AddCmsPageCategoryCommand([], [], 1, false);
 
         $command->setLocalisedMetaDescription([
-            1 => '=object=',
+            1 => '{object}',
         ]);
     }
 }

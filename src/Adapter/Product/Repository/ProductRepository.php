@@ -797,7 +797,7 @@ class ProductRepository extends AbstractMultiShopObjectModelRepository
             [],
             $limit);
         $qb
-            ->addSelect('p.id_product, pl.name, p.reference, i.id_image')
+            ->addSelect('p.id_product, pl.name, p.reference, i.id_image, p.product_type')
             ->addGroupBy('p.id_product')
             ->addOrderBy('pl.name', 'ASC')
             ->addOrderBy('p.id_product', 'ASC')

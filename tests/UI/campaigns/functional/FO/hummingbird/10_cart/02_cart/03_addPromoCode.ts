@@ -32,6 +32,7 @@ describe('FO - cart : Add promo code', async () => {
       tax: 'Tax included',
     },
   });
+  const newCartRuleDiscount: number = parseFloat(newCartRuleData.discountAmount!.value.toString());
 
   // Pre-condition: Create cart rule and apply the discount to 'productWithCartRule'
   createCartRuleTest(newCartRuleData, `${baseContext}_PreTest_1`);
@@ -89,8 +90,8 @@ describe('FO - cart : Add promo code', async () => {
     it('should check the discount value', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkDiscountValue', baseContext);
 
-      const totalBeforeDiscount = await foHummingbirdCartPage.getDiscountValue(page);
-      expect(totalBeforeDiscount).to.eq(-newCartRuleData.discountAmount!.value);
+      const totalBeforeDiscount = await foHummingbirdCartPage.getCartRuleValue(page);
+      expect(totalBeforeDiscount).to.equal(`-€${newCartRuleDiscount.toFixed(2)}`);
     });
 
     it('should set the same promo code and check the error message', async function () {

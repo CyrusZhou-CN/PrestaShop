@@ -532,6 +532,13 @@ abstract class PaymentModuleCore extends Module
                     }
                 }
 
+                Hook::exec('actionPaymentModuleProductVarTplAfter', [
+                    'product_var_tpl' => &$product_var_tpl,
+                    'product' => $product,
+                    'order' => $order,
+                    'context' => $this->context,
+                ]);
+
                 $product_var_tpl_list[] = $product_var_tpl;
                 // Check if is not a virtual product for the displaying of shipping
                 if (!$product['is_virtual']) {
@@ -883,8 +890,6 @@ abstract class PaymentModuleCore extends Module
     /**
      * Allows specified payment modules to be used by a specific currency.
      *
-     * @since 1.4.5
-     *
      * @param int $id_currency
      * @param array $id_module_list
      *
@@ -918,7 +923,6 @@ abstract class PaymentModuleCore extends Module
      * List all installed and active payment modules.
      *
      * @see Module::getPaymentModules() if you need a list of module related to the user context
-     * @since 1.4.5
      *
      * @return array module information
      */

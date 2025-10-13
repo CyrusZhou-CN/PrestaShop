@@ -362,6 +362,9 @@ services:
     class: 'PrestaShop\PrestaShop\Core\Grid\Definition\Factory\CarrierGridDefinitionFactory'
     parent: PrestaShop\PrestaShop\Core\Grid\Definition\Factory\AbstractGridDefinitionFactory
     public: true
+    arguments:
+      - '%database_prefix%'
+      - '@doctrine.dbal.default_connection'
 
   prestashop.core.grid.definition.factory.zone:
     class: 'PrestaShop\PrestaShop\Core\Grid\Definition\Factory\ZoneGridDefinitionFactory'
@@ -486,6 +489,18 @@ services:
     parent: PrestaShop\PrestaShop\Core\Grid\Definition\Factory\AbstractGridDefinitionFactory
     autowire: true
     public: true
+
+  PrestaShop\PrestaShop\Core\Grid\Definition\Factory\ShipmentGridDefinitionFactory:
+    parent: PrestaShop\PrestaShop\Core\Grid\Definition\Factory\AbstractGridDefinitionFactory
+    autowire: true
+    public: true
+
+  PrestaShop\PrestaShop\Core\Grid\Definition\Factory\TagGridDefinitionFactory:
+    parent: PrestaShop\PrestaShop\Core\Grid\Definition\Factory\AbstractGridDefinitionFactory
+    autowire: true
+    public: true
+    arguments:
+      - '@prestashop.core.form.choice_provider.language_by_id'
 
   # deprecated services
   # Alias for this abstract definition causes tests in vendor fail for some reason, so we stick to full definition instead

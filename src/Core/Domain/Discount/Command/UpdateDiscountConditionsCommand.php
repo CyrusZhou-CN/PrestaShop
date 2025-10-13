@@ -27,6 +27,8 @@
 namespace PrestaShop\PrestaShop\Core\Domain\Discount\Command;
 
 use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\PrestaShop\Core\Domain\Carrier\ValueObject\CarrierId;
+use PrestaShop\PrestaShop\Core\Domain\Country\ValueObject\CountryId;
 use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroup;
@@ -44,6 +46,13 @@ class UpdateDiscountConditionsCommand
     private ?Money $minimumAmount = null;
 
     private ?bool $minimumAmountShippingIncluded = null;
+
+    /**
+     * @var CarrierId[]|null
+     */
+    private ?array $carrierIds = null;
+
+    private ?array $countryIds = null;
 
     public function __construct(int $discountId)
     {
@@ -118,9 +127,59 @@ class UpdateDiscountConditionsCommand
             if (!$productCondition instanceof ProductRuleGroup) {
                 throw new DiscountConstraintException(sprintf('Product conditions must be an array of %s', ProductRuleGroup::class), DiscountConstraintException::INVALID_PRODUCTS_CONDITIONS);
             }
+            if (empty($productCondition->getRules())) {
+                throw new DiscountConstraintException(sprintf('Product conditions rules cannot be empty'), DiscountConstraintException::INVALID_PRODUCTS_CONDITIONS);
+            }
+
+            foreach ($productCondition->getRules() as $rule) {
+                if (empty($rule->getItemIds())) {
+                    throw new DiscountConstraintException(sprintf('Product conditions rule items cannot be empty'), DiscountConstraintException::INVALID_PRODUCTS_CONDITIONS);
+                }
+
+                foreach ($rule->getItemIds() as $itemId) {
+                    if (!is_int($itemId)) {
+                        throw new DiscountConstraintException(sprintf('Product conditions rule item ID must be an integer'), DiscountConstraintException::INVALID_PRODUCTS_CONDITIONS);
+                    }
+                    if ((int) $itemId <= 0) {
+                        throw new DiscountConstraintException(sprintf('Product conditions rule item ID must be strictly positive'), DiscountConstraintException::INVALID_PRODUCTS_CONDITIONS);
+                    }
+                }
+            }
         }
 
         $this->productConditions = $productConditions;
+
+        return $this;
+    }
+
+    /**
+     * @return CarrierId[]|null
+     */
+    public function getCarrierIds(): ?array
+    {
+        return $this->carrierIds;
+    }
+
+    /**
+     * @param int[]|null $carrierIds
+     *
+     * @return $this
+     */
+    public function setCarrierIds(?array $carrierIds): self
+    {
+        $this->carrierIds = array_map(fn (int $carrierId) => new CarrierId($carrierId), $carrierIds);
+
+        return $this;
+    }
+
+    public function getCountryIds(): ?array
+    {
+        return $this->countryIds;
+    }
+
+    public function setCountryIds(?array $countryIds): self
+    {
+        $this->countryIds = array_map(fn (int $countryId) => new CountryId($countryId), $countryIds);
 
         return $this;
     }

@@ -173,7 +173,7 @@ describe('BO - Catalog - Products : CRUD virtual product', async () => {
     it('should check all product information', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkEditedProductInformation', baseContext);
 
-      const taxValue = await utilsCore.percentage(editProductData.priceTaxExcluded, 10);
+      const taxValue = utilsCore.percentage(editProductData.priceTaxExcluded, 10);
 
       const result = await foClassicProductPage.getProductInformation(page);
       await Promise.all([

@@ -24,7 +24,6 @@ jobs:
           - 8.2.x
           - 8.1.x
           - 8.0.x
-          - 1.7.8.x
         include:
           - BRANCH: develop
             node: 20
@@ -35,8 +34,6 @@ jobs:
           - BRANCH: 8.1.x
             node: 16
           - BRANCH: 8.0.x
-            node: 14
-          - BRANCH: 1.7.8.x
             node: 14
 
     env:

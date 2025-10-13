@@ -1,6 +1,6 @@
 # This workflow aim to run all UI tests on active branches
 # and upload the report on Google cloud platform storage
-name: Nightly tests and report - 9.0.x
+name: Nightly tests and report - 9.0.x (mysql)
 
 on:
   workflow_run:

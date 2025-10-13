@@ -53,6 +53,7 @@ describe('BO - Catalog - Cart rules : Carrier selection', async () => {
       tax: 'Tax included',
     },
   });
+  const newCartRuleDiscount: number = parseFloat(newCartRuleData.discountAmount!.value.toString());
 
   // before and after functions
   before(async function () {
@@ -196,7 +197,7 @@ describe('BO - Catalog - Cart rules : Carrier selection', async () => {
       await foClassicCheckoutPage.addPromoCode(page, newCartRuleData.code);
 
       const totalAfterDiscount = dataProducts.demo_6.combinations[0].price
-        - newCartRuleData.discountAmount!.value + dataCarriers.myCarrier.priceTTC;
+        - newCartRuleDiscount + dataCarriers.myCarrier.priceTTC;
 
       const priceATI = await foClassicCheckoutPage.getATIPrice(page);
       expect(priceATI.toFixed(2)).to.equal(totalAfterDiscount.toFixed(2));

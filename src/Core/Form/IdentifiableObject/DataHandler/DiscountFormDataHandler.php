@@ -35,11 +35,18 @@ use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountConditionsCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRule;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroup;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroupType;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleType;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
 use PrestaShop\PrestaShop\Core\Domain\Exception\DomainConstraintException;
+use PrestaShop\PrestaShop\Core\Domain\Product\Combination\ValueObject\NoCombinationId;
 use PrestaShopBundle\Form\Admin\Sell\Discount\CartConditionsType;
+use PrestaShopBundle\Form\Admin\Sell\Discount\DeliveryConditionsType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountConditionsType;
+use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountUsabilityModeType;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -95,8 +102,12 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
 
         $command->setActive(true);
 
-        // Random code based on discount type
-        $command->setCode(strtoupper(uniqid($discountType . '_')));
+        if ($data['usability']['mode']['children_selector'] === DiscountUsabilityModeType::CODE_MODE) {
+            $command->setCode($data['usability']['mode']['code'] ?? '');
+        } else {
+            $command->setCode('');
+        }
+
         $command->setTotalQuantity(100);
 
         /** @var DiscountId $discountId */
@@ -140,9 +151,14 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             default:
                 throw new RuntimeException('Unknown discount type ' . $discountType);
         }
-        $command
-            ->setLocalizedNames($data['information']['names'])
-        ;
+        $command->setLocalizedNames($data['information']['names']);
+
+        if ($data['usability']['mode']['children_selector'] === DiscountUsabilityModeType::CODE_MODE) {
+            $command->setCode($data['usability']['mode']['code'] ?? '');
+        } else {
+            $command->setCode('');
+        }
+
         $this->commandBus->handle($command);
         $this->updateDiscountConditions($id, $data);
     }
@@ -167,6 +183,85 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                     $data['conditions']['cart_conditions']['minimum_amount']['tax_included'],
                     $data['conditions']['cart_conditions']['minimum_amount']['shipping_included'],
                 );
+            } elseif ($data['conditions']['cart_conditions']['children_selector'] === CartConditionsType::SPECIFIC_PRODUCTS) {
+                $specificProducts = $data['conditions']['cart_conditions']['specific_products'] ?? [];
+                $productRuleGroups = [];
+
+                foreach ($specificProducts as $specificProduct) {
+                    if (!empty($specificProduct['combination_id']) && $specificProduct['combination_id'] !== NoCombinationId::NO_COMBINATION_ID) {
+                        $productRuleGroups[] = new ProductRuleGroup(
+                            $specificProduct['quantity'],
+                            [
+                                new ProductRule(ProductRuleType::COMBINATIONS, [(int) $specificProduct['combination_id']]),
+                            ]
+                        );
+                    } else {
+                        $productRuleGroups[] = new ProductRuleGroup(
+                            $specificProduct['quantity'],
+                            [
+                                new ProductRule(ProductRuleType::PRODUCTS, [(int) $specificProduct['id']]),
+                            ]
+                        );
+                    }
+                }
+
+                $conditionsCommand->setProductConditions($productRuleGroups);
+            } elseif ($data['conditions']['cart_conditions']['children_selector'] === CartConditionsType::PRODUCT_SEGMENT) {
+                $manufacturer = $data['conditions']['cart_conditions']['product_segment']['manufacturer'] ?? [];
+                $category = $data['conditions']['cart_conditions']['product_segment']['category'] ?? '';
+                $supplier = $data['conditions']['cart_conditions']['product_segment']['supplier'] ?? [];
+                $attributes = $data['conditions']['cart_conditions']['product_segment']['attributes']['groups'] ?? [];
+                $features = $data['conditions']['cart_conditions']['product_segment']['features']['groups'] ?? [];
+
+                $productRules = [];
+                $productRuleGroups = [];
+                if (!empty($manufacturer)) {
+                    $productRules[] = new ProductRule(ProductRuleType::MANUFACTURERS, [(int) $manufacturer]);
+                }
+                if (!empty($category)) {
+                    $productRules[] = new ProductRule(ProductRuleType::CATEGORIES, [(int) $category]);
+                }
+                if (!empty($supplier)) {
+                    $productRules[] = new ProductRule(ProductRuleType::SUPPLIERS, [(int) $supplier]);
+                }
+                if (!empty($attributes)) {
+                    // We create a ProductRule for each attribute group, thus building more and more restrictive conditions
+                    // The values of each product rule is a range of possibility though
+                    foreach ($attributes as $attributesByGroup) {
+                        $productRules[] = new ProductRule(
+                            ProductRuleType::ATTRIBUTES,
+                            array_map(fn (array $attribute) => (int) $attribute['id'], $attributesByGroup['items']),
+                        );
+                    }
+                }
+                if (!empty($features)) {
+                    // We create a ProductRule for each feature group, similar to attributes
+                    foreach ($features as $featuresByGroup) {
+                        $productRules[] = new ProductRule(
+                            ProductRuleType::FEATURES,
+                            array_map(fn (array $feature) => (int) $feature['id'], $featuresByGroup['items']),
+                        );
+                    }
+                }
+
+                if (!empty($productRules)) {
+                    $conditionsCommand->setProductConditions([
+                        new ProductRuleGroup(
+                            $data['conditions']['cart_conditions']['product_segment']['quantity'],
+                            $productRules,
+                            // CRITICAL: this is what makes the whole product rules cumulative and more and more restricting,
+                            // they must all be valid for the global rule group to be valid
+                            ProductRuleGroupType::ALL_PRODUCT_RULES,
+                        ),
+                    ]);
+                }
+            }
+        } elseif ($data['conditions']['children_selector'] === DiscountConditionsType::DELIVERY_CONDITIONS) {
+            if ($data['conditions'][DiscountConditionsType::DELIVERY_CONDITIONS]['children_selector'] === DeliveryConditionsType::CARRIERS) {
+                $conditionsCommand->setCarrierIds($data['conditions'][DiscountConditionsType::DELIVERY_CONDITIONS][DeliveryConditionsType::CARRIERS]);
+            }
+            if ($data['conditions'][DiscountConditionsType::DELIVERY_CONDITIONS]['children_selector'] === DeliveryConditionsType::COUNTRY) {
+                $conditionsCommand->setCountryIds($data['conditions'][DiscountConditionsType::DELIVERY_CONDITIONS][DeliveryConditionsType::COUNTRY]);
             }
         }
 

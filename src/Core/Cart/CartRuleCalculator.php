@@ -29,6 +29,7 @@ namespace PrestaShop\PrestaShop\Core\Cart;
 use Cart;
 use CartRule;
 use Currency;
+use Hook;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
 use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagSettings;
 use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagStateCheckerInterface;
@@ -119,6 +120,31 @@ class CartRuleCalculator
 
                 return;
             }
+        }
+
+        /*
+         * Custom cart rule application from modules. Allows to create infinite possibilities of rules.
+         *
+         * If a module wants to apply a cart rule by it's own rules, it can use this hook.
+         * You will receive instances and data from this context, so use proper methods to apply the discounts.
+         *
+         * If any discount was applied by a module, set $isAppliedByModules to avoid further processing of the cart rule.
+         */
+        $isAppliedByModules = null;
+        Hook::exec(
+            'actionApplyCartRule',
+            [
+                'cart_rule_calculator' => $this,
+                'cart_rule_data' => $cartRuleData,
+                'cart_rule' => $cartRule,
+                'cart' => $cart,
+                'with_free_shipping' => $withFreeShipping,
+                'is_applied_by_modules' => &$isAppliedByModules,
+            ]
+        );
+        // @phpstan-ignore-next-line
+        if ($isAppliedByModules) {
+            return;
         }
 
         // Free shipping on selected carriers
@@ -395,5 +421,29 @@ class CartRuleCalculator
     public function getCartRulesData()
     {
         return $this->cartRules;
+    }
+
+    /**
+     * @return Calculator
+     */
+    public function getCalculator()
+    {
+        return $this->calculator;
+    }
+
+    /**
+     * @return CartRowCollection
+     */
+    public function getCartRows()
+    {
+        return $this->cartRows;
+    }
+
+    /**
+     * @return Fees
+     */
+    public function getFees()
+    {
+        return $this->fees;
     }
 }

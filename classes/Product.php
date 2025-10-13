@@ -371,12 +371,9 @@ class ProductCore extends ObjectModel
     public $pack_quantity;
 
     /**
-     * For now default value remains undefined, to keep compatibility with page v1 and former products.
-     * But once the v2 is merged the default value should be ProductType::TYPE_STANDARD
-     *
      * @var string
      */
-    public $product_type = ProductType::TYPE_UNDEFINED;
+    public $product_type = ProductType::TYPE_STANDARD;
 
     /**
      * @var int
@@ -473,7 +470,7 @@ class ProductCore extends ObjectModel
             'product_type' => [
                 'type' => self::TYPE_STRING,
                 'validate' => 'isGenericName',
-                // For now undefined value is still allowed, in 179 we should use ProductType::AVAILABLE_TYPES here
+                // TYPE_UNDEFINED is here to support legacy products that have no type set
                 'values' => [
                     ProductType::TYPE_STANDARD,
                     ProductType::TYPE_PACK,
@@ -481,8 +478,7 @@ class ProductCore extends ObjectModel
                     ProductType::TYPE_COMBINATIONS,
                     ProductType::TYPE_UNDEFINED,
                 ],
-                // This default value should be replaced with ProductType::TYPE_STANDARD in 179 when the v2 page is fully migrated
-                'default' => ProductType::TYPE_UNDEFINED,
+                'default' => ProductType::TYPE_STANDARD,
             ],
 
             /* Shop fields */
@@ -1301,11 +1297,34 @@ class ProductCore extends ObjectModel
             || !$this->deleteFromSupplier()
             || !$this->deleteDownload()
             || !$this->deleteFromCartRules()
+            || !$this->deleteRedirections()
         ) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Resets all entries where this product was used as a redirection target
+     *
+     * @return bool
+     */
+    public function deleteRedirections(): bool
+    {
+        $productTableUpdateResult = Db::getInstance()->update(
+            'product',
+            ['redirect_type' => RedirectType::TYPE_DEFAULT, 'id_type_redirected' => 0],
+            '(redirect_type = \'' . RedirectType::TYPE_PRODUCT_TEMPORARY . '\' OR redirect_type = \'' . RedirectType::TYPE_PRODUCT_PERMANENT . '\') AND id_type_redirected = ' . (int) $this->id
+        );
+
+        $productShopTableUpdateResult = Db::getInstance()->update(
+            'product_shop',
+            ['redirect_type' => RedirectType::TYPE_DEFAULT, 'id_type_redirected' => 0],
+            '(redirect_type = \'' . RedirectType::TYPE_PRODUCT_TEMPORARY . '\' OR redirect_type = \'' . RedirectType::TYPE_PRODUCT_PERMANENT . '\') AND id_type_redirected = ' . (int) $this->id
+        );
+
+        return $productTableUpdateResult && $productShopTableUpdateResult;
     }
 
     /**
@@ -2132,8 +2151,6 @@ class ProductCore extends ObjectModel
     /**
      * Add a product attribute.
      *
-     * @since 1.5.0.1
-     *
      * @param float $price Additional price
      * @param float $weight Additional weight
      * @param float $unit_impact Additional unit price
@@ -2636,6 +2653,11 @@ class ProductCore extends ObjectModel
     {
         // If combination feature is disabled, no need to do any queries
         if (!Combination::isFeatureActive()) {
+            return false;
+        }
+
+        // If this product does not have any combinations, no need to do any queries
+        if ($this->getProductType() != ProductType::TYPE_COMBINATIONS) {
             return false;
         }
 
@@ -6874,7 +6896,9 @@ class ProductCore extends ObjectModel
             'ORDER BY `position`'
         );
 
-        if ($position > count($result)) {
+        $sizeResult = count($result);
+
+        if ($position > $sizeResult && $sizeResult > 0) {
             WebserviceRequest::getInstance()->setError(
                 500,
                 $this->trans(
@@ -7101,8 +7125,6 @@ class ProductCore extends ObjectModel
     /**
      * Get all product attributes ids.
      *
-     * @since 1.5.0
-     *
      * @param int $id_product Product identifier
      * @param bool $shop_only
      *
@@ -7301,8 +7323,6 @@ class ProductCore extends ObjectModel
     /**
      * Gets the name of a given product, in the given lang.
      *
-     * @since 1.5.0
-     *
      * @param int $id_product Product identifier
      * @param int|null $id_product_attribute Attribute identifier
      * @param int|null $id_lang Language identifier
@@ -7390,8 +7410,6 @@ class ProductCore extends ObjectModel
     /**
      * For a given product, returns its real quantity.
      *
-     * @since 1.5.0
-     *
      * @param int $id_product Product identifier
      * @param int $id_product_attribute Attribute identifier
      * @param int $id_warehouse Warehouse identifier - not used anymore
@@ -7414,8 +7432,6 @@ class ProductCore extends ObjectModel
     /**
      * For a given product, tells if it uses the advanced stock management.
      *
-     * @since 1.5.0
-     *
      * @param int $id_product Product identifier
      *
      * @return bool
@@ -7434,8 +7450,6 @@ class ProductCore extends ObjectModel
 
     /**
      * This method allows to flush price cache.
-     *
-     * @since 1.5.0
      */
     public static function flushPriceCache()
     {
@@ -7445,8 +7459,6 @@ class ProductCore extends ObjectModel
 
     /**
      * Get list of parent categories.
-     *
-     * @since 1.5.0
      *
      * @param int|null $id_lang Language identifier
      *
@@ -7458,7 +7470,11 @@ class ProductCore extends ObjectModel
             $id_lang = Context::getContext()->language->id;
         }
 
-        $interval = Category::getInterval($this->id_category_default);
+        // Verify we got the interval, the category may not exist at all
+        if (empty($interval = Category::getInterval($this->id_category_default))) {
+            return [];
+        }
+
         $sql = new DbQuery();
         $sql->from('category', 'c');
         $sql->leftJoin('category_lang', 'cl', 'c.id_category = cl.id_category AND id_lang = ' . (int) $id_lang . Shop::addSqlRestrictionOnLang('cl'));
@@ -7566,8 +7582,6 @@ class ProductCore extends ObjectModel
 
     /**
      * Get the product type (simple, virtual, pack).
-     *
-     * @since in 1.5.0
      *
      * @return int
      */

@@ -175,7 +175,10 @@ describe('BO - Catalog - Cart rules : CRUD cart rule with priority', async () =>
       await testContext.addContextItem(this, 'testIdentifier', 'verifyTotalAfterDiscount', baseContext);
 
       const totalAfterDiscount = dataProducts.demo_1.finalPrice
-        - (cartRulePriority2.discountAmount!.value + cartRulePriority1.discountAmount!.value);
+        - (
+          parseFloat(cartRulePriority2.discountAmount!.value.toString())
+          + parseFloat(cartRulePriority1.discountAmount!.value.toString())
+        );
 
       const priceATI = await foClassicCartPage.getATIPrice(page);
       expect(priceATI).to.equal(parseFloat(totalAfterDiscount.toFixed(2)));
@@ -184,15 +187,17 @@ describe('BO - Catalog - Cart rules : CRUD cart rule with priority', async () =>
     it('should check the discount value', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkDiscountValue', baseContext);
 
+      const discount1: number = parseFloat(cartRulePriority1.discountAmount!.value.toString());
+      const discount2: number = parseFloat(cartRulePriority2.discountAmount!.value.toString());
       const totalDiscountValue = await foClassicCartPage.getSubtotalDiscountValue(page);
       expect(totalDiscountValue)
-        .to.equal(-(cartRulePriority2.discountAmount!.value + cartRulePriority1.discountAmount!.value));
+        .to.equal(-(discount2 + discount1));
 
-      const firstDiscountValue = await foClassicCartPage.getDiscountValue(page, 1);
-      expect(firstDiscountValue).to.equal(-(cartRulePriority1.discountAmount!.value));
+      const firstDiscountValue = await foClassicCartPage.getCartRuleValue(page, 1);
+      expect(firstDiscountValue).to.equal(`-€${discount1.toFixed(2)}`);
 
-      const secondDiscountValue = await foClassicCartPage.getDiscountValue(page, 1);
-      expect(secondDiscountValue).to.equal(-(cartRulePriority2.discountAmount!.value));
+      const secondDiscountValue = await foClassicCartPage.getCartRuleValue(page, 1);
+      expect(secondDiscountValue).to.equal(`-€${discount2.toFixed(2)}`);
     });
 
     it('should remove product from shopping cart', async function () {

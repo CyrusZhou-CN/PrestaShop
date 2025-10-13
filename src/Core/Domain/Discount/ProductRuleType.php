@@ -33,4 +33,9 @@ enum ProductRuleType: string
 {
     case CATEGORIES = 'categories';
     case PRODUCTS = 'products';
+    case COMBINATIONS = 'combinations';
+    case MANUFACTURERS = 'manufacturers';
+    case SUPPLIERS = 'suppliers';
+    case ATTRIBUTES = 'attributes';
+    case FEATURES = 'features';
 }

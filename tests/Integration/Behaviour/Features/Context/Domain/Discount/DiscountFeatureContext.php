@@ -57,10 +57,19 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
     {
         $errorCode = match ($field) {
             'name' => DiscountConstraintException::INVALID_NAME,
+            'gift_product' => DiscountConstraintException::INVALID_GIFT_PRODUCT,
             default => null,
         };
 
         $this->assertLastErrorIs(DiscountConstraintException::class, $errorCode);
+    }
+
+    /**
+     * @Then I should get an error that the discount code is already used
+     */
+    public function assertDiscountCodeAlreadyUsed(): void
+    {
+        $this->assertLastErrorIs(DiscountConstraintException::class, DiscountConstraintException::NON_UNIQUE_CODE);
     }
 
     /**
@@ -234,6 +243,38 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             $command->setCode($data['code']);
         }
 
+        if (!empty($data['reduction_percent'])) {
+            $command->setPercentDiscount(new DecimalNumber($data['reduction_percent']));
+        }
+
+        if (!empty($data['reduction_amount'])) {
+            try {
+                $command->setAmountDiscount(
+                    new DecimalNumber($data['reduction_amount']),
+                    $this->getSharedStorage()->get($data['reduction_currency']),
+                    PrimitiveUtils::castStringBooleanIntoBoolean($data['taxIncluded']),
+                );
+            } catch (DiscountConstraintException $e) {
+                $this->setLastException($e);
+            }
+        }
+
+        if (!empty($data['reduction_product'])) {
+            if ((int) $data['reduction_product'] === -1 || (int) $data['reduction_product'] === -2) {
+                $command->setReductionProduct((int) $data['reduction_product']);
+            } else {
+                $command->setReductionProduct($this->getSharedStorage()->get($data['reduction_product']));
+            }
+        }
+
+        if (!empty($data['gift_product'])) {
+            $command->setProductId($this->referenceToId($data['gift_product']));
+        }
+
+        if (!empty($data['gift_combination'])) {
+            $command->setCombinationId($this->referenceToId($data['gift_combination']));
+        }
+
         try {
             /* @var DiscountId $discountId */
             $this->getCommandBus()->handle($command);
@@ -366,6 +407,12 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         }
         if (isset($expectedData['minimum_amount_shipping_included'])) {
             Assert::assertSame(PrimitiveUtils::castStringBooleanIntoBoolean($expectedData['minimum_amount_shipping_included']), $discountForEditing->getMinimumAmountShippingIncluded(), 'Unexpected minimum amount shipping included');
+        }
+        if (isset($expectedData['carriers'])) {
+            Assert::assertSame($this->referencesToIds($expectedData['carriers']), $discountForEditing->getCarrierIds(), 'Unexpected carriers');
+        }
+        if (isset($expectedData['countries'])) {
+            Assert::assertSame($this->referencesToIds($expectedData['countries']), $discountForEditing->getCountryIds(), 'Unexpected countries');
         }
     }
 

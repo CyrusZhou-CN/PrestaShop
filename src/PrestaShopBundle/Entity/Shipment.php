@@ -30,6 +30,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use PrestaShop\PrestaShop\Core\Domain\Shipment\Exception\ShipmentException;
 
 /**
  * @ORM\Table()
@@ -112,7 +113,7 @@ class Shipment
     /**
      * @var Collection<ShipmentProduct>
      *
-     * @ORM\OneToMany(targetEntity="PrestaShopBundle\Entity\ShipmentProduct", mappedBy="shipment", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="PrestaShopBundle\Entity\ShipmentProduct", mappedBy="shipment", cascade={"all"}, orphanRemoval=true)
      */
     private Collection $products;
 
@@ -266,8 +267,20 @@ class Shipment
     public function addShipmentProduct(ShipmentProduct $shipmentProduct): self
     {
         $this->products[] = $shipmentProduct;
-
         $shipmentProduct->setShipment($this);
+
+        return $this;
+    }
+
+    public function removeProduct(ShipmentProduct $product): self
+    {
+        if ($product->getShipment() !== $this) {
+            throw new ShipmentException('Trying to remove a product that does not belong to the shipment');
+        }
+
+        if ($this->products->removeElement($product)) {
+            $product->setShipment(null);
+        }
 
         return $this;
     }

@@ -438,6 +438,14 @@ class ConfigurationCore extends ObjectModel
      */
     public static function updateValue($key, $values, $html = false, $idShopGroup = null, $idShop = null)
     {
+        Hook::exec('actionConfigurationUpdateValueBefore', [
+            'key' => $key,
+            'values' => $values,
+            'html' => $html,
+            'idShopGroup' => $idShopGroup,
+            'idShop' => $idShop,
+        ]);
+
         if (!Validate::isConfigName($key)) {
             throw new PrestaShopException(Context::getContext()->getTranslator()->trans('[%s] is not a valid configuration key', [Tools::htmlentitiesUTF8($key)], 'Admin.Notifications.Error'));
         }

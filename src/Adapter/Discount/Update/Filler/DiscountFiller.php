@@ -82,6 +82,10 @@ class DiscountFiller
             $cartRule->quantity_per_user = $command->getQuantityPerUser();
             $updatableProperties[] = 'quantity_per_user';
         }
+        if (null !== $command->getReductionProduct()) {
+            $cartRule->reduction_product = $command->getReductionProduct();
+            $updatableProperties[] = 'reduction_product';
+        }
         if (null !== $command->getAmountDiscount()) {
             $cartRule->reduction_amount = (float) (string) $command->getAmountDiscount()->getAmount();
             $cartRule->reduction_currency = $command->getAmountDiscount()->getCurrencyId()->getValue();

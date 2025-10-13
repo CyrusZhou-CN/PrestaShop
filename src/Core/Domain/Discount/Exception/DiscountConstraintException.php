@@ -69,9 +69,9 @@ class DiscountConstraintException extends DiscountException
     public const INVALID_FREE_GIFT_DISCOUNT_PROPERTIES = 39;
     public const INVALID_DISCOUNT_TYPE = 40;
     public const INVALID_AMOUNT_DISCOUNT_ALREADY_SET = 41;
-
     public const INVALID_PERCENT_DISCOUNT_ALREADY_SET = 42;
     public const INVALID_DATE_FROM_OR_DATE_TO = 43;
     public const INVALID_MINIMUM_PRODUCT_QUANTITY = 44;
     public const INVALID_PRODUCTS_CONDITIONS = 45;
+    public const INVALID_SPECIFIC_PRODUCTS = 46;
 }

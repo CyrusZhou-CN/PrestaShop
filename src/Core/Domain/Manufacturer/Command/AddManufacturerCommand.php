@@ -76,8 +76,8 @@ class AddManufacturerCommand
      * @param array $shopAssociation
      */
     public function __construct(
-        $name,
-        $enabled,
+        string $name,
+        bool $enabled,
         array $localizedShortDescriptions,
         array $localizedDescriptions,
         array $localizedMetaTitles,

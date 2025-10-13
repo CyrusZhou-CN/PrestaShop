@@ -199,7 +199,7 @@ class AdminCountriesControllerCore extends AdminController
                     'name' => 'name',
                     'lang' => true,
                     'required' => true,
-                    'hint' => $this->trans('Country name', [], 'Admin.International.Feature') . ' - ' . $this->trans('Invalid characters:', [], 'Admin.Global') . ' &lt;&gt;;=#{} ',
+                    'hint' => $this->trans('Country name', [], 'Admin.International.Feature') . ' - ' . $this->trans('Invalid characters:', [], 'Admin.Global') . ' &lt;&gt;{} ',
                 ],
                 [
                     'type' => 'text',

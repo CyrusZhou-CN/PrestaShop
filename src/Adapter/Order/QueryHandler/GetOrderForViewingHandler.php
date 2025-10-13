@@ -711,7 +711,7 @@ final class GetOrderForViewingHandler extends AbstractOrderHandler implements Ge
 
             $messages[] = new OrderMessageForViewing(
                 (int) $orderMessage['id_customer_message'],
-                $orderMessage['message'],
+                (string) $orderMessage['message'],
                 new OrderMessageDateForViewing(
                     new DateTimeImmutable($orderMessage['date_add']),
                     $this->context->language->date_format_full

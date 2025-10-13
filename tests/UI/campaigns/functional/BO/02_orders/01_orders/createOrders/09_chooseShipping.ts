@@ -234,7 +234,7 @@ describe('BO - Orders - Create order : Choose shipping', async () => {
 
       await boOrdersCreatePage.setGift(page, true);
 
-      const tax = await utilsCore.percentage(giftOptions.price, 10);
+      const tax = utilsCore.percentage(giftOptions.price, 10);
       const totalTaxExc = (dataProducts.demo_12.priceTaxExcluded + giftOptions.price).toFixed(2);
       const totalTaxInc = (dataProducts.demo_12.price + giftOptions.price + tax).toFixed(2);
 

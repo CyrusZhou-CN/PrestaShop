@@ -291,7 +291,7 @@ describe('BO - Catalog - Products : Pack Tab', async () => {
       const productHeaderSummary = await boProductsCreatePage.getProductHeaderSummary(page);
       expect(productHeaderSummary.priceTaxExc).to.equals(`€${productRetailPrice.toFixed(2)} tax excl.`);
 
-      const taxValue = await utilsCore.percentage(productRetailPrice, mostUsedTaxValue);
+      const taxValue = utilsCore.percentage(productRetailPrice, mostUsedTaxValue);
       expect(productHeaderSummary.priceTaxIncl).to.equal(
         `€${(productRetailPrice + taxValue).toFixed(2)} tax incl. (tax rule: ${mostUsedTaxValue}%)`,
       );
@@ -311,7 +311,7 @@ describe('BO - Catalog - Products : Pack Tab', async () => {
       await testContext.addContextItem(this, 'testIdentifier', 'checkProductInformation', baseContext);
 
       const productInformation = await foClassicProductPage.getProductInformation(page);
-      const taxValue = await utilsCore.percentage(productRetailPrice, mostUsedTaxValue);
+      const taxValue = utilsCore.percentage(productRetailPrice, mostUsedTaxValue);
       expect(productRetailPrice + taxValue).to.eq(productInformation.price);
 
       const productsPrice = await foClassicProductPage.getPackProductsPrice(page);

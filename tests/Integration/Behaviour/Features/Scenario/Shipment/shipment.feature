@@ -65,3 +65,18 @@ Feature: Retrieving shipment for orders
     Then the order "bo_order1" should have the following shipments:
       | shipment  | carrier         | tracking_number | address | shipping_cost_tax_excl | shipping_cost_tax_incl |
       | shipment1 | new_carrier     |                 | US      |                    7.0 |                   7.42 |
+
+  Scenario: Retrieve shipment for viewing
+    Given the order "bo_order1" should have the following shipments:
+      | shipment  | carrier         | tracking_number | address | shipping_cost_tax_excl | shipping_cost_tax_incl |
+      | shipment1 | default_carrier |                 | US      |                    7.0 |                   7.42 |
+    Then the shipment view "shipment1" should contain:
+      | tracking_number |                 |
+      | carrier_name    | My carrier      |
+      | firstname       | John            |
+      | lastname        | DOE             |
+      | address1        | 16, Main street |
+      | postcode        | 33133           |
+      | city            | Miami           |
+      | state           | Florida         |
+      | country         | United States   |

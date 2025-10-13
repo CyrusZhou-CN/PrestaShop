@@ -18,8 +18,6 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - branch: 1.7.8.x
-            database: mysql
           - branch: 8.0.x
             database: mysql
           - branch: 8.1.x

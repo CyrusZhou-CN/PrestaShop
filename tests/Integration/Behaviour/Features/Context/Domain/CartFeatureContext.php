@@ -187,7 +187,34 @@ class CartFeatureContext extends AbstractDomainFeatureContext
             );
             $this->getSharedStorage()->set($productName, $productId);
 
-            // Clear cart static cache or it will have no products in next calls
+            // Clear cart static cache, or it will have no products in next calls
+            Cart::resetStaticCache();
+        } catch (MinimalQuantityException $e) {
+            $this->setLastException($e);
+        }
+    }
+
+    /**
+     * @When /^I add (\d+) combination(?:s)? "(.+)" from product "(.+)" to the cart "(.+)"$/
+     *
+     * @param int $quantity
+     * @param string $combinationReference
+     * @param string $productReference
+     * @param string $cartReference
+     */
+    public function addCombinationsToCart(int $quantity, string $combinationReference, string $productReference, string $cartReference)
+    {
+        try {
+            $this->getCommandBus()->handle(
+                new AddProductToCartCommand(
+                    $this->referenceToId($cartReference),
+                    $this->referenceToId($productReference),
+                    $quantity,
+                    $this->referenceToId($combinationReference)
+                )
+            );
+
+            // Clear cart static cache, or it will have no products in next calls
             Cart::resetStaticCache();
         } catch (MinimalQuantityException $e) {
             $this->setLastException($e);
@@ -654,6 +681,22 @@ class CartFeatureContext extends AbstractDomainFeatureContext
     }
 
     /**
+     * @When I delete combination :combinationReference from product :productReference from cart :cartReference
+     */
+    public function deleteCombination(string $combinationReference, string $productReference, string $cartReference)
+    {
+        try {
+            $this->getCommandBus()->handle(new RemoveProductFromCartCommand(
+                $this->referenceToId($cartReference),
+                $this->referenceToId($productReference),
+                $this->referenceToId($combinationReference)
+            ));
+        } catch (CartException $e) {
+            $this->setLastException($e);
+        }
+    }
+
+    /**
      * @When I delete voucher :voucherCode from cart :cartReference
      *
      * @param string $voucherCode
@@ -1026,16 +1069,17 @@ class CartFeatureContext extends AbstractDomainFeatureContext
 
     /**
      * @param string $cartReference
+     * @param bool $hideDiscounts
      *
      * @return CartForOrderCreation
      */
-    private function getCartForOrderCreationByReference(string $cartReference): CartForOrderCreation
+    private function getCartForOrderCreationByReference(string $cartReference, bool $hideDiscounts = true): CartForOrderCreation
     {
         $cartId = $this->getSharedStorage()->get($cartReference);
 
         return $this->getQueryBus()->handle(
             (new GetCartForOrderCreation($cartId))
-                ->setHideDiscounts(true)
+                ->setHideDiscounts($hideDiscounts)
         );
     }
 
@@ -1140,6 +1184,32 @@ class CartFeatureContext extends AbstractDomainFeatureContext
     public function assertCartDetailsAfterDiscount(string $cartReference, TableNode $tableNode): void
     {
         $cartInfo = $this->getCartForOrderCreationByReference($cartReference);
+        $data = $this->localizeByRows($tableNode);
+
+        if (isset($data['total_products'])) {
+            Assert::assertSame($data['total_products'], $cartInfo->getSummary()->getTotalProductsPrice());
+        }
+        if (isset($data['total_discount'])) {
+            Assert::assertSame($data['total_discount'], $cartInfo->getSummary()->getTotalDiscount());
+        }
+        if (isset($data['shipping'])) {
+            Assert::assertSame($data['shipping'], $cartInfo->getSummary()->getTotalShippingPrice());
+        }
+        if (isset($data['total'])) {
+            Assert::assertSame($data['total'], $cartInfo->getSummary()->getTotalPriceWithTaxes());
+        }
+    }
+
+    /**
+     * @Then my cart :cartReference should have the following details, without hiding auto discounts:
+     *
+     * @param TableNode $tableNode
+     *
+     * @return void
+     */
+    public function assertCartDetailsAfterDiscountWihoutHidingAutoDiscounts(string $cartReference, TableNode $tableNode): void
+    {
+        $cartInfo = $this->getCartForOrderCreationByReference($cartReference, false);
         $data = $this->localizeByRows($tableNode);
 
         if (isset($data['total_products'])) {

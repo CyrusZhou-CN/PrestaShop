@@ -2,15 +2,14 @@
 @restore-all-tables-before-feature
 @discount-condition-restricted-products
 Feature: Full UX discount test
-  PrestaShop allows discounts with minimal quantity as the condition
+  PrestaShop allows discounts with restricted products as the condition
 
   Background:
-    Given there is a customer named "testCustomer" whose email is "pub@prestashop.com"
+    Given there is a customer named "testCustomer" whose email is "pub2@prestashop.com"
     Given language with iso code "en" is the default one
     And language "french" with locale "fr-FR" exists
     Given shop "shop1" with name "test_shop" exists
     And there is a currency named "usd" with iso code "USD" and exchange rate of 0.92
-    And shop configuration for "PS_CART_RULE_FEATURE_ACTIVE" is set to 1
 
   # Note: in this feature file scenarios are related because this initialisation must be done only once
   Scenario: First create products and the discount that will be used in following scenarios

@@ -27,6 +27,8 @@ services:
     autoconfigure: true
 
   PrestaShop\PrestaShop\Adapter\Discount\Validate\DiscountValidator:
+    calls:
+      - setDiscountRepository: [ '@PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountRepository' ]
 
   PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountRepository:
     arguments:
