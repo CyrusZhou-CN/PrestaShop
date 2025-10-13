@@ -159,7 +159,7 @@ jobs:
           DOCKER_PREFIX: prestashop
           ARTIFACT_NAME: setup-symfony-console-${{ matrix.app-id }}
           ENABLE_SSL: 'true'
-          INSTALL_AUTO: 'false'
+          INSTALL_AUTO: 'true'
         if: failure()
 
       - name: Run Admin Security Attribute Linter (inside the docker so installed modules are also scanned)

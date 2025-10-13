@@ -254,6 +254,8 @@ jobs:
       TEST_CAMPAIGN: ${{ matrix.CAMPAIGN }}  # Command to execute from the matrix
       INSTALL_AUTO: ${{ (matrix.CAMPAIGN == 'sanity') && 'false' || 'true' }}
       ENABLE_SSL: ${{ ((matrix.BRANCH == '8.0.x') || (matrix.BRANCH == '1.7.8.x')) && 'false' || 'true' }}
+      CLIENT_ID_API: ui-test-client
+      CLIENT_SECRET_API: 18c7b983c2eaa22a111609ce2b1c435e
 
     steps:
       - uses: actions/checkout@v4
@@ -268,7 +270,6 @@ jobs:
           PHP_VERSION: ${{ inputs.PHP_VERSION }}
           ENABLE_SSL: ${{ env.ENABLE_SSL }}
           INSTALL_AUTO: ${{ env.INSTALL_AUTO }}
-          CP_API_CONFIG: ${{ (env.GH_BRANCH == '8.1.x' || env.GH_BRANCH == '8.2.x') && 'true' || 'false' }}
           DB_SERVER: ${{ inputs.DB_SERVER }}
       - name: Setup Environment failure
         uses: ./.github/actions/setup-env-export-logs
@@ -279,6 +280,12 @@ jobs:
           ENABLE_SSL: ${{ env.ENABLE_SSL }}
           INSTALL_AUTO: ${{ env.INSTALL_AUTO }}
         if: failure()
+
+      # Create API Client for API campaign
+      - name: Create API client
+        if: ${{ (env.GH_BRANCH == '9.0.x' || env.GH_BRANCH == 'develop') && env.TEST_CAMPAIGN == 'functional:API' }}
+        run: |
+          docker exec prestashop-prestashop-git-1 php ./bin/console prestashop:api-client create ${{ env.CLIENT_ID_API }} --all-scopes --name='Test client' --description='Test client with all scopes' --timeout=3600 --secret=${{ env.CLIENT_SECRET_API }}
 
       # Keycloak is only needed for API campaign
       - name: Setup Keycloak
@@ -293,6 +300,9 @@ jobs:
           TEST_CAMPAIGN: ${{ env.TEST_CAMPAIGN }}
           TESTS_DIR: ${{ inputs.TESTS_DIR }}
           DB_SERVER: ${{ inputs.DB_SERVER }}
+        env:
+          CLIENT_ID_API: ${{ env.CLIENT_ID_API }}
+          CLIENT_SECRET_API: ${{ env.CLIENT_SECRET_API }}
 
       # Rename and upload report as artifact
       - name: Rename file reports

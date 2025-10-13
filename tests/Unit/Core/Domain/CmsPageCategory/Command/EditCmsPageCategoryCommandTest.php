@@ -41,7 +41,7 @@ class EditCmsPageCategoryCommandTest extends TestCase
         $command = new EditCmsPageCategoryCommand(1);
 
         $command->setLocalisedName([
-            1 => 'name with #',
+            1 => 'name with >',
         ]);
     }
 

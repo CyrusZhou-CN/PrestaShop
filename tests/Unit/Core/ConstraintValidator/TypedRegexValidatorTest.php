@@ -498,7 +498,7 @@ class TypedRegexValidatorTest extends ConstraintValidatorTestCase
     public function getInvalidCharactersForCatalogNameType(): array
     {
         return [
-            ['<'], ['>'], [';'], ['='], ['#'], ['{'], ['}'],
+            ['<'], ['>'], ['{'], ['}'],
         ];
     }
 
@@ -508,7 +508,7 @@ class TypedRegexValidatorTest extends ConstraintValidatorTestCase
     public function getInvalidCharactersForGenericNameType(): array
     {
         return [
-            ['<'], ['>'], ['='], ['{'], ['}'],
+            ['<'], ['>'], ['{'], ['}'],
         ];
     }
 
