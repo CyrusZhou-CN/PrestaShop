@@ -67,7 +67,7 @@ describe('API : POST /product/image/{imageId}', async () => {
       await utilsFile.deleteFile(productImageUpdated);
     });
 
-    describe('BackOffice : Fetch the access token', async () => {
+    describe('API : Fetch the access token', async () => {
       it(`should request the endpoint /access_token with scope ${clientScope}`, async function () {
         await testContext.addContextItem(this, 'testIdentifier', 'requestOauth2Token', baseContext);
         accessToken = await requestAccessToken(clientScope);

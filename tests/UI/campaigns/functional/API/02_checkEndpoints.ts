@@ -97,20 +97,38 @@ describe('API : Check endpoints', async () => {
         '/api-client: POST',
         // tests/UI/campaigns/functional/API/02_endpoints/01_apiClient/06_getApiClients.ts
         '/api-clients: GET',
+        // @todo: add tests
+        '/attributes/attribute/{attributeId}: DELETE',
+        // @todo: add tests
+        '/attributes/attribute/{attributeId}: GET',
+        // @todo: add tests
+        '/attributes/attribute/{attributeId}: PATCH',
+        // @todo: add tests
+        '/attributes/attribute: POST',
+        // @todo: add tests
+        '/attributes/attributes/delete: PUT',
+        // @todo: add tests
+        '/attributes/group/{attributeGroupId}/attributes: GET',
         // tests/UI/campaigns/functional/API/02_endpoints/02_attributesGroup/01_deleteAttributesGroupId.ts
         '/attributes/group/{attributeGroupId}: DELETE',
         // tests/UI/campaigns/functional/API/02_endpoints/02_attributesGroup/02_getAttributesGroupId.ts
         '/attributes/group/{attributeGroupId}: GET',
-        // @todo: add tests
+        // tests/UI/campaigns/functional/API/02_endpoints/02_attributesGroup/03_patchAttributesGroupId.ts
         '/attributes/group/{attributeGroupId}: PATCH',
-        // @todo: add tests
+        // tests/UI/campaigns/functional/API/02_endpoints/02_attributesGroup/04_postAttributesGroup.ts
         '/attributes/group: POST',
-        // @todo: add tests
+        // tests/UI/campaigns/functional/API/02_endpoints/02_attributesGroup/05_putAttributesGroupsDelete.ts
         '/attributes/groups/delete: PUT',
-        // @todo: add tests
+        // tests/UI/campaigns/functional/API/02_endpoints/02_attributesGroup/06_getAttributesGroups.ts
         '/attributes/groups: GET',
         // @todo: add tests
         '/categories: GET',
+        // @todo: add tests
+        '/category/{categoryId}/cover: DELETE',
+        // @todo: add tests
+        '/category/{categoryId}/status: PATCH',
+        // @todo: add tests
+        '/category/{categoryId}/thumbnail: DELETE',
         // @todo: add tests
         '/category/{categoryId}: DELETE',
         // @todo: add tests
@@ -137,9 +155,9 @@ describe('API : Check endpoints', async () => {
         '/discount: POST',
         // @todo : https://github.com/PrestaShop/PrestaShop/issues/38784
         '/discounts: GET',
-        // tests/UI/campaigns/functional/API/02_endpoints/04_hook/01_putHookStatusId.ts
-        '/hook-status/{hookId}: PUT',
-        // tests/UI/campaigns/functional/API/02_endpoints/04_hook/02_getHooksId.ts
+        // tests/UI/campaigns/functional/API/02_endpoints/04_hook/01_putHookIdStatus.ts
+        '/hook/{hookId}/status: PUT',
+        // tests/UI/campaigns/functional/API/02_endpoints/04_hook/02_getHookId.ts
         '/hook/{hookId}: GET',
         // tests/UI/campaigns/functional/API/02_endpoints/04_hook/03_getHooks.ts
         '/hooks: GET',
@@ -192,7 +210,65 @@ describe('API : Check endpoints', async () => {
         // tests/UI/campaigns/functional/API/02_endpoints/07_product/11_getProducts.ts
         '/products: GET',
         // @todo: add tests
+        '/search-alias/{search}: DELETE',
+        // @todo: add tests
+        '/search-alias/{search}: GET',
+        // @todo: add tests
+        '/search-alias/{search}: PUT',
+        // @todo: add tests
+        '/search-alias: POST',
+        // @todo: add tests
+        '/search-aliases/delete: DELETE',
+        // @todo: add tests
+        '/search-aliases: GET',
+        // @todo: add tests
+        '/supplier/{supplierId}/logo: DELETE',
+        // @todo: add tests
+        '/supplier/{supplierId}/toggle-status: PUT',
+        // @todo: add tests
+        '/supplier/{supplierId}: DELETE',
+        // @todo: add tests
+        '/supplier/{supplierId}: GET',
+        // @todo: add tests
+        '/supplier/{supplierId}: PATCH',
+        // @todo: add tests
+        '/supplier: POST',
+        // @todo: add tests
+        '/suppliers/delete: PUT',
+        // @todo: add tests
+        '/suppliers/disable: PUT',
+        // @todo: add tests
+        '/suppliers/enable: PUT',
+        // @todo: add tests
+        '/suppliers: GET',
+        // @todo: add tests
         '/tab/{className}: PUT',
+        // @todo: add tests
+        '/tax-rules-group/{taxRulesGroupId}: DELETE',
+        // @todo: add tests
+        '/tax-rules-group/{taxRulesGroupId}: GET',
+        // @todo: add tests
+        '/tax-rules-group/{taxRulesGroupId}: PATCH',
+        // @todo: add tests
+        '/tax-rules-group: POST',
+        // @todo: add tests
+        '/tax-rules-groups/delete: PUT',
+        // @todo: add tests
+        '/tax-rules-groups/set-status: PUT',
+        // @todo: add tests
+        '/tax-rules-groups: GET',
+        // @todo: add tests
+        '/title/{titleId}: DELETE',
+        // @todo: add tests
+        '/title/{titleId}: GET',
+        // @todo: add tests
+        '/title/{titleId}: PATCH',
+        // @todo: add tests
+        '/title: POST',
+        // @todo: add tests
+        '/titles/delete: PUT',
+        // @todo: add tests
+        '/titles: GET',
         // @todo: add tests
         '/webservice-key/{webserviceKeyId}: GET',
         // @todo: add tests
