@@ -11,29 +11,38 @@ import {
   boDashboardPage,
   boLoginPage,
   type BrowserContext,
-  dataAttributeTypes,
-  dataLanguages,
   FakerAttribute,
   type Page,
   utilsPlaywright,
   utilsAPI,
+  dataLanguages,
+  dataAttributeTypes,
 } from '@prestashop-core/ui-testing';
 
 import {expect} from 'chai';
 
-const baseContext: string = 'functional_API_endpoints_attributesGroup_getAttributesGroupId';
+const baseContext: string = 'functional_API_endpoints_attributesGroup_patchAttributesGroupId';
 
-describe('API : GET /attributes/group/{attributeGroupId}', async () => {
+describe('API : PATCH /attributes/group/{attributeGroupId}', async () => {
   let apiContext: APIRequestContext;
   let browserContext: BrowserContext;
   let page: Page;
   let numberOfAttributes: number = 0;
   let idAttributeGroup: number;
   let accessToken: string;
-  let jsonResponse: any;
 
-  const clientScope: string = 'attribute_group_read';
-  const attributeData: FakerAttribute = new FakerAttribute();
+  const clientScope: string = 'attribute_group_write';
+  const attributeData: FakerAttribute = new FakerAttribute({
+    attributeType: dataAttributeTypes.radio,
+    name: 'Name Attribute',
+    publicName: 'Public Name Attribute',
+  });
+  const attributeDataPatch: FakerAttribute = new FakerAttribute({
+    attributeType: dataAttributeTypes.select,
+    name: 'Name Attribute after PATCH',
+    publicName: 'Public Name Attribute after PATCH',
+  });
+  const dataAttributeTypesReverse = Object.fromEntries(Object.entries(dataAttributeTypes).map((type) => type.reverse()));
 
   before(async function () {
     browserContext = await utilsPlaywright.createBrowserContext(this.browser);
@@ -115,82 +124,94 @@ describe('API : GET /attributes/group/{attributeGroupId}', async () => {
       idAttributeGroup = parseInt(await boAttributesPage.getTextColumn(page, 1, 'id_attribute_group'), 10);
       expect(idAttributeGroup).to.be.gt(0);
     });
+
+    it('should go to edit attribute page', async function () {
+      await testContext.addContextItem(this, 'testIdentifier', 'goToEditAttributePage', baseContext);
+
+      await boAttributesPage.goToEditAttributePage(page, 1);
+
+      const pageTitle = await boAttributesCreatePage.getPageTitle(page);
+      expect(pageTitle).to.equal(boAttributesCreatePage.editPageTitle(attributeData.name));
+    });
   });
 
-  describe('API : Fetch the Attribute Group', async () => {
-    it('should request the endpoint /attributes/group/{attributeGroupId}', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'requestEndpoint', baseContext);
+  [
+    {
+      propertyName: 'type',
+      propertyValue: dataAttributeTypesReverse[attributeDataPatch.attributeType],
+    },
+    {
+      propertyName: 'names',
+      propertyValue: {
+        [dataLanguages.french.locale]: attributeDataPatch.name,
+        [dataLanguages.english.locale]: attributeDataPatch.name,
+      },
+    },
+    {
+      propertyName: 'publicNames',
+      propertyValue: {
+        [dataLanguages.french.locale]: attributeDataPatch.publicName,
+        [dataLanguages.english.locale]: attributeDataPatch.publicName,
+      },
+    },
+  ].forEach((data: { propertyName: string, propertyValue: boolean|number|string|string[] }) => {
+    describe(`Update the property \`${data.propertyName}\` with API and check in BO`, async () => {
+      it('should request the endpoint /attributes/group/{attributeGroupId}', async function () {
+        await testContext.addContextItem(this, 'testIdentifier', `requestEndpoint${data.propertyName}`, baseContext);
 
-      const apiResponse = await apiContext.get(`attributes/group/${idAttributeGroup}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        const dataPatch: any = {};
+        dataPatch[data.propertyName] = data.propertyValue;
+
+        const apiResponse = await apiContext.patch(`attributes/group/${idAttributeGroup}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          data: dataPatch,
+        });
+        expect(apiResponse.status()).to.eq(200);
+        expect(utilsAPI.hasResponseHeader(apiResponse, 'Content-Type')).to.eq(true);
+        expect(utilsAPI.getResponseHeader(apiResponse, 'Content-Type')).to.contains('application/json');
+
+        const jsonResponse = await apiResponse.json();
+        expect(jsonResponse).to.have.property(data.propertyName);
+        expect(jsonResponse[data.propertyName]).to.deep.equal(data.propertyValue);
       });
-      expect(apiResponse.status()).to.eq(200);
-      expect(utilsAPI.hasResponseHeader(apiResponse, 'Content-Type')).to.eq(true);
-      expect(utilsAPI.getResponseHeader(apiResponse, 'Content-Type')).to.contains('application/json');
 
-      jsonResponse = await apiResponse.json();
-    });
+      it(`should check that the property "${data.propertyName}"`, async function () {
+        await testContext.addContextItem(this, 'testIdentifier', `checkProperty${data.propertyName}`, baseContext);
 
-    it('should check the JSON Response keys', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkResponseKeys', baseContext);
+        await boAttributesCreatePage.reloadPage(page);
 
-      expect(jsonResponse).to.have.all.keys(
-        'attributeGroupId',
-        'names',
-        'publicNames',
-        'shopIds',
-        'type',
-      );
-    });
-
-    it('should check the JSON Response : `attributeGroupId`', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkResponseAttributeGroupId', baseContext);
-
-      expect(jsonResponse).to.have.property('attributeGroupId');
-      expect(jsonResponse.attributeGroupId).to.be.a('number');
-      expect(jsonResponse.attributeGroupId).to.be.equal(idAttributeGroup);
-    });
-
-    it('should check the JSON Response : `names`', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkResponseNames', baseContext);
-
-      expect(jsonResponse).to.have.property('names');
-      expect(jsonResponse.names).to.be.a('object');
-      expect(jsonResponse.names[dataLanguages.english.locale]).to.be.equal(attributeData.name);
-      expect(jsonResponse.names[dataLanguages.french.locale]).to.be.equal(attributeData.name);
-    });
-
-    it('should check the JSON Response : `publicNames`', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkResponsePublicNames', baseContext);
-
-      expect(jsonResponse).to.have.property('publicNames');
-      expect(jsonResponse.publicNames).to.be.a('object');
-      expect(jsonResponse.publicNames[dataLanguages.english.locale]).to.be.equal(attributeData.publicName);
-      expect(jsonResponse.publicNames[dataLanguages.french.locale]).to.be.equal(attributeData.publicName);
-    });
-
-    it('should check the JSON Response : `type`', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkResponseType', baseContext);
-
-      const dataAttributeTypesReverse = Object.fromEntries(Object.entries(dataAttributeTypes).map((type) => type.reverse()));
-
-      expect(jsonResponse).to.have.property('type');
-      expect(jsonResponse.type).to.be.a('string');
-      expect(jsonResponse.type).to.be.equal(dataAttributeTypesReverse[attributeData.attributeType]);
-    });
-
-    it('should check the JSON Response : `shopIds`', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkResponseShopIds', baseContext);
-
-      expect(jsonResponse).to.have.property('shopIds');
-      expect(jsonResponse.shopIds).to.be.a('array');
-      expect(jsonResponse.shopIds).to.deep.equal([1]);
+        if (['names', 'publicNames'].includes(data.propertyName)) {
+          const valuePropertyFR = await boAttributesCreatePage.getValue(page, data.propertyName, dataLanguages.french.id);
+          const valuePropertyEN = await boAttributesCreatePage.getValue(page, data.propertyName, dataLanguages.english.id);
+          expect({
+            [dataLanguages.french.locale]: valuePropertyFR,
+            [dataLanguages.english.locale]: valuePropertyEN,
+          }).to.deep.equal(data.propertyValue);
+        } else if (data.propertyName === 'type') {
+          const valueProperty = await boAttributesCreatePage.getValue(page, data.propertyName);
+          expect(valueProperty).to.equal(data.propertyValue);
+        }
+      });
     });
   });
 
   describe('BackOffice : Delete the Attribute Group', async () => {
+    it('should go to \'Catalog > Attributes & Features\' page', async function () {
+      await testContext.addContextItem(this, 'testIdentifier', 'returnToAttributesPage', baseContext);
+
+      await boDashboardPage.goToSubMenu(
+        page,
+        boDashboardPage.catalogParentLink,
+        boDashboardPage.attributesAndFeaturesLink,
+      );
+      await boAttributesPage.closeSfToolBar(page);
+
+      const pageTitle = await boAttributesPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boAttributesPage.pageTitle);
+    });
+
     it('should delete attribute', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'deleteAttribute', baseContext);
 

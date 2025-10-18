@@ -16,7 +16,7 @@ import {
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
 
-const baseContext: string = 'functional_API_endpoints_hook_getHooksId';
+const baseContext: string = 'functional_API_endpoints_hook_getHookId';
 
 describe('API : GET /hook/{hookId}', async () => {
   let apiContext: APIRequestContext;
@@ -43,7 +43,7 @@ describe('API : GET /hook/{hookId}', async () => {
     await utilsPlaywright.closeBrowserContext(browserContext);
   });
 
-  describe('BackOffice : Fetch the access token', async () => {
+  describe('API : Fetch the access token', async () => {
     it(`should request the endpoint /access_token with scope ${clientScope}`, async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'requestOauth2Token', baseContext);
       accessToken = await requestAccessToken(clientScope);

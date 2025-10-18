@@ -7,8 +7,7 @@ import {requestAccessToken} from '@commonTests/BO/advancedParameters/authServer'
 import {expect} from 'chai';
 import {
   type APIRequestContext,
-  boCustomerGroupsPage,
-  boCustomerSettingsPage,
+  boAttributesPage,
   boDashboardPage,
   boLoginPage,
   type BrowserContext,
@@ -17,14 +16,16 @@ import {
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
 
-const baseContext: string = 'functional_API_endpoints_customerGroup_getCustomersGroups';
+const baseContext: string = 'functional_API_endpoints_attributesGroup_getAttributesGroups';
 
-describe('API : GET /customers/groups', async () => {
+describe('API : GET /attributes/groups', async () => {
   let apiContext: APIRequestContext;
   let browserContext: BrowserContext;
   let page: Page;
   let accessToken: string;
   let jsonResponse: any;
+  let numberOfAttributes: number = 0;
+  const clientScope: string = 'attribute_group_read';
 
   before(async function () {
     browserContext = await utilsPlaywright.createBrowserContext(this.browser);
@@ -40,15 +41,15 @@ describe('API : GET /customers/groups', async () => {
   describe('API : Fetch the access token', async () => {
     it('should request the endpoint /access_token', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'requestOauth2Token', baseContext);
-      accessToken = await requestAccessToken('');
+      accessToken = await requestAccessToken(clientScope);
     });
   });
 
   describe('API : Fetch Data', async () => {
-    it('should request the endpoint /customers/groups', async function () {
+    it('should request the endpoint /attributes/groups', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'requestEndpoint', baseContext);
 
-      const apiResponse = await apiContext.get('customers/groups', {
+      const apiResponse = await apiContext.get('attributes/groups', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -74,11 +75,10 @@ describe('API : GET /customers/groups', async () => {
 
       for (let i:number = 0; i < jsonResponse.totalItems; i++) {
         expect(jsonResponse.items[i]).to.have.all.keys(
-          'customerGroupId',
-          'customers',
+          'attributeGroupId',
           'name',
-          'reductionPercent',
-          'showPrice',
+          'position',
+          'values',
         );
       }
     });
@@ -95,27 +95,25 @@ describe('API : GET /customers/groups', async () => {
       expect(pageTitle).to.contains(boDashboardPage.pageTitle);
     });
 
-    it('should go to \'Shop Parameters > Customer Settings\' page', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'goToCustomerSettingsPage', baseContext);
+    it('should go to \'Catalog > Attributes & Features\' page', async function () {
+      await testContext.addContextItem(this, 'testIdentifier', 'goToAttributesPage', baseContext);
 
       await boDashboardPage.goToSubMenu(
         page,
-        boDashboardPage.shopParametersParentLink,
-        boDashboardPage.customerSettingsLink,
+        boDashboardPage.catalogParentLink,
+        boDashboardPage.attributesAndFeaturesLink,
       );
-      await boCustomerSettingsPage.closeSfToolBar(page);
+      await boAttributesPage.closeSfToolBar(page);
 
-      const pageTitle = await boCustomerSettingsPage.getPageTitle(page);
-      expect(pageTitle).to.contains(boCustomerSettingsPage.pageTitle);
+      const pageTitle = await boAttributesPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boAttributesPage.pageTitle);
     });
 
-    it('should go to \'Groups\' page', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'goToGroupsPage', baseContext);
+    it('should reset all filters and get number of attributes in BO', async function () {
+      await testContext.addContextItem(this, 'testIdentifier', 'resetFilterFirst', baseContext);
 
-      await boCustomerSettingsPage.goToGroupsPage(page);
-
-      const pageTitle = await boCustomerGroupsPage.getPageTitle(page);
-      expect(pageTitle).to.contains(boCustomerGroupsPage.pageTitle);
+      numberOfAttributes = await boAttributesPage.resetAndGetNumberOfLines(page);
+      expect(numberOfAttributes).to.be.equal(jsonResponse.totalItems);
     });
 
     it('should filter list by id', async function () {
@@ -123,36 +121,34 @@ describe('API : GET /customers/groups', async () => {
 
       for (let idxItem: number = 0; idxItem < jsonResponse.totalItems; idxItem++) {
         // eslint-disable-next-line no-loop-func
-        await boCustomerGroupsPage.resetFilter(page);
-        await boCustomerGroupsPage.filterTable(page, 'input', 'id_group', jsonResponse.items[idxItem].customerGroupId);
+        await boAttributesPage.resetFilter(page);
+        await boAttributesPage.filterTable(page, 'id_attribute_group', jsonResponse.items[idxItem].attributeGroupId);
 
-        const numLanguages = await boCustomerGroupsPage.getNumberOfElementInGrid(page);
-        expect(numLanguages).to.be.equal(1);
+        const numAttributes = await boAttributesPage.getNumberOfElementInGrid(page);
+        expect(numAttributes).to.be.equal(1);
 
-        const customerGroupId = parseInt((await boCustomerGroupsPage.getTextColumn(page, 1, 'id_group')).toString(), 10);
-        expect(customerGroupId).to.equal(jsonResponse.items[idxItem].customerGroupId);
+        const attributeGroupId = parseInt((await boAttributesPage.getTextColumn(page, 1, 'id_attribute_group')).toString(), 10);
+        expect(attributeGroupId).to.equal(jsonResponse.items[idxItem].attributeGroupId);
 
-        const customers = parseInt(await boCustomerGroupsPage.getTextColumn(page, 1, 'nb'), 10);
-        expect(customers).to.equal(jsonResponse.items[idxItem].customers);
-
-        const name = await boCustomerGroupsPage.getTextColumn(page, 1, 'b!name');
+        const name = await boAttributesPage.getTextColumn(page, 1, 'name');
         expect(name).to.equal(jsonResponse.items[idxItem].name);
 
-        const reductionPercent = parseFloat(await boCustomerGroupsPage.getTextColumn(page, 1, 'reduction'));
-        expect(reductionPercent).to.equal(jsonResponse.items[idxItem].reductionPercent);
+        const values = parseFloat(await boAttributesPage.getTextColumn(page, 1, 'values'));
+        expect(values).to.equal(jsonResponse.items[idxItem].values);
 
-        const showPrice = (await boCustomerGroupsPage.getTextColumn(page, 1, 'show_prices') === 'Yes');
-        expect(showPrice).to.equal(jsonResponse.items[idxItem].showPrice);
+        // @todo : https://github.com/PrestaShop/PrestaShop/issues/39753
+        // const position = parseFloat(await boAttributesPage.getTextColumn(page, 1, 'position'));
+        // expect(position).to.equal(jsonResponse.items[idxItem].position);
       }
     });
 
     it('should reset all filters', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'resetFilter', baseContext);
 
-      await boCustomerGroupsPage.resetFilter(page);
+      await boAttributesPage.resetFilter(page);
 
-      const numberOfCustomerGroups = await boCustomerGroupsPage.resetAndGetNumberOfLines(page);
-      expect(numberOfCustomerGroups).to.be.above(0);
+      const numAttributes = await boAttributesPage.resetAndGetNumberOfLines(page);
+      expect(numAttributes).to.be.equal(numberOfAttributes);
     });
   });
 });
