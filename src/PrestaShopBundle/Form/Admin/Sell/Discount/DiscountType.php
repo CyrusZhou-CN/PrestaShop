@@ -57,6 +57,9 @@ class DiscountType extends TranslatorAwareType
                 'label' => $this->trans('Product conditions', 'Admin.Catalog.Feature'),
                 'discount_type' => $discountType,
             ])
+            ->add('compatibility', DiscountCompatibilityType::class, [
+                'available_types' => $options['available_cart_rule_types'] ?? [],
+            ])
         ;
 
         if ($discountType === DiscountTypeVo::CART_LEVEL || $discountType === DiscountTypeVo::ORDER_LEVEL) {
@@ -100,10 +103,12 @@ class DiscountType extends TranslatorAwareType
         $resolver->setDefaults([
             'label' => false,
             'form_theme' => '@PrestaShop/Admin/TwigTemplateForm/prestashop_ui_kit_base.html.twig',
+            'available_cart_rule_types' => [],
         ]);
         $resolver->setRequired([
             'discount_type',
         ]);
         $resolver->setAllowedTypes('discount_type', ['string']);
+        $resolver->setAllowedTypes('available_cart_rule_types', ['array']);
     }
 }

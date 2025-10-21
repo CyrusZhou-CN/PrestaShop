@@ -1,5 +1,4 @@
-<?php
-/**
+{# **
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
  *
@@ -22,31 +21,22 @@
  * @author    PrestaShop SA and Contributors <contact@prestashop.com>
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
- */
+ * #}
 
-namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\OptionProvider;
+{% block _discount_compatibility_row %}
+  {{ block('card_row') }}
+{% endblock %}
 
-use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountTypeRepository;
-
-class DiscountFormOptionsProvider implements FormOptionsProviderInterface
-{
-    public function __construct(
-        private readonly DiscountTypeRepository $discountTypeRepository
-    ) {
-    }
-
-    public function getOptions(int $id, array $data): array
-    {
-        return [
-            'discount_type' => $data['information']['discount_type'] ?? '',
-            'available_cart_rule_types' => $this->discountTypeRepository->getAllActiveTypes(),
-        ];
-    }
-
-    public function getDefaultOptions(array $data): array
-    {
-        return [
-            'available_cart_rule_types' => $this->discountTypeRepository->getAllActiveTypes(),
-        ];
-    }
-}
+{% block _discount_compatibility_widget %}
+  <div class="compatibility-options">
+    {% for child in form %}
+      <div class="form-check">
+        {{ form_widget(child, {attr: {class: 'form-check-input'}}) }}
+        {{ form_label(child, null, {label_attr: {class: 'form-check-label'}}) }}
+        {% if child.vars.attr['data-type-description'] is defined %}
+          <small class="form-text text-muted">{{ child.vars.attr['data-type-description'] }}</small>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

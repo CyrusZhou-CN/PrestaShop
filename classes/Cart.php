@@ -28,12 +28,15 @@ use PrestaShop\PrestaShop\Adapter\Cache\CacheAdapter;
 use PrestaShop\PrestaShop\Adapter\ContainerFinder;
 use PrestaShop\PrestaShop\Adapter\Customer\CustomerDataProvider;
 use PrestaShop\PrestaShop\Adapter\Database;
+use PrestaShop\PrestaShop\Adapter\Discount\Compatibility\DiscountCompatibilityService;
+use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountTypeRepository;
 use PrestaShop\PrestaShop\Adapter\Group\GroupDataProvider;
 use PrestaShop\PrestaShop\Adapter\Product\PriceCalculator;
 use PrestaShop\PrestaShop\Adapter\ServiceLocator;
 use PrestaShop\PrestaShop\Core\Cart\Calculator;
 use PrestaShop\PrestaShop\Core\Cart\CartRow;
 use PrestaShop\PrestaShop\Core\Cart\CartRuleData;
+use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagSettings;
 use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagStateCheckerInterface;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShopBundle\Form\Admin\Type\FormattedTextareaType;
@@ -1365,6 +1368,18 @@ class CartCore extends ObjectModel
             return false;
         }
 
+        // Check compatibility with existing cart rules
+        $containerFinder = new ContainerFinder(Context::getContext());
+        $container = $containerFinder->getContainer();
+        $featureFlagManager = $container->get(FeatureFlagStateCheckerInterface::class);
+
+        if ($featureFlagManager !== null && $featureFlagManager->isEnabled(FeatureFlagSettings::FEATURE_FLAG_DISCOUNT)) {
+            $compatibility = $this->checkCartRuleCompatibility($id_cart_rule);
+            if ($compatibility !== true) {
+                return $compatibility;
+            }
+        }
+
         // Add the cart rule to the cart
         if (!Db::getInstance()->insert('cart_cart_rule', [
             'id_cart_rule' => (int) $id_cart_rule,
@@ -1401,6 +1416,99 @@ class CartCore extends ObjectModel
         }
 
         return true;
+    }
+
+    /**
+     * Check if a cart rule is compatible with existing cart rules
+     *
+     * @param int $cartRuleId The cart rule ID to check
+     *
+     * @return bool|string True if compatible, error if not compatible
+     */
+    protected function checkCartRuleCompatibility($cartRuleId)
+    {
+        // Get existing cart rule IDs directly from database without triggering calculations
+        // to avoid infinite loop: getCartRules() -> getOrderTotal() -> getCartRules()
+        $existingCartRuleIds = Db::getInstance()->executeS(
+            'SELECT id_cart_rule 
+            FROM ' . _DB_PREFIX_ . 'cart_cart_rule 
+            WHERE id_cart = ' . (int) $this->id . '
+            AND id_cart_rule != ' . (int) $cartRuleId
+        );
+
+        if (empty($existingCartRuleIds)) {
+            return true;
+        }
+
+        // Extract just the IDs
+        $existingCartRuleIds = array_column($existingCartRuleIds, 'id_cart_rule');
+
+        $compatibilityService = $this->getDiscountCompatibilityService();
+        if (!$compatibilityService) {
+            // Service not available, skip compatibility check for backward compatibility
+            return true;
+        }
+
+        $result = $compatibilityService->validateCompatibility($cartRuleId, $existingCartRuleIds);
+
+        if (!$result->canApply()) {
+            return Context::getContext()->getTranslator()->trans(
+                'This voucher can not be combined with other vouchers in your cart',
+                [],
+                'Shop.Notifications.Error'
+            );
+        }
+
+        // Remove cart rules which are not compatible
+        foreach ($result->getRulesToRemove() as $ruleIdToRemove) {
+            $this->removeCartRule($ruleIdToRemove);
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the cart rule compatibility service
+     *
+     * @return DiscountCompatibilityService|null
+     */
+    protected function getDiscountCompatibilityService()
+    {
+        static $service = null;
+
+        if ($service === null) {
+            try {
+                // Try to get from container first
+                $containerFinder = new ContainerFinder(Context::getContext());
+                $container = $containerFinder->getContainer();
+
+                try {
+                    $service = $container->get(DiscountCompatibilityService::class);
+                } catch (Exception $e) {
+                    // Service not in container yet, instantiate directly
+                    $dbPrefix = _DB_PREFIX_;
+
+                    // Get the DiscountTypeRepository from container or create it
+                    try {
+                        $discountTypeRepo = $container->get(DiscountTypeRepository::class);
+                    } catch (Exception $e2) {
+                        $connection = $container->get('doctrine.dbal.default_connection');
+                        $discountTypeRepo = new DiscountTypeRepository(
+                            $connection,
+                            $dbPrefix
+                        );
+                    }
+
+                    $service = new DiscountCompatibilityService(
+                        $discountTypeRepo
+                    );
+                }
+            } catch (Exception $e) {
+                $service = false;
+            }
+        }
+
+        return $service ?: null;
     }
 
     /**

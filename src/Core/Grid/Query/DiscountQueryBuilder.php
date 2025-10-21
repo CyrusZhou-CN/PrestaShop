@@ -56,7 +56,7 @@ class DiscountQueryBuilder extends AbstractDoctrineQueryBuilder
             ->select(
                 'cr.id_cart_rule AS id_discount,
             crl.name,
-            cr.type,
+            crt.type,
             cr.code,
             cr.active'
             );
@@ -101,6 +101,12 @@ class DiscountQueryBuilder extends AbstractDoctrineQueryBuilder
                 'crl',
                 'cr.id_cart_rule = crl.id_cart_rule AND crl.id_lang = :contextLangId'
             )
+            ->leftJoin(
+                'cr',
+                $this->dbPrefix . 'cart_rule_type',
+                'crt',
+                'cr.id_cart_rule_type = crt.id_cart_rule_type'
+            )
             ->setParameter('contextLangId', $this->languageContext->getId())
         ;
 
@@ -119,7 +125,7 @@ class DiscountQueryBuilder extends AbstractDoctrineQueryBuilder
             'id_discount' => 'cr.id_cart_rule',
             'name' => 'crl.name',
             'code' => 'cr.code',
-            'type' => 'cr.type',
+            'type' => 'crt.type',
             'active' => 'cr.active',
         ];
 

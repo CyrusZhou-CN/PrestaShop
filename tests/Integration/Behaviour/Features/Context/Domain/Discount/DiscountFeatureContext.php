@@ -27,6 +27,8 @@
 namespace Tests\Integration\Behaviour\Features\Context\Domain\Discount;
 
 use Behat\Gherkin\Node\TableNode;
+use Cart;
+use CartRule;
 use DateTimeImmutable;
 use Exception;
 use PHPUnit\Framework\Assert;
@@ -424,5 +426,117 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         );
 
         return $discountForEditing;
+    }
+
+    /**
+     * @When I set compatible types for discount :discountReference to:
+     *
+     * @param string $discountReference
+     * @param TableNode $tableNode
+     */
+    public function setCompatibleTypesForDiscount(string $discountReference, TableNode $tableNode): void
+    {
+        $discountId = $this->getSharedStorage()->get($discountReference);
+        $typeStrings = array_filter(array_column($tableNode->getRows(), 0));
+
+        // Get Doctrine connection
+        $connection = $this->getContainer()->get('doctrine.dbal.default_connection');
+        $dbPrefix = $this->getContainer()->getParameter('database_prefix');
+
+        // Convert type strings to type IDs
+        $compatibleTypeIds = [];
+        foreach ($typeStrings as $typeString) {
+            $qb = $connection->createQueryBuilder();
+            $qb->select('crt.id_cart_rule_type')
+                ->from($dbPrefix . 'cart_rule_type', 'crt')
+                ->where('crt.type = :typeString')
+                ->setParameter('typeString', $typeString);
+
+            $result = $qb->executeQuery()->fetchAssociative();
+            if ($result) {
+                $compatibleTypeIds[] = (int) $result['id_cart_rule_type'];
+            }
+        }
+
+        // Delete existing compatible types
+        $qb = $connection->createQueryBuilder();
+        $qb->delete($dbPrefix . 'cart_rule_compatible_types')
+            ->where('id_cart_rule = :discountId')
+            ->setParameter('discountId', $discountId);
+        $qb->executeStatement();
+
+        // Insert new compatible types
+        foreach ($compatibleTypeIds as $typeId) {
+            $qb = $connection->createQueryBuilder();
+            $qb->insert($dbPrefix . 'cart_rule_compatible_types')
+                ->values([
+                    'id_cart_rule' => ':discountId',
+                    'id_cart_rule_type' => ':typeId',
+                ])
+                ->setParameter('discountId', $discountId)
+                ->setParameter('typeId', $typeId);
+            $qb->executeStatement();
+        }
+    }
+
+    /**
+     * @Then discount :discountReference should be compatible with types:
+     *
+     * @param string $discountReference
+     * @param TableNode $tableNode
+     */
+    public function assertDiscountCompatibleTypes(string $discountReference, TableNode $tableNode): void
+    {
+        $discountId = $this->getSharedStorage()->get($discountReference);
+        $expectedTypeStrings = array_filter(array_column($tableNode->getRows(), 0));
+
+        // Get Doctrine connection
+        $connection = $this->getContainer()->get('doctrine.dbal.default_connection');
+        $dbPrefix = $this->getContainer()->getParameter('database_prefix');
+
+        // Get actual compatible types
+        $qb = $connection->createQueryBuilder();
+        $qb->select('crt.type')
+            ->from($dbPrefix . 'cart_rule_compatible_types', 'crct')
+            ->innerJoin('crct', $dbPrefix . 'cart_rule_type', 'crt', 'crct.id_cart_rule_type = crt.id_cart_rule_type')
+            ->where('crct.id_cart_rule = :discountId')
+            ->andWhere('crt.active = 1')
+            ->setParameter('discountId', $discountId);
+
+        $results = $qb->executeQuery()->fetchAllAssociative();
+        $actualTypeStrings = array_column($results, 'type');
+
+        // Sort both arrays for comparison
+        sort($expectedTypeStrings);
+        sort($actualTypeStrings);
+
+        Assert::assertEquals(
+            $expectedTypeStrings,
+            $actualTypeStrings,
+            sprintf(
+                'Discount compatible types mismatch. Expected: [%s], Got: [%s]',
+                implode(', ', $expectedTypeStrings),
+                implode(', ', $actualTypeStrings)
+            )
+        );
+    }
+
+    /**
+     * @Then cart :cartReference should have :count cart rules applied
+     *
+     * @param string $cartReference
+     * @param int $count
+     */
+    public function assertCartHasCartRulesCount(string $cartReference, int $count): void
+    {
+        $cartId = $this->getSharedStorage()->get($cartReference);
+        $cart = new Cart($cartId);
+        $cartRules = $cart->getCartRules(CartRule::FILTER_ACTION_ALL, false);
+
+        Assert::assertCount(
+            $count,
+            $cartRules,
+            sprintf('Expected %d cart rules but found %d', $count, count($cartRules))
+        );
     }
 }

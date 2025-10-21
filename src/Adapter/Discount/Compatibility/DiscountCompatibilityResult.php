@@ -24,29 +24,34 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\OptionProvider;
+namespace PrestaShop\PrestaShop\Adapter\Discount\Compatibility;
 
-use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountTypeRepository;
-
-class DiscountFormOptionsProvider implements FormOptionsProviderInterface
+/**
+ * Result of discount compatibility validation
+ */
+class DiscountCompatibilityResult
 {
     public function __construct(
-        private readonly DiscountTypeRepository $discountTypeRepository
+        private readonly bool $isCompatible,
+        private readonly array $conflictingDiscounts
     ) {
     }
 
-    public function getOptions(int $id, array $data): array
+    /**
+     * Check if the discount can be applied
+     */
+    public function canApply(): bool
     {
-        return [
-            'discount_type' => $data['information']['discount_type'] ?? '',
-            'available_cart_rule_types' => $this->discountTypeRepository->getAllActiveTypes(),
-        ];
+        return $this->isCompatible;
     }
 
-    public function getDefaultOptions(array $data): array
+    /**
+     * Get the list of discount IDs that need to be removed
+     *
+     * @return array<int>
+     */
+    public function getRulesToRemove(): array
     {
-        return [
-            'available_cart_rule_types' => $this->discountTypeRepository->getAllActiveTypes(),
-        ];
+        return array_column($this->conflictingDiscounts, 'id');
     }
 }

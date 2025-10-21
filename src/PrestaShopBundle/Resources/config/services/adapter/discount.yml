@@ -34,3 +34,13 @@ services:
     arguments:
       $connection: '@doctrine.dbal.default_connection'
       $dbPrefix: '%database_prefix%'
+
+  PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountTypeRepository:
+    arguments:
+      $connection: '@doctrine.dbal.default_connection'
+      $dbPrefix: '%database_prefix%'
+
+  PrestaShop\PrestaShop\Adapter\Discount\Compatibility\DiscountCompatibilityService:
+    public: true
+    arguments:
+      $discountTypeRepository: '@PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountTypeRepository'

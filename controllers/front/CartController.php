@@ -264,7 +264,11 @@ class CartControllerCore extends FrontController
                             if ($error = $cartRule->checkValidity($this->context)) {
                                 $this->errors[] = $error;
                             } else {
-                                $this->context->cart->addCartRule($cartRule->id);
+                                $result = $this->context->cart->addCartRule($cartRule->id);
+                                if ($result !== true) {
+                                    // we have an incompatibility with another cart rule
+                                    $this->errors[] = $result;
+                                }
                             }
                         } else {
                             $this->errors[] = $this->trans(

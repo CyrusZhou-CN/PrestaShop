@@ -24,29 +24,44 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\OptionProvider;
+namespace PrestaShop\PrestaShop\Adapter\Discount\Compatibility;
 
 use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountTypeRepository;
 
-class DiscountFormOptionsProvider implements FormOptionsProviderInterface
+/**
+ * Service for validating discount compatibility
+ */
+class DiscountCompatibilityService
 {
     public function __construct(
         private readonly DiscountTypeRepository $discountTypeRepository
     ) {
     }
 
-    public function getOptions(int $id, array $data): array
+    /**
+     * Check if a new discount is compatible with existing discounts in the cart
+     *
+     * @param int $newDiscountId The ID of the discount to be added
+     * @param array $existingDiscountIds Array of existing discount IDs in the cart
+     *
+     * @return DiscountCompatibilityResult
+     */
+    public function validateCompatibility(int $newDiscountId, array $existingDiscountIds): DiscountCompatibilityResult
     {
-        return [
-            'discount_type' => $data['information']['discount_type'] ?? '',
-            'available_cart_rule_types' => $this->discountTypeRepository->getAllActiveTypes(),
-        ];
-    }
+        $conflictingDiscounts = [];
+        $isIncompatible = false;
 
-    public function getDefaultOptions(array $data): array
-    {
-        return [
-            'available_cart_rule_types' => $this->discountTypeRepository->getAllActiveTypes(),
-        ];
+        foreach ($existingDiscountIds as $existingDiscountId) {
+            // Check compatibility in both directions
+            if (!$this->discountTypeRepository->areDiscountsCompatible($newDiscountId, $existingDiscountId)
+            || !$this->discountTypeRepository->areDiscountsCompatible($existingDiscountId, $newDiscountId)) {
+                $isIncompatible = true;
+            }
+        }
+
+        return new DiscountCompatibilityResult(
+            !$isIncompatible,
+            $conflictingDiscounts
+        );
     }
 }

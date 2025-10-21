@@ -27,6 +27,7 @@
 namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataHandler;
 
 use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountTypeRepository;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Context\LanguageContext;
 use PrestaShop\PrestaShop\Core\Domain\Currency\Exception\CurrencyException;
@@ -58,6 +59,7 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         #[Autowire(service: 'prestashop.default.language.context')]
         protected readonly LanguageContext $defaultLanguageContext,
         protected readonly TranslatorInterface $translator,
+        protected readonly DiscountTypeRepository $discountTypeRepository,
     ) {
     }
 
@@ -113,6 +115,7 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         /** @var DiscountId $discountId */
         $discountId = $this->commandBus->handle($command);
         $this->updateDiscountConditions($discountId->getValue(), $data);
+        $this->updateDiscountCompatibility($discountId->getValue(), $data);
 
         return $discountId->getValue();
     }
@@ -161,6 +164,7 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
 
         $this->commandBus->handle($command);
         $this->updateDiscountConditions($id, $data);
+        $this->updateDiscountCompatibility($id, $data);
     }
 
     private function updateDiscountConditions(int $discountId, array $data): void
@@ -266,5 +270,22 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         }
 
         $this->commandBus->handle($conditionsCommand);
+    }
+
+    private function updateDiscountCompatibility(int $discountId, array $data): void
+    {
+        if (!isset($data['compatibility'])) {
+            return;
+        }
+
+        $compatibleTypeIds = [];
+        foreach ($data['compatibility'] as $fieldName => $isChecked) {
+            if ($isChecked && str_starts_with($fieldName, 'compatible_type_')) {
+                $typeId = (int) str_replace('compatible_type_', '', $fieldName);
+                $compatibleTypeIds[] = $typeId;
+            }
+        }
+
+        $this->discountTypeRepository->setCompatibleTypesForDiscount($discountId, $compatibleTypeIds);
     }
 }

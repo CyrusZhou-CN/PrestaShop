@@ -27,6 +27,7 @@
 namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataProvider;
 
 use PrestaShop\PrestaShop\Adapter\Attribute\Repository\AttributeRepository;
+use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountTypeRepository;
 use PrestaShop\PrestaShop\Adapter\Feature\Repository\FeatureValueRepository;
 use PrestaShop\PrestaShop\Adapter\Product\Combination\Repository\CombinationRepository;
 use PrestaShop\PrestaShop\Adapter\Product\Repository\ProductRepository;
@@ -70,6 +71,7 @@ class DiscountFormDataProvider implements FormDataProviderInterface
         private readonly FeatureValueRepository $featureValueRepository,
         private readonly ShopContext $shopContext,
         private readonly RequestStack $requestStack,
+        private readonly DiscountTypeRepository $discountTypeRepository,
     ) {
     }
 
@@ -82,6 +84,7 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                     'code' => '',
                 ],
             ],
+            'compatibility' => $this->getCompatibilityData(),
         ];
     }
 
@@ -107,9 +110,9 @@ class DiscountFormDataProvider implements FormDataProviderInterface
             || !empty($productSegment[DiscountProductSegmentType::FEATURES]['groups'])
         ;
 
-        $selectedCondition = 'none';
-        $selectedCartCondition = 'none';
-        $selectedDeliveryCondition = 'none';
+        $selectedCondition = null;
+        $selectedCartCondition = null;
+        $selectedDeliveryCondition = null;
         if ($discountForEditing->getMinimumProductQuantity()) {
             $selectedCondition = DiscountConditionsType::CART_CONDITIONS;
             $selectedCartCondition = CartConditionsType::MINIMUM_PRODUCT_QUANTITY;
@@ -128,11 +131,6 @@ class DiscountFormDataProvider implements FormDataProviderInterface
         } elseif (!empty($discountForEditing->getCountryIds())) {
             $selectedCondition = DiscountConditionsType::DELIVERY_CONDITIONS;
             $selectedDeliveryCondition = DeliveryConditionsType::COUNTRY;
-            $selectedCondition = 'cart_conditions';
-            $selectedCartCondition = 'specific_products';
-        } elseif (!empty($productSegment['manufacturer']) || !empty($productSegment['category']) || !empty($productSegment['features'])) {
-            $selectedCondition = 'cart_conditions';
-            $selectedCartCondition = 'product_segment';
         }
 
         return [
@@ -184,6 +182,7 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                     'code' => $discountForEditing->getCode(),
                 ],
             ],
+            'compatibility' => $this->getCompatibilityData($id),
         ];
     }
 
@@ -370,5 +369,28 @@ class DiscountFormDataProvider implements FormDataProviderInterface
         }
 
         return $productSegment;
+    }
+
+    private function getCompatibilityData(?int $discountId = null): array
+    {
+        $compatibilityData = [];
+
+        // Get all available cart rule types
+        $availableTypes = $this->discountTypeRepository->getAllActiveTypes();
+
+        // If editing an existing discount, get its compatible types
+        $compatibleTypeIds = [];
+        if ($discountId) {
+            $compatibleTypes = $this->discountTypeRepository->getCompatibleTypesForDiscount($discountId);
+            $compatibleTypeIds = array_column($compatibleTypes, 'id_cart_rule_type');
+        }
+
+        // Build compatibility data for form
+        foreach ($availableTypes as $type) {
+            $fieldName = 'compatible_type_' . $type['id_cart_rule_type'];
+            $compatibilityData[$fieldName] = in_array($type['id_cart_rule_type'], $compatibleTypeIds);
+        }
+
+        return $compatibilityData;
     }
 }
