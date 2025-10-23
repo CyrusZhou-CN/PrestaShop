@@ -62,13 +62,17 @@ class DiscountType extends TranslatorAwareType
             ])
         ;
 
-        if ($discountType === DiscountTypeVo::CART_LEVEL || $discountType === DiscountTypeVo::ORDER_LEVEL) {
+        if ($discountType === DiscountTypeVo::CART_LEVEL || $discountType === DiscountTypeVo::ORDER_LEVEL || $discountType === DiscountTypeVo::PRODUCT_LEVEL) {
+            $labelSubtitle = match ($discountType) {
+                DiscountTypeVo::CART_LEVEL => $this->trans('This discount applies on cart.', 'Admin.Catalog.Feature'),
+                DiscountTypeVo::ORDER_LEVEL => $this->trans('This discount applies on order.', 'Admin.Catalog.Feature'),
+                DiscountTypeVo::PRODUCT_LEVEL => $this->trans('This discount applies on catalog products.', 'Admin.Catalog.Feature'),
+            };
+
             $builder
                 ->add('value', DiscountValueType::class, [
                     'label' => $this->trans('Choose a discount value', 'Admin.Catalog.Feature'),
-                    'label_subtitle' => $discountType === DiscountTypeVo::CART_LEVEL ?
-                        $this->trans('This discount applies on cart.', 'Admin.Catalog.Feature') :
-                        $this->trans('This discount applies on order.', 'Admin.Catalog.Feature'),
+                    'label_subtitle' => $labelSubtitle,
                 ])
             ;
         }
