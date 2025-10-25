@@ -27,6 +27,7 @@
 namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataProvider;
 
 use PrestaShop\PrestaShop\Adapter\Attribute\Repository\AttributeRepository;
+use PrestaShop\PrestaShop\Adapter\Customer\Repository\CustomerRepository;
 use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountTypeRepository;
 use PrestaShop\PrestaShop\Adapter\Feature\Repository\FeatureValueRepository;
 use PrestaShop\PrestaShop\Adapter\Product\Combination\Repository\CombinationRepository;
@@ -34,6 +35,8 @@ use PrestaShop\PrestaShop\Adapter\Product\Repository\ProductRepository;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Context\LanguageContext;
 use PrestaShop\PrestaShop\Core\Context\ShopContext;
+use PrestaShop\PrestaShop\Core\Domain\Customer\Exception\CustomerNotFoundException;
+use PrestaShop\PrestaShop\Core\Domain\Customer\ValueObject\CustomerId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleType;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Query\GetDiscountForEditing;
@@ -53,6 +56,7 @@ use PrestaShop\PrestaShop\Core\Product\Combination\NameBuilder\CombinationNameBu
 use PrestaShopBundle\Form\Admin\Sell\Discount\CartConditionsType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DeliveryConditionsType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountConditionsType;
+use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountCustomerEligibilityType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountProductSegmentType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountUsabilityModeType;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -72,6 +76,7 @@ class DiscountFormDataProvider implements FormDataProviderInterface
         private readonly ShopContext $shopContext,
         private readonly RequestStack $requestStack,
         private readonly DiscountTypeRepository $discountTypeRepository,
+        private readonly CustomerRepository $customerRepository,
     ) {
     }
 
@@ -82,6 +87,10 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                 'mode' => [
                     'children_selector' => DiscountUsabilityModeType::AUTO_MODE,
                     'code' => '',
+                ],
+                'customer_eligibility' => [
+                    'children_selector' => DiscountCustomerEligibilityType::ALL_CUSTOMERS,
+                    DiscountCustomerEligibilityType::SINGLE_CUSTOMER => [],
                 ],
             ],
             'compatibility' => $this->getCompatibilityData(),
@@ -181,6 +190,7 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                     'children_selector' => $discountForEditing->getCode() ? DiscountUsabilityModeType::CODE_MODE : DiscountUsabilityModeType::AUTO_MODE,
                     'code' => $discountForEditing->getCode(),
                 ],
+                'customer_eligibility' => $this->getCustomerEligibilityData($discountForEditing),
             ],
             'compatibility' => $this->getCompatibilityData($id),
         ];
@@ -392,5 +402,43 @@ class DiscountFormDataProvider implements FormDataProviderInterface
         }
 
         return $compatibilityData;
+    }
+
+    private function getCustomerEligibilityData(DiscountForEditing $discountForEditing): array
+    {
+        $customerId = $discountForEditing->getCustomerId();
+
+        if (!$customerId) {
+            return [
+                'children_selector' => DiscountCustomerEligibilityType::ALL_CUSTOMERS,
+                DiscountCustomerEligibilityType::SINGLE_CUSTOMER => [],
+            ];
+        }
+
+        try {
+            $customer = $this->customerRepository->get(new CustomerId($customerId));
+        } catch (CustomerNotFoundException $e) {
+            return [
+                'children_selector' => DiscountCustomerEligibilityType::ALL_CUSTOMERS,
+                DiscountCustomerEligibilityType::SINGLE_CUSTOMER => [],
+            ];
+        }
+
+        $fullnameAndEmail = sprintf(
+            '%s %s - %s',
+            $customer->firstname,
+            $customer->lastname,
+            $customer->email
+        );
+
+        return [
+            'children_selector' => DiscountCustomerEligibilityType::SINGLE_CUSTOMER,
+            DiscountCustomerEligibilityType::SINGLE_CUSTOMER => [
+                [
+                    'id_customer' => $customerId,
+                    'fullname_and_email' => $fullnameAndEmail,
+                ],
+            ],
+        ];
     }
 }

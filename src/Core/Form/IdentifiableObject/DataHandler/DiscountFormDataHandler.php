@@ -47,6 +47,7 @@ use PrestaShop\PrestaShop\Core\Domain\Product\Combination\ValueObject\NoCombinat
 use PrestaShopBundle\Form\Admin\Sell\Discount\CartConditionsType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DeliveryConditionsType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountConditionsType;
+use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountCustomerEligibilityType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountUsabilityModeType;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -91,7 +92,24 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 }
                 break;
             case DiscountType::PRODUCT_LEVEL:
-                $command->setPercentDiscount(new DecimalNumber('50'));
+                if (!isset($data['value']['reduction']['type'])) {
+                    throw new DiscountConstraintException(
+                        'Discount value is required for catalog products discount.',
+                        DiscountConstraintException::INVALID_PRODUCT_DISCOUNT_PROPERTIES
+                    );
+                }
+
+                if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
+                    $command->setAmountDiscount(
+                        new DecimalNumber((string) $data['value']['reduction']['value']),
+                        (int) $data['value']['reduction']['currency'],
+                        (bool) $data['value']['reduction']['include_tax']
+                    );
+                } elseif ($data['value']['reduction']['type'] === DiscountSettings::PERCENT) {
+                    $command->setPercentDiscount(new DecimalNumber((string) $data['value']['reduction']['value']));
+                } else {
+                    throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
+                }
                 $command->setReductionProduct(1);
                 break;
             case DiscountType::FREE_GIFT:
@@ -110,6 +128,7 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             $command->setCode('');
         }
 
+        $this->handleCustomerEligibility($command, $data);
         $command->setTotalQuantity(100);
 
         /** @var DiscountId $discountId */
@@ -146,6 +165,25 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 }
                 break;
             case DiscountType::PRODUCT_LEVEL:
+                if (!isset($data['value']['reduction']['type'])) {
+                    throw new DiscountConstraintException(
+                        'Discount value is required for catalog products discount.',
+                        DiscountConstraintException::INVALID_PRODUCT_DISCOUNT_PROPERTIES
+                    );
+                }
+
+                if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
+                    $command->setAmountDiscount(
+                        new DecimalNumber((string) $data['value']['reduction']['value']),
+                        $data['value']['reduction']['currency'],
+                        (bool) $data['value']['reduction']['include_tax']
+                    );
+                } elseif ($data['value']['reduction']['type'] === DiscountSettings::PERCENT) {
+                    $command->setPercentDiscount(new DecimalNumber((string) $data['value']['reduction']['value']));
+                } else {
+                    throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
+                }
+                $command->setReductionProduct(1);
                 break;
             case DiscountType::FREE_GIFT:
                 $command->setProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));
@@ -161,6 +199,8 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         } else {
             $command->setCode('');
         }
+
+        $this->handleCustomerEligibility($command, $data);
 
         $this->commandBus->handle($command);
         $this->updateDiscountConditions($id, $data);
@@ -287,5 +327,28 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         }
 
         $this->discountTypeRepository->setCompatibleTypesForDiscount($discountId, $compatibleTypeIds);
+    }
+
+    /**
+     * Handle customer eligibility and set customer ID on the command if needed.
+     *
+     * @param AddDiscountCommand|UpdateDiscountCommand $command
+     * @param array $data
+     */
+    private function handleCustomerEligibility(mixed $command, array $data): void
+    {
+        if (!isset($data['usability']['customer_eligibility'])) {
+            return;
+        }
+
+        $customerEligibility = $data['usability']['customer_eligibility'];
+        $selectedOption = $customerEligibility['children_selector'] ?? DiscountCustomerEligibilityType::ALL_CUSTOMERS;
+
+        if ($selectedOption === DiscountCustomerEligibilityType::SINGLE_CUSTOMER) {
+            $customerData = $customerEligibility[DiscountCustomerEligibilityType::SINGLE_CUSTOMER] ?? [];
+            if (!empty($customerData) && isset($customerData[0]['id_customer'])) {
+                $command->setCustomerId((int) $customerData[0]['id_customer']);
+            }
+        }
     }
 }

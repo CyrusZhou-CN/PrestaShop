@@ -152,6 +152,10 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             $command->setCode($data['code']);
         }
 
+        if (isset($data['customer']) && !empty($data['customer'])) {
+            $command->setCustomerId($this->getSharedStorage()->get($data['customer']));
+        }
+
         if ($command->getDiscountType()->getValue() === DiscountType::CART_LEVEL
             || $command->getDiscountType()->getValue() === DiscountType::PRODUCT_LEVEL
             || $command->getDiscountType()->getValue() === DiscountType::ORDER_LEVEL
@@ -243,6 +247,15 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         $command->setDescription($data['description'] ?? '');
         if (!empty($data['code'])) {
             $command->setCode($data['code']);
+        }
+
+        if (isset($data['customer'])) {
+            if (!empty($data['customer'])) {
+                $command->setCustomerId($this->getSharedStorage()->get($data['customer']));
+            } else {
+                // Empty string means remove customer restriction
+                $command->setCustomerId(0);
+            }
         }
 
         if (!empty($data['reduction_percent'])) {
@@ -339,9 +352,11 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             Assert::assertSame($expectedData['code'], $discountForEditing->getCode(), 'Unexpected code');
         }
         if (isset($expectedData['customer'])) {
+            $expectedCustomerId = !empty($expectedData['customer']) ? (int) $this->getSharedStorage()->get($expectedData['customer']) : 0;
+            $actualCustomerId = $discountForEditing->getCustomerId() ?? 0;
             Assert::assertSame(
-                !empty($expectedData['customer']) ? $this->getSharedStorage()->get($expectedData['customer']) : 0,
-                $discountForEditing->getCustomerId(),
+                $expectedCustomerId,
+                $actualCustomerId,
                 'Unexpected customer id'
             );
         }

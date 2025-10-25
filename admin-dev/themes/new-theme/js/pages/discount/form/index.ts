@@ -29,6 +29,7 @@ import CreateFreeGiftDiscount from '@pages/discount/form/create-free-gift-discou
 import SpecificProducts from '@pages/discount/form/specific-products';
 import initGroupedItemCollection from '@PSVue/components/grouped-item-collection';
 import {getAllAttributeGroups, getAllFeatureGroups} from '@pages/discount/form/services';
+import CustomerSearchInput from '@components/form/customer-search-input';
 
 $(() => {
   window.prestashop.component.initComponents(
@@ -43,6 +44,17 @@ $(() => {
 
   new CreateFreeGiftDiscount();
   new SpecificProducts();
+
+  // Initialize customer search for single customer eligibility
+  const customerSearchContainer = '#discount_usability_customer_eligibility_single_customer';
+
+  if ($(customerSearchContainer).length > 0) {
+    new CustomerSearchInput(
+      customerSearchContainer,
+      '.js-customer-item',
+      () => null,
+    );
+  }
 
   const reductionTypeSelect = document.querySelector(DiscountMap.reductionTypeSelect);
 

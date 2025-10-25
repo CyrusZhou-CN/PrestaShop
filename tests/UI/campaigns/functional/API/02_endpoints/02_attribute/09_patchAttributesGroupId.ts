@@ -21,7 +21,7 @@ import {
 
 import {expect} from 'chai';
 
-const baseContext: string = 'functional_API_endpoints_attributesGroup_patchAttributesGroupId';
+const baseContext: string = 'functional_API_endpoints_attribute_patchAttributesGroupId';
 
 describe('API : PATCH /attributes/group/{attributeGroupId}', async () => {
   let apiContext: APIRequestContext;

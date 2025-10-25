@@ -17,7 +17,7 @@ import {
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
 
-const baseContext: string = 'functional_API_endpoints_attributesGroup_putAttributesGroupsDelete';
+const baseContext: string = 'functional_API_endpoints_attribute_putAttributesGroupsDelete';
 
 describe('API : PUT /attributes/groups/delete', async () => {
   let apiContext: APIRequestContext;

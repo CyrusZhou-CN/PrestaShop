@@ -365,7 +365,7 @@ services:
   PrestaShopBundle\Form\Admin\Sell\Catalog\AttributeType:
     public: true
     arguments:
-      $attributeGroupRepository: '@PrestaShop\PrestaShop\Adapter\AttributeGroup\Repository\AttributeGroupRepository'
+      $attributeGroupChoiceProvider: '@PrestaShop\PrestaShop\Core\Form\ChoiceProvider\AttributeGroupChoiceProvider'
       $multistoreFeature: '@prestashop.adapter.multistore_feature'
     tags:
       - { name: form.type }

@@ -11,29 +11,25 @@ import {
   boDashboardPage,
   boLoginPage,
   type BrowserContext,
-  dataAttributeTypes,
-  dataLanguages,
   FakerAttribute,
   type Page,
   utilsPlaywright,
-  utilsAPI,
 } from '@prestashop-core/ui-testing';
 
 import {expect} from 'chai';
 
-const baseContext: string = 'functional_API_endpoints_attributesGroup_getAttributesGroupId';
+const baseContext: string = 'functional_API_endpoints_attribute_deleteAttributesGroupId';
 
-describe('API : GET /attributes/group/{attributeGroupId}', async () => {
+describe('API : DELETE /attributes/group/{attributeGroupId}', async () => {
   let apiContext: APIRequestContext;
   let browserContext: BrowserContext;
   let page: Page;
   let numberOfAttributes: number = 0;
   let idAttributeGroup: number;
   let accessToken: string;
-  let jsonResponse: any;
 
-  const clientScope: string = 'attribute_group_read';
-  const attributeData: FakerAttribute = new FakerAttribute();
+  const clientScope: string = 'attribute_group_write';
+  const createAttributeData: FakerAttribute = new FakerAttribute();
 
   before(async function () {
     browserContext = await utilsPlaywright.createBrowserContext(this.browser);
@@ -97,7 +93,7 @@ describe('API : GET /attributes/group/{attributeGroupId}', async () => {
     it('should create new attribute', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'createNewAttribute', baseContext);
 
-      const textResult = await boAttributesCreatePage.addEditAttribute(page, attributeData);
+      const textResult = await boAttributesCreatePage.addEditAttribute(page, createAttributeData);
       expect(textResult).to.contains(boAttributesPage.successfulCreationMessage);
 
       const numberOfAttributesAfterCreation = await boAttributesPage.getNumberOfElementInGrid(page);
@@ -107,98 +103,44 @@ describe('API : GET /attributes/group/{attributeGroupId}', async () => {
     it('should filter list of attributes', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'filterToViewCreatedAttribute', baseContext);
 
-      await boAttributesPage.filterTable(page, 'name', attributeData.name);
+      await boAttributesPage.filterTable(page, 'name', createAttributeData.name);
 
       const textColumn = await boAttributesPage.getTextColumn(page, 1, 'name');
-      expect(textColumn).to.contains(attributeData.name);
+      expect(textColumn).to.contains(createAttributeData.name);
 
       idAttributeGroup = parseInt(await boAttributesPage.getTextColumn(page, 1, 'id_attribute_group'), 10);
       expect(idAttributeGroup).to.be.gt(0);
     });
   });
 
-  describe('API : Fetch the Attribute Group', async () => {
+  describe('API : Delete the Attribute Group', async () => {
     it('should request the endpoint /attributes/group/{attributeGroupId}', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'requestEndpoint', baseContext);
 
-      const apiResponse = await apiContext.get(`attributes/group/${idAttributeGroup}`, {
+      const apiResponse = await apiContext.delete(`attributes/group/${idAttributeGroup}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      expect(apiResponse.status()).to.eq(200);
-      expect(utilsAPI.hasResponseHeader(apiResponse, 'Content-Type')).to.eq(true);
-      expect(utilsAPI.getResponseHeader(apiResponse, 'Content-Type')).to.contains('application/json');
-
-      jsonResponse = await apiResponse.json();
-    });
-
-    it('should check the JSON Response keys', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkResponseKeys', baseContext);
-
-      expect(jsonResponse).to.have.all.keys(
-        'attributeGroupId',
-        'names',
-        'publicNames',
-        'shopIds',
-        'type',
-      );
-    });
-
-    it('should check the JSON Response : `attributeGroupId`', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkResponseAttributeGroupId', baseContext);
-
-      expect(jsonResponse).to.have.property('attributeGroupId');
-      expect(jsonResponse.attributeGroupId).to.be.a('number');
-      expect(jsonResponse.attributeGroupId).to.be.equal(idAttributeGroup);
-    });
-
-    it('should check the JSON Response : `names`', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkResponseNames', baseContext);
-
-      expect(jsonResponse).to.have.property('names');
-      expect(jsonResponse.names).to.be.a('object');
-      expect(jsonResponse.names[dataLanguages.english.locale]).to.be.equal(attributeData.name);
-      expect(jsonResponse.names[dataLanguages.french.locale]).to.be.equal(attributeData.name);
-    });
-
-    it('should check the JSON Response : `publicNames`', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkResponsePublicNames', baseContext);
-
-      expect(jsonResponse).to.have.property('publicNames');
-      expect(jsonResponse.publicNames).to.be.a('object');
-      expect(jsonResponse.publicNames[dataLanguages.english.locale]).to.be.equal(attributeData.publicName);
-      expect(jsonResponse.publicNames[dataLanguages.french.locale]).to.be.equal(attributeData.publicName);
-    });
-
-    it('should check the JSON Response : `type`', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkResponseType', baseContext);
-
-      const dataAttributeTypesReverse = Object.fromEntries(Object.entries(dataAttributeTypes).map((type) => type.reverse()));
-
-      expect(jsonResponse).to.have.property('type');
-      expect(jsonResponse.type).to.be.a('string');
-      expect(jsonResponse.type).to.be.equal(dataAttributeTypesReverse[attributeData.attributeType]);
-    });
-
-    it('should check the JSON Response : `shopIds`', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkResponseShopIds', baseContext);
-
-      expect(jsonResponse).to.have.property('shopIds');
-      expect(jsonResponse.shopIds).to.be.a('array');
-      expect(jsonResponse.shopIds).to.deep.equal([1]);
+      expect(apiResponse.status()).to.eq(204);
     });
   });
 
-  describe('BackOffice : Delete the Attribute Group', async () => {
-    it('should delete attribute', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'deleteAttribute', baseContext);
+  describe('BackOffice : Check the Attribute Group is deleted', async () => {
+    it('should filter list of attributes', async function () {
+      await testContext.addContextItem(this, 'testIdentifier', 'filterAfterDeletion', baseContext);
 
-      const textResult = await boAttributesPage.deleteAttribute(page, 1);
-      expect(textResult).to.contains(boAttributesPage.successfulDeleteMessage);
+      await boAttributesPage.filterTable(page, 'name', createAttributeData.name);
 
-      const numberOfAttributesAfterDelete = await boAttributesPage.resetAndGetNumberOfLines(page);
-      expect(numberOfAttributesAfterDelete).to.equal(numberOfAttributes);
+      const numberOfAttributesAfterDelete = await boAttributesPage.getNumberOfElementInGrid(page);
+      expect(numberOfAttributesAfterDelete).to.be.equal(0);
+    });
+
+    it('should reset all filters and get number of attributes in BO', async function () {
+      await testContext.addContextItem(this, 'testIdentifier', 'resetFilterAfterDeletion', baseContext);
+
+      numberOfAttributes = await boAttributesPage.resetAndGetNumberOfLines(page);
+      expect(numberOfAttributes).to.be.above(0);
     });
   });
 });

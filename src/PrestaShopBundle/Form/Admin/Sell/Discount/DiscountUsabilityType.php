@@ -40,6 +40,11 @@ class DiscountUsabilityType extends TranslatorAwareType
                 'label_tag_name' => 'h3',
                 'required' => false,
             ])
+            ->add('customer_eligibility', DiscountCustomerEligibilityType::class, [
+                'label' => $this->trans('Select customer eligibility', 'Admin.Catalog.Feature'),
+                'label_tag_name' => 'h3',
+                'required' => false,
+            ])
         ;
     }
 

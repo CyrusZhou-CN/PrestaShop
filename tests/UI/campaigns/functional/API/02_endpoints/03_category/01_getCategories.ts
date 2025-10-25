@@ -7,7 +7,7 @@ import {requestAccessToken} from '@commonTests/BO/advancedParameters/authServer'
 import {expect} from 'chai';
 import {
   type APIRequestContext,
-  boAttributesPage,
+  boCategoriesPage,
   boDashboardPage,
   boLoginPage,
   type BrowserContext,
@@ -16,16 +16,17 @@ import {
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
 
-const baseContext: string = 'functional_API_endpoints_attributesGroup_getAttributesGroups';
+const baseContext: string = 'functional_API_endpoints_category_getCategories';
 
-describe('API : GET /attributes/groups', async () => {
+describe('API : GET /categories', async () => {
   let apiContext: APIRequestContext;
   let browserContext: BrowserContext;
   let page: Page;
   let accessToken: string;
   let jsonResponse: any;
-  let numberOfAttributes: number = 0;
-  const clientScope: string = 'attribute_group_read';
+  let numCategories: number = 0;
+  let numCategoriesDisplayed: number = 0;
+  const clientScope: string = 'category_read';
 
   before(async function () {
     browserContext = await utilsPlaywright.createBrowserContext(this.browser);
@@ -46,10 +47,10 @@ describe('API : GET /attributes/groups', async () => {
   });
 
   describe('API : Fetch Data', async () => {
-    it('should request the endpoint /attributes/groups', async function () {
+    it('should request the endpoint /categories', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'requestEndpoint', baseContext);
 
-      const apiResponse = await apiContext.get('attributes/groups', {
+      const apiResponse = await apiContext.get('categories', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -67,6 +68,7 @@ describe('API : GET /attributes/groups', async () => {
         'totalItems',
         'sortOrder',
         'limit',
+        'orderBy',
         'filters',
         'items',
       );
@@ -75,10 +77,9 @@ describe('API : GET /attributes/groups', async () => {
 
       for (let i:number = 0; i < jsonResponse.totalItems; i++) {
         expect(jsonResponse.items[i]).to.have.all.keys(
-          'attributeGroupId',
+          'categoryId',
+          'active',
           'name',
-          'position',
-          'values',
         );
       }
     });
@@ -95,60 +96,66 @@ describe('API : GET /attributes/groups', async () => {
       expect(pageTitle).to.contains(boDashboardPage.pageTitle);
     });
 
-    it('should go to \'Catalog > Attributes & Features\' page', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'goToAttributesPage', baseContext);
+    it('should go to \'Catalog > Categories\' page', async function () {
+      await testContext.addContextItem(this, 'testIdentifier', 'goToCategoriesPage', baseContext);
 
       await boDashboardPage.goToSubMenu(
         page,
         boDashboardPage.catalogParentLink,
-        boDashboardPage.attributesAndFeaturesLink,
+        boDashboardPage.categoriesLink,
       );
-      await boAttributesPage.closeSfToolBar(page);
 
-      const pageTitle = await boAttributesPage.getPageTitle(page);
-      expect(pageTitle).to.contains(boAttributesPage.pageTitle);
+      const pageTitle = await boCategoriesPage.getPageTitle(page);
+      expect(pageTitle).to.contains(boCategoriesPage.pageTitle);
     });
 
-    it('should reset all filters and get number of attributes in BO', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'resetFilterFirst', baseContext);
+    it('should filter by "Displayed": "Yes"', async function () {
+      await testContext.addContextItem(this, 'testIdentifier', 'filterByDisplayedYes', baseContext);
 
-      numberOfAttributes = await boAttributesPage.resetAndGetNumberOfLines(page);
-      expect(numberOfAttributes).to.be.equal(jsonResponse.totalItems);
+      // Filter by "Displayed": "Yes"
+      await boCategoriesPage.resetFilter(page);
+      numCategories = await boCategoriesPage.getNumberOfElementInGrid(page);
+
+      await boCategoriesPage.filterCategories(page, 'select', 'active', '1');
+      numCategoriesDisplayed = await boCategoriesPage.getNumberOfElementInGrid(page);
+      // "Root" is removed because only displayed on multistore
+      expect(numCategoriesDisplayed).to.be.equal(jsonResponse.totalItems - 1);
     });
 
     it('should filter list by id', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkJSONItems', baseContext);
 
+      expect(jsonResponse.totalItems).to.be.gt(0);
       for (let idxItem: number = 0; idxItem < jsonResponse.totalItems; idxItem++) {
         // eslint-disable-next-line no-loop-func
-        await boAttributesPage.resetFilter(page);
-        await boAttributesPage.filterTable(page, 'id_attribute_group', jsonResponse.items[idxItem].attributeGroupId);
+        if (jsonResponse.items[idxItem].name !== 'Root') {
+          await boCategoriesPage.resetFilter(page);
+          await boCategoriesPage.filterCategories(page, 'select', 'active', '1');
+          await boCategoriesPage.filterCategories(page, 'input', 'id_category', jsonResponse.items[idxItem].categoryId);
 
-        const numAttributes = await boAttributesPage.getNumberOfElementInGrid(page);
-        expect(numAttributes).to.be.equal(1);
+          const numFilteredCategories = await boCategoriesPage.getNumberOfElementInGrid(page);
+          expect(numFilteredCategories).to.be.equal(1);
 
-        const attributeGroupId = parseInt((await boAttributesPage.getTextColumn(page, 1, 'id_attribute_group')).toString(), 10);
-        expect(attributeGroupId).to.equal(jsonResponse.items[idxItem].attributeGroupId);
+          const categoryId = parseInt(
+            (await boCategoriesPage.getTextColumnFromTableCategories(page, 1, 'id_category')).toString(),
+            10,
+          );
+          expect(categoryId).to.equal(jsonResponse.items[idxItem].categoryId);
 
-        const name = await boAttributesPage.getTextColumn(page, 1, 'name');
-        expect(name).to.equal(jsonResponse.items[idxItem].name);
+          const name = await boCategoriesPage.getTextColumnFromTableCategories(page, 1, 'name');
+          expect(name).to.equal(jsonResponse.items[idxItem].name);
 
-        const values = parseFloat(await boAttributesPage.getTextColumn(page, 1, 'values'));
-        expect(values).to.equal(jsonResponse.items[idxItem].values);
-
-        // @todo : https://github.com/PrestaShop/PrestaShop/issues/39753
-        // const position = parseFloat(await boAttributesPage.getTextColumn(page, 1, 'position'));
-        // expect(position).to.equal(jsonResponse.items[idxItem].position);
+          const active = await boCategoriesPage.getStatus(page, 1);
+          expect(active).to.equal(jsonResponse.items[idxItem].active);
+        }
       }
     });
 
     it('should reset all filters', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'resetFilter', baseContext);
 
-      await boAttributesPage.resetFilter(page);
-
-      const numAttributes = await boAttributesPage.resetAndGetNumberOfLines(page);
-      expect(numAttributes).to.be.equal(numberOfAttributes);
+      const numCategoriesAfterReset = await boCategoriesPage.resetAndGetNumberOfLines(page);
+      expect(numCategoriesAfterReset).to.be.equal(numCategories);
     });
   });
 });
