@@ -26,6 +26,8 @@
 
 namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataHandler;
 
+use DateTime;
+use DateTimeImmutable;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountTypeRepository;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
@@ -128,6 +130,23 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             $command->setCode('');
         }
 
+        if (!empty($data['usability']['valid_date_range'])) {
+            $dateRange = $data['usability']['valid_date_range'];
+            $validFrom = $this->parseDateWithDefaultTime($dateRange['from'] ?? null, '00:00');
+
+            $neverExpires = !empty($data['usability']['period_never_expires']);
+            if ($neverExpires) {
+                $validTo = (new DateTime())->modify('+100 years')->setTime(23, 59, 59);
+                $validTo = DateTimeImmutable::createFromMutable($validTo);
+            } else {
+                $validTo = $this->parseDateWithDefaultTime($dateRange['to'] ?? null, '23:59');
+            }
+
+            if ($validFrom && $validTo) {
+                $command->setValidityDateRange($validFrom, $validTo);
+            }
+        }
+
         $this->handleCustomerEligibility($command, $data);
         $command->setTotalQuantity(100);
 
@@ -198,6 +217,25 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             $command->setCode($data['usability']['mode']['code'] ?? '');
         } else {
             $command->setCode('');
+        }
+
+        if (!empty($data['usability']['valid_date_range'])) {
+            $dateRange = $data['usability']['valid_date_range'];
+            $validFrom = $this->parseDateWithDefaultTime($dateRange['from'] ?? null, '00:00');
+
+            // Check if "never expires" checkbox is checked
+            $neverExpires = !empty($data['usability']['period_never_expires']);
+            if ($neverExpires) {
+                // Set expiration date to 100 years in the future
+                $validTo = (new DateTime())->modify('+100 years')->setTime(23, 59, 59);
+                $validTo = DateTimeImmutable::createFromMutable($validTo);
+            } else {
+                $validTo = $this->parseDateWithDefaultTime($dateRange['to'] ?? null, '23:59');
+            }
+
+            if ($validFrom && $validTo) {
+                $command->setValidityDateRange($validFrom, $validTo);
+            }
         }
 
         $this->handleCustomerEligibility($command, $data);
@@ -327,6 +365,35 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         }
 
         $this->discountTypeRepository->setCompatibleTypesForDiscount($discountId, $compatibleTypeIds);
+    }
+
+    private function parseDateWithDefaultTime(?string $dateString, string $defaultTime): ?DateTimeImmutable
+    {
+        if (empty($dateString)) {
+            return null;
+        }
+
+        $dateString = trim($dateString);
+
+        $formats = [
+            'Y-m-d H:i:s',
+            'Y-m-d H:i',
+            'Y-m-d',
+        ];
+
+        foreach ($formats as $format) {
+            $date = DateTime::createFromFormat($format, $dateString);
+            if ($date !== false) {
+                // If the format doesn't include time, add the default time
+                if (!str_contains($format, 'H:i')) {
+                    $date->setTime((int) substr($defaultTime, 0, 2), (int) substr($defaultTime, 3, 2));
+                }
+
+                return DateTimeImmutable::createFromMutable($date);
+            }
+        }
+
+        return null;
     }
 
     /**

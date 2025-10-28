@@ -26,6 +26,8 @@
 
 namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataProvider;
 
+use DateTime;
+use DateTimeInterface;
 use PrestaShop\PrestaShop\Adapter\Attribute\Repository\AttributeRepository;
 use PrestaShop\PrestaShop\Adapter\Customer\Repository\CustomerRepository;
 use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountTypeRepository;
@@ -53,6 +55,7 @@ use PrestaShop\PrestaShop\Core\Domain\Shop\Exception\ShopAssociationNotFound;
 use PrestaShop\PrestaShop\Core\Domain\Shop\Exception\ShopException;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopId;
 use PrestaShop\PrestaShop\Core\Product\Combination\NameBuilder\CombinationNameBuilder;
+use PrestaShop\PrestaShop\Core\Util\DateTime\DateTime as DateTimeUtil;
 use PrestaShopBundle\Form\Admin\Sell\Discount\CartConditionsType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DeliveryConditionsType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountConditionsType;
@@ -82,6 +85,10 @@ class DiscountFormDataProvider implements FormDataProviderInterface
 
     public function getDefaultData()
     {
+        $now = new DateTime();
+        $startDate = (clone $now)->setTime(0, 0);
+        $endDate = (clone $now)->modify('+1 month')->setTime(23, 59);
+
         return [
             'usability' => [
                 'mode' => [
@@ -92,6 +99,11 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                     'children_selector' => DiscountCustomerEligibilityType::ALL_CUSTOMERS,
                     DiscountCustomerEligibilityType::SINGLE_CUSTOMER => [],
                 ],
+                'valid_date_range' => [
+                    'from' => $startDate->format(DateTimeUtil::DEFAULT_DATETIME_FORMAT),
+                    'to' => $endDate->format(DateTimeUtil::DEFAULT_DATETIME_FORMAT),
+                ],
+                'period_never_expires' => false,
             ],
             'compatibility' => $this->getCompatibilityData(),
         ];
@@ -191,6 +203,11 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                     'code' => $discountForEditing->getCode(),
                 ],
                 'customer_eligibility' => $this->getCustomerEligibilityData($discountForEditing),
+                'valid_date_range' => [
+                    'from' => $discountForEditing->getValidFrom() ? $discountForEditing->getValidFrom()->format(DateTimeUtil::DEFAULT_DATETIME_FORMAT) : null,
+                    'to' => $discountForEditing->getValidTo() ? $discountForEditing->getValidTo()->format(DateTimeUtil::DEFAULT_DATETIME_FORMAT) : null,
+                ],
+                'period_never_expires' => $this->isPeriodNeverExpires($discountForEditing->getValidFrom(), $discountForEditing->getValidTo()),
             ],
             'compatibility' => $this->getCompatibilityData($id),
         ];
@@ -440,5 +457,20 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                 ],
             ],
         ];
+    }
+
+    /**
+     * Check if the discount period is set to "never expires" (>= 100 years duration).
+     */
+    private function isPeriodNeverExpires(?DateTimeInterface $validFrom, ?DateTimeInterface $validTo): bool
+    {
+        if ($validFrom === null || $validTo === null) {
+            return false;
+        }
+
+        $diff = $validFrom->diff($validTo);
+        $years = $diff->y + ($diff->m / 12) + ($diff->d / 365);
+
+        return $years >= 100;
     }
 }
