@@ -23,6 +23,9 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
+use PrestaShop\PrestaShop\Adapter\ContainerFinder;
+use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagSettings;
+use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagStateCheckerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CheckoutPaymentStepCore extends AbstractCheckoutStep
@@ -50,7 +53,7 @@ class CheckoutPaymentStepCore extends AbstractCheckoutStep
         Context $context,
         TranslatorInterface $translator,
         PaymentOptionsFinder $paymentOptionsFinder,
-        ConditionsToApproveFinder $conditionsToApproveFinder
+        ConditionsToApproveFinder $conditionsToApproveFinder,
     ) {
         parent::__construct($context, $translator);
         $this->paymentOptionsFinder = $paymentOptionsFinder;
@@ -95,6 +98,14 @@ class CheckoutPaymentStepCore extends AbstractCheckoutStep
             unset($selectedDeliveryOption['product_list']);
         }
 
+        $containerFinder = new ContainerFinder($this->context);
+        /** @var FeatureFlagStateCheckerInterface $featureFlagManager */
+        $featureFlagManager = $containerFinder->getContainer()->get(FeatureFlagStateCheckerInterface::class);
+
+        $productsCarrierMapping = $this->getCheckoutSession()->getProductsByCarrier();
+        $deliveryOptionKeys = array_filter(explode(',', $deliveryOptionKey));
+        $productsCarrierMapping = array_intersect_key($productsCarrierMapping, array_flip($deliveryOptionKeys));
+
         $assignedVars = [
             'is_free' => $isFree,
             'payment_options' => $paymentOptions,
@@ -102,6 +113,8 @@ class CheckoutPaymentStepCore extends AbstractCheckoutStep
             'selected_payment_option' => $this->selected_payment_option,
             'selected_delivery_option' => $selectedDeliveryOption,
             'show_final_summary' => Configuration::get('PS_FINAL_SUMMARY_ENABLED'),
+            'is_multishipment_enabled' => $featureFlagManager->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
+            'products_carrier_mapping' => $productsCarrierMapping,
             'is_recyclable_packaging' => $this->getCheckoutSession()->isRecyclable(),
         ];
 

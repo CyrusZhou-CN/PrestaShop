@@ -4812,6 +4812,21 @@ class CartCore extends ObjectModel
         return true;
     }
 
+    public function checkCountriesAreEnabled()
+    {
+        $deliveryAddress = new Address($this->id_address_delivery);
+        $invoiceAddress = new Address($this->id_address_invoice);
+
+        $deliveryCountry = new Country($deliveryAddress->id_country);
+        $invoiceCountry = new Country($invoiceAddress->id_country);
+
+        if (!$deliveryCountry->active || !$invoiceCountry->active) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * @deprecated since 9.1.0 - it doesn't do anything and will be removed
      *
