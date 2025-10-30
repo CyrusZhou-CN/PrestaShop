@@ -46,7 +46,7 @@ $(() => {
   new SpecificProducts();
 
   // Initialize customer search for single customer eligibility
-  const customerSearchContainer = '#discount_usability_customer_eligibility_single_customer';
+  const customerSearchContainer = '#discount_customer_eligibility_eligibility_single_customer';
 
   if ($(customerSearchContainer).length > 0) {
     new CustomerSearchInput(

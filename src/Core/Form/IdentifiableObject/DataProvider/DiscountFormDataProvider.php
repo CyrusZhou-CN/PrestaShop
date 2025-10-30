@@ -59,7 +59,7 @@ use PrestaShop\PrestaShop\Core\Util\DateTime\DateTime as DateTimeUtil;
 use PrestaShopBundle\Form\Admin\Sell\Discount\CartConditionsType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DeliveryConditionsType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountConditionsType;
-use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountCustomerEligibilityType;
+use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountCustomerEligibilityChoiceType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountProductSegmentType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountUsabilityModeType;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -90,22 +90,26 @@ class DiscountFormDataProvider implements FormDataProviderInterface
         $endDate = (clone $now)->modify('+1 month')->setTime(23, 59);
 
         return [
-            'usability' => [
-                'mode' => [
-                    'children_selector' => DiscountUsabilityModeType::AUTO_MODE,
-                    'code' => '',
-                ],
-                'customer_eligibility' => [
-                    'children_selector' => DiscountCustomerEligibilityType::ALL_CUSTOMERS,
-                    DiscountCustomerEligibilityType::SINGLE_CUSTOMER => [],
-                ],
+            'period' => [
                 'valid_date_range' => [
                     'from' => $startDate->format(DateTimeUtil::DEFAULT_DATETIME_FORMAT),
                     'to' => $endDate->format(DateTimeUtil::DEFAULT_DATETIME_FORMAT),
                 ],
                 'period_never_expires' => false,
             ],
-            'compatibility' => $this->getCompatibilityData(),
+            'customer_eligibility' => [
+                'eligibility' => [
+                    'children_selector' => DiscountCustomerEligibilityChoiceType::ALL_CUSTOMERS,
+                    DiscountCustomerEligibilityChoiceType::SINGLE_CUSTOMER => [],
+                ],
+            ],
+            'usability' => [
+                'mode' => [
+                    'children_selector' => DiscountUsabilityModeType::AUTO_MODE,
+                    'code' => '',
+                ],
+                'compatibility' => $this->getCompatibilityData(),
+            ],
         ];
     }
 
@@ -197,19 +201,23 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                     DeliveryConditionsType::COUNTRY => $discountForEditing->getCountryIds(),
                 ],
             ],
-            'usability' => [
-                'mode' => [
-                    'children_selector' => $discountForEditing->getCode() ? DiscountUsabilityModeType::CODE_MODE : DiscountUsabilityModeType::AUTO_MODE,
-                    'code' => $discountForEditing->getCode(),
-                ],
-                'customer_eligibility' => $this->getCustomerEligibilityData($discountForEditing),
+            'period' => [
                 'valid_date_range' => [
                     'from' => $discountForEditing->getValidFrom() ? $discountForEditing->getValidFrom()->format(DateTimeUtil::DEFAULT_DATETIME_FORMAT) : null,
                     'to' => $discountForEditing->getValidTo() ? $discountForEditing->getValidTo()->format(DateTimeUtil::DEFAULT_DATETIME_FORMAT) : null,
                 ],
                 'period_never_expires' => $this->isPeriodNeverExpires($discountForEditing->getValidFrom(), $discountForEditing->getValidTo()),
             ],
-            'compatibility' => $this->getCompatibilityData($id),
+            'customer_eligibility' => [
+                'eligibility' => $this->getCustomerEligibilityData($discountForEditing),
+            ],
+            'usability' => [
+                'mode' => [
+                    'children_selector' => $discountForEditing->getCode() ? DiscountUsabilityModeType::CODE_MODE : DiscountUsabilityModeType::AUTO_MODE,
+                    'code' => $discountForEditing->getCode(),
+                ],
+                'compatibility' => $this->getCompatibilityData($id),
+            ],
         ];
     }
 
@@ -427,8 +435,8 @@ class DiscountFormDataProvider implements FormDataProviderInterface
 
         if (!$customerId) {
             return [
-                'children_selector' => DiscountCustomerEligibilityType::ALL_CUSTOMERS,
-                DiscountCustomerEligibilityType::SINGLE_CUSTOMER => [],
+                'children_selector' => DiscountCustomerEligibilityChoiceType::ALL_CUSTOMERS,
+                DiscountCustomerEligibilityChoiceType::SINGLE_CUSTOMER => [],
             ];
         }
 
@@ -436,8 +444,8 @@ class DiscountFormDataProvider implements FormDataProviderInterface
             $customer = $this->customerRepository->get(new CustomerId($customerId));
         } catch (CustomerNotFoundException $e) {
             return [
-                'children_selector' => DiscountCustomerEligibilityType::ALL_CUSTOMERS,
-                DiscountCustomerEligibilityType::SINGLE_CUSTOMER => [],
+                'children_selector' => DiscountCustomerEligibilityChoiceType::ALL_CUSTOMERS,
+                DiscountCustomerEligibilityChoiceType::SINGLE_CUSTOMER => [],
             ];
         }
 
@@ -449,8 +457,8 @@ class DiscountFormDataProvider implements FormDataProviderInterface
         );
 
         return [
-            'children_selector' => DiscountCustomerEligibilityType::SINGLE_CUSTOMER,
-            DiscountCustomerEligibilityType::SINGLE_CUSTOMER => [
+            'children_selector' => DiscountCustomerEligibilityChoiceType::SINGLE_CUSTOMER,
+            DiscountCustomerEligibilityChoiceType::SINGLE_CUSTOMER => [
                 [
                     'id_customer' => $customerId,
                     'fullname_and_email' => $fullnameAndEmail,

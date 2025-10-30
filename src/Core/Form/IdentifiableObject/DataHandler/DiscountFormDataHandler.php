@@ -49,7 +49,7 @@ use PrestaShop\PrestaShop\Core\Domain\Product\Combination\ValueObject\NoCombinat
 use PrestaShopBundle\Form\Admin\Sell\Discount\CartConditionsType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DeliveryConditionsType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountConditionsType;
-use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountCustomerEligibilityType;
+use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountCustomerEligibilityChoiceType;
 use PrestaShopBundle\Form\Admin\Sell\Discount\DiscountUsabilityModeType;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -130,11 +130,11 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             $command->setCode('');
         }
 
-        if (!empty($data['usability']['valid_date_range'])) {
-            $dateRange = $data['usability']['valid_date_range'];
+        if (!empty($data['period']['valid_date_range'])) {
+            $dateRange = $data['period']['valid_date_range'];
             $validFrom = $this->parseDateWithDefaultTime($dateRange['from'] ?? null, '00:00');
 
-            $neverExpires = !empty($data['usability']['period_never_expires']);
+            $neverExpires = !empty($data['period']['period_never_expires']);
             if ($neverExpires) {
                 $validTo = (new DateTime())->modify('+100 years')->setTime(23, 59, 59);
                 $validTo = DateTimeImmutable::createFromMutable($validTo);
@@ -219,12 +219,12 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             $command->setCode('');
         }
 
-        if (!empty($data['usability']['valid_date_range'])) {
-            $dateRange = $data['usability']['valid_date_range'];
+        if (!empty($data['period']['valid_date_range'])) {
+            $dateRange = $data['period']['valid_date_range'];
             $validFrom = $this->parseDateWithDefaultTime($dateRange['from'] ?? null, '00:00');
 
             // Check if "never expires" checkbox is checked
-            $neverExpires = !empty($data['usability']['period_never_expires']);
+            $neverExpires = !empty($data['period']['period_never_expires']);
             if ($neverExpires) {
                 // Set expiration date to 100 years in the future
                 $validTo = (new DateTime())->modify('+100 years')->setTime(23, 59, 59);
@@ -352,12 +352,12 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
 
     private function updateDiscountCompatibility(int $discountId, array $data): void
     {
-        if (!isset($data['compatibility'])) {
+        if (!isset($data['usability']['compatibility'])) {
             return;
         }
 
         $compatibleTypeIds = [];
-        foreach ($data['compatibility'] as $fieldName => $isChecked) {
+        foreach ($data['usability']['compatibility'] as $fieldName => $isChecked) {
             if ($isChecked && str_starts_with($fieldName, 'compatible_type_')) {
                 $typeId = (int) str_replace('compatible_type_', '', $fieldName);
                 $compatibleTypeIds[] = $typeId;
@@ -404,15 +404,15 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
      */
     private function handleCustomerEligibility(mixed $command, array $data): void
     {
-        if (!isset($data['usability']['customer_eligibility'])) {
+        if (!isset($data['customer_eligibility']['eligibility'])) {
             return;
         }
 
-        $customerEligibility = $data['usability']['customer_eligibility'];
-        $selectedOption = $customerEligibility['children_selector'] ?? DiscountCustomerEligibilityType::ALL_CUSTOMERS;
+        $customerEligibility = $data['customer_eligibility']['eligibility'];
+        $selectedOption = $customerEligibility['children_selector'] ?? DiscountCustomerEligibilityChoiceType::ALL_CUSTOMERS;
 
-        if ($selectedOption === DiscountCustomerEligibilityType::SINGLE_CUSTOMER) {
-            $customerData = $customerEligibility[DiscountCustomerEligibilityType::SINGLE_CUSTOMER] ?? [];
+        if ($selectedOption === DiscountCustomerEligibilityChoiceType::SINGLE_CUSTOMER) {
+            $customerData = $customerEligibility[DiscountCustomerEligibilityChoiceType::SINGLE_CUSTOMER] ?? [];
             if (!empty($customerData) && isset($customerData[0]['id_customer'])) {
                 $command->setCustomerId((int) $customerData[0]['id_customer']);
             }

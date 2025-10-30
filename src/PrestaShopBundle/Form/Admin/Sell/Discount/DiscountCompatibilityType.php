@@ -27,7 +27,6 @@
 namespace PrestaShopBundle\Form\Admin\Sell\Discount;
 
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
-use PrestaShopBundle\Form\Admin\Type\CardType;
 use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -65,12 +64,8 @@ class DiscountCompatibilityType extends TranslatorAwareType
             'label' => $this->trans('Compatible with discounts', 'Admin.Catalog.Feature'),
             'label_help_box' => $this->trans('Select which discount types this discount is compatible with.', 'Admin.Catalog.Help'),
             'available_types' => [],
+            'required' => false,
         ]);
         $resolver->setAllowedTypes('available_types', ['array']);
-    }
-
-    public function getParent()
-    {
-        return CardType::class;
     }
 }
