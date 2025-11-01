@@ -25,7 +25,7 @@
  */
 
 use PrestaShop\PrestaShop\Adapter\ContainerFinder;
-use PrestaShop\PrestaShop\Adapter\Discount\Compatibility\DiscountCompatibilityService;
+use PrestaShop\PrestaShop\Adapter\Discount\Application\DiscountApplicationService;
 use PrestaShop\PrestaShop\Core\Domain\CartRule\CartRuleSettings;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
 use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagSettings;
@@ -1062,30 +1062,34 @@ class CartRuleCore extends ObjectModel
         $container = $containerFinder->getContainer();
         $featureFlagManager = $container->get(FeatureFlagStateCheckerInterface::class);
         if ($featureFlagManager !== null && $featureFlagManager->isEnabled(FeatureFlagSettings::FEATURE_FLAG_DISCOUNT)) {
-            // Check discount type compatibility using the DiscountCompatibilityService
-            if ($nbOfCartRules >= 1) {
-                $existingCartRuleIds = array_filter(
-                    array_column($otherCartRules, 'id_cart_rule'),
-                    function ($id) {
-                        return $id != $this->id;
-                    }
-                );
-
-                try {
-                    $compatibilityService = $container->get(DiscountCompatibilityService::class);
-                    $result = $compatibilityService->validateCompatibility($this->id, $existingCartRuleIds);
-
-                    if (!$result->canApply()) {
-                        return (!$display_error) ? false : $this->trans('This voucher is not combinable with other vouchers in your cart', [], 'Shop.Notifications.Error');
-                    }
-
-                    // Remove lower-priority conflicting discounts
-                    foreach ($result->getRulesToRemove() as $ruleIdToRemove) {
-                        $cart->removeCartRule($ruleIdToRemove);
-                    }
-                } catch (Exception $e) {
-                    // Fallback: if service is not available or discount has no type, skip compatibility check
+            // Use DiscountApplicationService to determine which discounts to apply and their priority order
+            $existingCartRuleIds = array_filter(
+                array_column($otherCartRules, 'id_cart_rule'),
+                function ($id) {
+                    return $id != $this->id;
                 }
+            );
+
+            try {
+                $applicationService = $container->get(DiscountApplicationService::class);
+                $result = $applicationService->determineDiscountsToApply($this->id, $existingCartRuleIds);
+
+                if (!$result->canApply()) {
+                    $errorMessage = $result->getRejectionReason()
+                        ?? 'This voucher is not combinable with other vouchers in your cart';
+
+                    return (!$display_error) ? false : $this->trans($errorMessage, [], 'Shop.Notifications.Error');
+                }
+
+                // Remove conflicting discounts that were replaced by higher priority ones
+                foreach ($result->getDiscountsToRemove() as $ruleIdToRemove) {
+                    $cart->removeCartRule($ruleIdToRemove);
+                }
+
+                // Note: The actual application order is determined by the result
+                // The cart will apply discounts in the priority order specified by $result->getDiscountsToApply()
+            } catch (Exception $e) {
+                // Fallback: if service is not available or discount has no type, skip compatibility check
             }
         }
 

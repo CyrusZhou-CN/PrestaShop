@@ -269,7 +269,7 @@ class DiscountTypeRepository
      *
      * @return array|null
      */
-    private function getDiscountTypeForDiscount(int $discountId): ?array
+    public function getDiscountTypeForDiscount(int $discountId): ?array
     {
         $qb = $this->connection->createQueryBuilder();
         $qb
@@ -284,5 +284,35 @@ class DiscountTypeRepository
         $result = $qb->executeQuery()->fetchAllAssociative();
 
         return empty($result) ? null : $result;
+    }
+
+    /**
+     * Get discount information including type, priority field, and creation date
+     *
+     * @return array|null Array with keys: 'id', 'type', 'priority', 'date_add'
+     */
+    public function getDiscountInfoForPriority(int $discountId): ?array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('cr.id_cart_rule', 'crt.type', 'cr.priority', 'cr.date_add')
+            ->from($this->dbPrefix . 'cart_rule', 'cr')
+            ->leftJoin('cr', $this->dbPrefix . 'cart_rule_type', 'crt', 'cr.id_cart_rule_type = crt.id_cart_rule_type')
+            ->where('cr.id_cart_rule = :discountId')
+            ->setParameter('discountId', $discountId)
+        ;
+
+        $result = $qb->executeQuery()->fetchAssociative();
+
+        if (!$result) {
+            return null;
+        }
+
+        return [
+            'id' => (int) $result['id_cart_rule'],
+            'type' => $result['type'] ?? '',
+            'priority' => (int) $result['priority'],
+            'date_add' => $result['date_add'],
+        ];
     }
 }

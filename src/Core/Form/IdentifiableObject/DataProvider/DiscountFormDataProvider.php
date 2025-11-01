@@ -109,6 +109,7 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                     'code' => '',
                 ],
                 'compatibility' => $this->getCompatibilityData(),
+                'priority' => 1,
             ],
         ];
     }
@@ -217,6 +218,7 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                     'code' => $discountForEditing->getCode(),
                 ],
                 'compatibility' => $this->getCompatibilityData($id),
+                'priority' => $discountForEditing->getPriority(),
             ],
         ];
     }

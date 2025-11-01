@@ -24,21 +24,21 @@ Feature: Discount compatibility in cart
   Scenario: Apply two compatible cart level discounts successfully
     Given I create an empty cart "dummy_cart" for customer "testCustomer"
     When I create a "cart_level" discount "cart_discount_10" with following properties:
-      | name[en-US]        | Cart 10% Off        |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | CART10              |
-      | reduction_percent  | 10.0                |
+      | name[en-US]       | Cart 10% Off        |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | CART10              |
+      | reduction_percent | 10.0                |
     And I set compatible types for discount "cart_discount_10" to:
       | cart_level |
     When I create a "cart_level" discount "cart_discount_5" with following properties:
-      | name[en-US]        | Cart 5% Off         |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | CART5               |
-      | reduction_percent  | 5.0                 |
+      | name[en-US]       | Cart 5% Off         |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | CART5               |
+      | reduction_percent | 5.0                 |
     And I set compatible types for discount "cart_discount_5" to:
       | cart_level |
     And I add 1 product "product1" to the cart "dummy_cart"
@@ -49,21 +49,21 @@ Feature: Discount compatibility in cart
   Scenario: Apply two incompatible cart level discounts and get an error
     Given I create an empty cart "dummy_cart2" for customer "testCustomer"
     When I create a "cart_level" discount "cart_discount_20" with following properties:
-      | name[en-US]        | Cart 20% Off        |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | CART20              |
-      | reduction_percent  | 20.0                |
+      | name[en-US]       | Cart 20% Off        |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | CART20              |
+      | reduction_percent | 20.0                |
     And I set compatible types for discount "cart_discount_20" to:
       | free_shipping |
     When I create a "cart_level" discount "cart_discount_15" with following properties:
-      | name[en-US]        | Cart 15% Off        |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | CART15              |
-      | reduction_percent  | 15.0                |
+      | name[en-US]       | Cart 15% Off        |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | CART15              |
+      | reduction_percent | 15.0                |
     And I set compatible types for discount "cart_discount_15" to:
       | product_level |
     And I add 1 product "product1" to the cart "dummy_cart2"
@@ -74,12 +74,12 @@ Feature: Discount compatibility in cart
   Scenario: Apply compatible cart level and free shipping discounts
     Given I create an empty cart "dummy_cart3" for customer "testCustomer"
     When I create a "cart_level" discount "cart_discount_combo" with following properties:
-      | name[en-US]        | Cart Combo          |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | CARTCOMBO           |
-      | reduction_percent  | 10.0                |
+      | name[en-US]       | Cart Combo          |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | CARTCOMBO           |
+      | reduction_percent | 10.0                |
     And I set compatible types for discount "cart_discount_combo" to:
       | free_shipping |
     When I create a "free_shipping" discount "free_ship" with following properties:
@@ -98,22 +98,22 @@ Feature: Discount compatibility in cart
   Scenario: Apply compatible product level and cart level discounts
     Given I create an empty cart "dummy_cart4" for customer "testCustomer"
     When I create a "product_level" discount "product_discount" with following properties:
-      | name[en-US]        | Product 15% Off     |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | PROD15              |
-      | reduction_percent  | 15.0                |
-      | reduction_product  | product1            |
+      | name[en-US]       | Product 15% Off     |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | PROD15              |
+      | reduction_percent | 15.0                |
+      | reduction_product | product1            |
     And I set compatible types for discount "product_discount" to:
       | cart_level |
     When I create a "cart_level" discount "cart_for_product" with following properties:
-      | name[en-US]        | Cart with Product   |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | CARTWPROD           |
-      | reduction_percent  | 5.0                 |
+      | name[en-US]       | Cart with Product   |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | CARTWPROD           |
+      | reduction_percent | 5.0                 |
     And I set compatible types for discount "cart_for_product" to:
       | product_level |
     And I add 1 product "product1" to the cart "dummy_cart4"
@@ -124,21 +124,21 @@ Feature: Discount compatibility in cart
   Scenario: Apply exclusive discount prevents other discounts
     Given I create an empty cart "dummy_cart5" for customer "testCustomer"
     When I create a "cart_level" discount "exclusive_50" with following properties:
-      | name[en-US]        | Exclusive 50% Off   |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | EXCLUSIVE50         |
-      | reduction_percent  | 50.0                |
+      | name[en-US]       | Exclusive 50% Off   |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | EXCLUSIVE50         |
+      | reduction_percent | 50.0                |
     And I set compatible types for discount "exclusive_50" to:
-      ||
+      |  |
     When I create a "cart_level" discount "cart_any" with following properties:
-      | name[en-US]        | Cart Any            |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | CARTANY             |
-      | reduction_percent  | 10.0                |
+      | name[en-US]       | Cart Any            |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | CARTANY             |
+      | reduction_percent | 10.0                |
     And I set compatible types for discount "cart_any" to:
       | cart_level |
     And I add 1 product "product1" to the cart "dummy_cart5"
@@ -149,23 +149,23 @@ Feature: Discount compatibility in cart
   Scenario: Apply three compatible discounts together
     Given I create an empty cart "dummy_cart6" for customer "testCustomer"
     When I create a "cart_level" discount "multi_cart" with following properties:
-      | name[en-US]        | Multi Cart 5%       |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | MULTI5              |
-      | reduction_percent  | 5.0                 |
+      | name[en-US]       | Multi Cart 5%       |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | MULTI5              |
+      | reduction_percent | 5.0                 |
     And I set compatible types for discount "multi_cart" to:
       | product_level |
       | free_shipping |
     When I create a "product_level" discount "multi_product" with following properties:
-      | name[en-US]        | Multi Product 10%   |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | MULTIPROD10         |
-      | reduction_percent  | 10.0                |
-      | reduction_product  | product1            |
+      | name[en-US]       | Multi Product 10%   |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | MULTIPROD10         |
+      | reduction_percent | 10.0                |
+      | reduction_product | product1            |
     And I set compatible types for discount "multi_product" to:
       | cart_level    |
       | free_shipping |
@@ -187,21 +187,21 @@ Feature: Discount compatibility in cart
   Scenario: Apply incompatible discount to cart with existing discount
     Given I create an empty cart "dummy_cart7" for customer "testCustomer"
     When I create a "cart_level" discount "first_discount" with following properties:
-      | name[en-US]        | First Discount      |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | FIRST               |
-      | reduction_percent  | 10.0                |
+      | name[en-US]       | First Discount      |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | FIRST               |
+      | reduction_percent | 10.0                |
     And I set compatible types for discount "first_discount" to:
       | free_shipping |
     When I create a "order_level" discount "order_discount" with following properties:
-      | name[en-US]        | Order Discount      |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | ORDERDISC           |
-      | reduction_percent  | 15.0                |
+      | name[en-US]       | Order Discount      |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | ORDERDISC           |
+      | reduction_percent | 15.0                |
     And I set compatible types for discount "order_discount" to:
       | free_gift |
     And I add 1 product "product1" to the cart "dummy_cart7"
@@ -221,12 +221,12 @@ Feature: Discount compatibility in cart
     And I set compatible types for discount "gift_promo" to:
       | cart_level |
     When I create a "cart_level" discount "cart_with_gift" with following properties:
-      | name[en-US]        | Cart with Gift      |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | CARTWGIFT           |
-      | reduction_percent  | 10.0                |
+      | name[en-US]       | Cart with Gift      |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | CARTWGIFT           |
+      | reduction_percent | 10.0                |
     And I set compatible types for discount "cart_with_gift" to:
       | free_gift |
     And I add 1 product "product1" to the cart "dummy_cart8"
@@ -237,22 +237,22 @@ Feature: Discount compatibility in cart
   Scenario: Apply product discount with incompatible order level discount
     Given I create an empty cart "dummy_cart9" for customer "testCustomer"
     When I create a "order_level" discount "order_20" with following properties:
-      | name[en-US]        | Order 20% Off       |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | ORDER20             |
-      | reduction_percent  | 20.0                |
+      | name[en-US]       | Order 20% Off       |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | ORDER20             |
+      | reduction_percent | 20.0                |
     And I set compatible types for discount "order_20" to:
       | cart_level |
     When I create a "product_level" discount "product_25" with following properties:
-      | name[en-US]        | Product 25% Off     |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | PROD25              |
-      | reduction_percent  | 25.0                |
-      | reduction_product  | product1            |
+      | name[en-US]       | Product 25% Off     |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | PROD25              |
+      | reduction_percent | 25.0                |
+      | reduction_product | product1            |
     And I set compatible types for discount "product_25" to:
       | free_shipping |
     And I add 1 product "product1" to the cart "dummy_cart9"
@@ -274,12 +274,12 @@ Feature: Discount compatibility in cart
     And I set compatible types for discount "amount_discount" to:
       | cart_level |
     When I create a "cart_level" discount "percent_discount" with following properties:
-      | name[en-US]        | Percent 5% Off      |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2025-12-31 23:59:59 |
-      | code               | PERCENT5            |
-      | reduction_percent  | 5.0                 |
+      | name[en-US]       | Percent 5% Off      |
+      | active            | true                |
+      | valid_from        | 2025-01-01 00:00:00 |
+      | valid_to          | 2025-12-31 23:59:59 |
+      | code              | PERCENT5            |
+      | reduction_percent | 5.0                 |
     And I set compatible types for discount "percent_discount" to:
       | cart_level |
     And I add 2 products "product1" to the cart "dummy_cart10"

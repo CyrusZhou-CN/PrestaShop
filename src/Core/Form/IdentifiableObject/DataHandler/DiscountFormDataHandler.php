@@ -112,7 +112,18 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 } else {
                     throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
                 }
-                $command->setReductionProduct(1);
+
+                // Read selected product from Product Conditions → Cart Conditions → Specific Products
+                $reductionProduct = -2; // Default: use product conditions (selection of products)
+                if (!empty($data['conditions']['cart_conditions']['specific_products'])) {
+                    $specificProducts = $data['conditions']['cart_conditions']['specific_products'];
+                    if (count($specificProducts) === 1 && isset($specificProducts[0]['id'])) {
+                        // Single specific product selected
+                        $reductionProduct = (int) $specificProducts[0]['id'];
+                    }
+                    // If multiple products selected, keep -2 (selection of products)
+                }
+                $command->setReductionProduct($reductionProduct);
                 break;
             case DiscountType::FREE_GIFT:
                 $command->setProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));
@@ -149,6 +160,10 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
 
         $this->handleCustomerEligibility($command, $data);
         $command->setTotalQuantity(100);
+
+        if (isset($data['usability']['priority']) && $data['usability']['priority'] > 0) {
+            $command->setPriority((int) $data['usability']['priority']);
+        }
 
         /** @var DiscountId $discountId */
         $discountId = $this->commandBus->handle($command);
@@ -202,7 +217,18 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 } else {
                     throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
                 }
-                $command->setReductionProduct(1);
+
+                // Read selected product from Product Conditions → Cart Conditions → Specific Products
+                $reductionProduct = -2; // Default: use product conditions (selection of products)
+                if (!empty($data['conditions']['cart_conditions']['specific_products'])) {
+                    $specificProducts = $data['conditions']['cart_conditions']['specific_products'];
+                    if (count($specificProducts) === 1 && isset($specificProducts[0]['id'])) {
+                        // Single specific product selected
+                        $reductionProduct = (int) $specificProducts[0]['id'];
+                    }
+                    // If multiple products selected, keep -2 (selection of products)
+                }
+                $command->setReductionProduct($reductionProduct);
                 break;
             case DiscountType::FREE_GIFT:
                 $command->setProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));
@@ -239,6 +265,10 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         }
 
         $this->handleCustomerEligibility($command, $data);
+
+        if (isset($data['usability']['priority']) && $data['usability']['priority'] > 0) {
+            $command->setPriority((int) $data['usability']['priority']);
+        }
 
         $this->commandBus->handle($command);
         $this->updateDiscountConditions($id, $data);

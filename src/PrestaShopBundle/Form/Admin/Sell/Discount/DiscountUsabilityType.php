@@ -30,8 +30,10 @@ namespace PrestaShopBundle\Form\Admin\Sell\Discount;
 
 use PrestaShopBundle\Form\Admin\Type\CardType;
 use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class DiscountUsabilityType extends TranslatorAwareType
 {
@@ -47,6 +49,20 @@ class DiscountUsabilityType extends TranslatorAwareType
                 'label_tag_name' => 'h3',
                 'available_types' => $options['available_cart_rule_types'] ?? [],
                 'required' => false,
+            ])
+            ->add('priority', IntegerType::class, [
+                'label' => $this->trans('Priority', 'Admin.Catalog.Feature'),
+                'label_tag_name' => 'h3',
+                'required' => false,
+                'label_help_box' => $this->trans('Lower numbers indicate higher priority. When multiple discounts are applied, lower priority numbers are processed first.', 'Admin.Catalog.Help'),
+                'attr' => [
+                    'min' => 1,
+                    'placeholder' => '1',
+                ],
+                'constraints' => [
+                    new Assert\GreaterThanOrEqual(1),
+                    new Assert\LessThanOrEqual(999),
+                ],
             ])
         ;
     }
