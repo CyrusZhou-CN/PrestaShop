@@ -99,11 +99,11 @@ describe('API : Check endpoints', async () => {
         '/api-clients: GET',
         // tests/UI/campaigns/functional/API/02_endpoints/02_attribute/01_deleteAttributesAttributeId.ts
         '/attributes/attribute/{attributeId}: DELETE',
-        // @todo: add tests
+        // tests/UI/campaigns/functional/API/02_endpoints/02_attribute/02_getAttributesAttributeId.ts
         '/attributes/attribute/{attributeId}: GET',
         // @todo: add tests
         '/attributes/attribute/{attributeId}: PATCH',
-        // @todo: add tests
+        // tests/UI/campaigns/functional/API/02_endpoints/02_attribute/04_postAttributesAttribute.ts
         '/attributes/attribute: POST',
         // @todo: add tests
         '/attributes/attributes/delete: PUT',
@@ -121,9 +121,13 @@ describe('API : Check endpoints', async () => {
         '/attributes/groups/delete: PUT',
         // tests/UI/campaigns/functional/API/02_endpoints/02_attribute/12_getAttributesGroups.ts
         '/attributes/groups: GET',
+        // @todo: add tests
+        '/categories/delete: PUT',
+        // @todo: add tests
+        '/categories/toggle-status: PUT',
         // tests/UI/campaigns/functional/API/02_endpoints/03_category/01_getCategories.ts
         '/categories: GET',
-        // @todo: add tests
+        // tests/UI/campaigns/functional/API/02_endpoints/03_category/02_deleteCategoryIdCover.ts
         '/category/{categoryId}/cover: DELETE',
         // @todo: add tests
         '/category/{categoryId}/status: PATCH',
@@ -147,10 +151,16 @@ describe('API : Check endpoints', async () => {
         '/customers/group: POST',
         // tests/UI/campaigns/functional/API/02_endpoints/04_customerGroup/05_getCustomersGroups.ts
         '/customers/groups: GET',
+        // @todo : https://github.com/PrestaShop/PrestaShop/issues/39682
+        '/discount/{discountId}/conditions: GET',
+        // @todo : https://github.com/PrestaShop/PrestaShop/issues/39682
+        '/discount/{discountId}/conditions: PATCH',
         // @todo : https://github.com/PrestaShop/PrestaShop/issues/38784
         '/discount/{discountId}: DELETE',
         // @todo : https://github.com/PrestaShop/PrestaShop/issues/38647
         '/discount/{discountId}: GET',
+        // @todo : https://github.com/PrestaShop/PrestaShop/issues/39682
+        '/discount/{discountId}: PATCH',
         // @todo : https://github.com/PrestaShop/PrestaShop/issues/38784
         '/discount: POST',
         // @todo : https://github.com/PrestaShop/PrestaShop/issues/38784
@@ -221,6 +231,16 @@ describe('API : Check endpoints', async () => {
         '/search-aliases/delete: DELETE',
         // @todo: add tests
         '/search-aliases: GET',
+        // @todo: add tests
+        '/store/{storeId}/toggle-status: PUT',
+        // @todo: add tests
+        '/store/{storeId}: DELETE',
+        // @todo: add tests
+        '/store/{storeId}: GET',
+        // @todo: add tests
+        '/stores/delete: PUT',
+        // @todo: add tests
+        '/stores/set-status: PUT',
         // @todo: add tests
         '/supplier/{supplierId}/logo: DELETE',
         // @todo: add tests

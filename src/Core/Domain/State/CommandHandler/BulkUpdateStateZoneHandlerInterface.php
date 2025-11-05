@@ -1,4 +1,5 @@
-{# **
+<?php
+/**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
  *
@@ -21,18 +22,21 @@
  * @author    PrestaShop SA and Contributors <contact@prestashop.com>
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
- * #}
-{% extends '@PrestaShop/Admin/layout.html.twig' %}
+ */
 
-{% block content %}
-  {{ include('@PrestaShop/Admin/Improve/International/Locations/State/Blocks/change_states_zone_modal.html.twig') }}
+namespace PrestaShop\PrestaShop\Core\Domain\State\CommandHandler;
 
-  {{ include('@PrestaShop/Admin/Common/Grid/grid_panel.html.twig', {grid: stateGrid}) }}
-{% endblock %}
+use PrestaShop\PrestaShop\Core\Domain\State\Command\BulkUpdateStateZoneCommand;
 
-{% block javascripts %}
-  {{ parent() }}
-
-  <script src="{{ asset('themes/new-theme/public/state.bundle.js') }}"></script>
-  <script src="{{ asset('themes/default/js/bundle/pagination.js') }}"></script>
-{% endblock %}
+/**
+ * Defines contract for bulk update of states zone
+ */
+interface BulkUpdateStateZoneHandlerInterface
+{
+    /**
+     * Handles command which updates zone for multiple states
+     *
+     * @param BulkUpdateStateZoneCommand $command
+     */
+    public function handle(BulkUpdateStateZoneCommand $command): void;
+}

@@ -1,4 +1,5 @@
-{# **
+<?php
+/**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
  *
@@ -21,18 +22,42 @@
  * @author    PrestaShop SA and Contributors <contact@prestashop.com>
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
- * #}
-{% extends '@PrestaShop/Admin/layout.html.twig' %}
+ */
 
-{% block content %}
-  {{ include('@PrestaShop/Admin/Improve/International/Locations/State/Blocks/change_states_zone_modal.html.twig') }}
+declare(strict_types=1);
 
-  {{ include('@PrestaShop/Admin/Common/Grid/grid_panel.html.twig', {grid: stateGrid}) }}
-{% endblock %}
+namespace PrestaShop\PrestaShop\Core\Domain\Webservice\Exception;
 
-{% block javascripts %}
-  {{ parent() }}
+use Throwable;
 
-  <script src="{{ asset('themes/new-theme/public/state.bundle.js') }}"></script>
-  <script src="{{ asset('themes/default/js/bundle/pagination.js') }}"></script>
-{% endblock %}
+/**
+ * Thrown on failure to delete Webservice
+ */
+class CannotDeleteWebserviceException extends WebserviceException
+{
+    /**
+     * @var array<int, array<string, array|string>>
+     */
+    private $errors;
+
+    /**
+     * @param array<int, array<string, array|string>> $errors
+     * @param string $message
+     * @param int $code
+     * @param Throwable $previous
+     */
+    public function __construct(array $errors, $message = '', $code = 0, ?Throwable $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+
+        $this->errors = $errors;
+    }
+
+    /**
+     * @return array<int, array<string, array|string>>
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+}

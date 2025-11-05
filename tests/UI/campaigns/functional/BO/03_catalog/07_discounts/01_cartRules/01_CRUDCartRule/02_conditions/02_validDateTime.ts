@@ -21,32 +21,26 @@ import {
   utilsPlaywright,
 } from '@prestashop-core/ui-testing';
 
-const baseContext: string = 'functional_BO_catalog_discounts_cartRules_CRUDCartRule_conditions_invalidDateTime';
+const baseContext: string = 'functional_BO_catalog_discounts_cartRules_CRUDCartRule_conditions_validDateTime';
 
-/*
-Scenario:
-- Create new cart rule with Invalid date time
-- Go to FO > Login by default customer
-- Add product to cart and proceed to checkout
-- Check that no discount is applied
-Post-condition:
-- Delete the created cart rule
- */
-describe('BO - Catalog - Cart rules : Invalid date time', async () => {
+describe('BO - Cart rules - Condition : Case 2 - Valid Date Time', async () => {
   let browserContext: BrowserContext;
   let page: Page;
 
   // Data to create a date format
   const pastDate: string = utilsDate.getDateFormat('yyyy-mm-dd', 'past');
   const newCartRuleData: FakerCartRule = new FakerCartRule({
-    name: 'Cart rule invalid date time',
-    discountType: 'Percent',
-    discountPercent: 20,
+    name: 'Cart Rule Valid date time',
+    discountType: 'Amount',
+    discountAmount: {
+      value: 1,
+      currency: 'EUR',
+      tax: 'Tax excluded',
+    },
     dateFrom: pastDate,
     dateTo: pastDate,
   });
 
-  // before and after functions
   before(async function () {
     browserContext = await utilsPlaywright.createBrowserContext(this.browser);
     page = await utilsPlaywright.newTab(browserContext);

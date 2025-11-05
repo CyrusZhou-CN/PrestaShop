@@ -1,4 +1,5 @@
-{# **
+<?php
+/**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
  *
@@ -21,18 +22,37 @@
  * @author    PrestaShop SA and Contributors <contact@prestashop.com>
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
- * #}
-{% extends '@PrestaShop/Admin/layout.html.twig' %}
+ */
 
-{% block content %}
-  {{ include('@PrestaShop/Admin/Improve/International/Locations/State/Blocks/change_states_zone_modal.html.twig') }}
+declare(strict_types=1);
 
-  {{ include('@PrestaShop/Admin/Common/Grid/grid_panel.html.twig', {grid: stateGrid}) }}
-{% endblock %}
+namespace PrestaShop\PrestaShop\Core\Domain\Webservice\Command;
 
-{% block javascripts %}
-  {{ parent() }}
+use PrestaShop\PrestaShop\Core\Domain\Webservice\ValueObject\WebserviceKeyId;
 
-  <script src="{{ asset('themes/new-theme/public/state.bundle.js') }}"></script>
-  <script src="{{ asset('themes/default/js/bundle/pagination.js') }}"></script>
-{% endblock %}
+/**
+ * Deletes state
+ */
+class DeleteWebserviceKeyCommand
+{
+    /**
+     * @var WebserviceKeyId
+     */
+    private $webserviceKeyId;
+
+    /**
+     * @param int $webserviceKeyId
+     */
+    public function __construct(int $webserviceKeyId)
+    {
+        $this->webserviceKeyId = new WebserviceKeyId($webserviceKeyId);
+    }
+
+    /**
+     * @return WebserviceKeyId
+     */
+    public function getWebserviceKeyId(): WebserviceKeyId
+    {
+        return $this->webserviceKeyId;
+    }
+}

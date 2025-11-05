@@ -1,4 +1,5 @@
-{# **
+<?php
+/**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
  *
@@ -21,18 +22,47 @@
  * @author    PrestaShop SA and Contributors <contact@prestashop.com>
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
- * #}
-{% extends '@PrestaShop/Admin/layout.html.twig' %}
+ */
 
-{% block content %}
-  {{ include('@PrestaShop/Admin/Improve/International/Locations/State/Blocks/change_states_zone_modal.html.twig') }}
+declare(strict_types=1);
 
-  {{ include('@PrestaShop/Admin/Common/Grid/grid_panel.html.twig', {grid: stateGrid}) }}
-{% endblock %}
+namespace PrestaShop\PrestaShop\Core\Domain\Webservice\Command;
 
-{% block javascripts %}
-  {{ parent() }}
+use PrestaShop\PrestaShop\Core\Domain\Webservice\ValueObject\WebserviceKeyId;
 
-  <script src="{{ asset('themes/new-theme/public/state.bundle.js') }}"></script>
-  <script src="{{ asset('themes/default/js/bundle/pagination.js') }}"></script>
-{% endblock %}
+/**
+ * Deletes states on bulk action
+ */
+class BulkDeleteWebserviceKeyCommand
+{
+    /**
+     * @var array<int, WebserviceKeyId>
+     */
+    private $webserviceKeyIds;
+
+    /**
+     * @param array<int, int> $webserviceKeyIds
+     */
+    public function __construct(array $webserviceKeyIds)
+    {
+        $this->setWebserviceKeyIds($webserviceKeyIds);
+    }
+
+    /**
+     * @return array<int, WebserviceKeyId>
+     */
+    public function getWebserviceKeyIds(): array
+    {
+        return $this->webserviceKeyIds;
+    }
+
+    /**
+     * @param array<int, int> $webserviceKeyIds
+     */
+    private function setWebserviceKeyIds(array $webserviceKeyIds): void
+    {
+        foreach ($webserviceKeyIds as $webserviceKeyId) {
+            $this->webserviceKeyIds[] = new WebserviceKeyId((int) $webserviceKeyId);
+        }
+    }
+}

@@ -22,17 +22,35 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * #}
-{% extends '@PrestaShop/Admin/layout.html.twig' %}
 
-{% block content %}
-  {{ include('@PrestaShop/Admin/Improve/International/Locations/State/Blocks/change_states_zone_modal.html.twig') }}
+{% embed '@PrestaShop/Admin/Helpers/bootstrap_popup.html.twig' with {
+  id: 'changeStatesZoneModal',
+  title: 'Choose a zone'|trans({}, 'Admin.International.Feature'),
+  closable: true,
+  actions: [{
+    type: 'button',
+    label: 'Update zone'|trans({}, 'Admin.International.Feature'),
+    class: 'btn btn-primary btn-lg js-submit-modal-form-btn',
+  }],
+} %}
+  {% block content %}
+    <div class="modal-body">
+      {{ form_start(changeStatesZoneForm, {
+        action: path('admin_states_bulk_update_zone'),
+        attr: {
+          'data-bulk-inputs-id': changeStatesZoneForm.state_ids.vars.id
+        }
+      }) }}
 
-  {{ include('@PrestaShop/Admin/Common/Grid/grid_panel.html.twig', {grid: stateGrid}) }}
-{% endblock %}
+      <div class="form-group mb-0">
+        {{ form_widget(changeStatesZoneForm.new_zone_id) }}
+      </div>
 
-{% block javascripts %}
-  {{ parent() }}
+      <div class="d-none">
+        {{ form_widget(changeStatesZoneForm.state_ids) }}
+      </div>
 
-  <script src="{{ asset('themes/new-theme/public/state.bundle.js') }}"></script>
-  <script src="{{ asset('themes/default/js/bundle/pagination.js') }}"></script>
-{% endblock %}
+      {{ form_end(changeStatesZoneForm) }}
+    </div>
+  {% endblock %}
+{% endembed %}

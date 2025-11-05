@@ -593,6 +593,10 @@ services:
       $countriesChoiceProvider: '@prestashop.core.form.choice_provider.configurable_country_by_id'
       $zonesChoiceProvider: '@prestashop.core.form.choice_provider.zone_by_id'
 
+  PrestaShopBundle\Form\Admin\Improve\International\Locations\ChangeStatesZoneType:
+    arguments:
+      $zoneChoiceProvider: '@prestashop.core.form.choice_provider.zone_by_id'
+
   PrestaShopBundle\Form\Admin\Sell\Product\EventListener\SpecificPriceCombinationListener:
     arguments:
       $combinationRepository: '@PrestaShop\PrestaShop\Adapter\Product\Combination\Repository\CombinationRepository'
