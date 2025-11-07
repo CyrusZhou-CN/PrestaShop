@@ -559,6 +559,7 @@ services:
   PrestaShopBundle\Form\Admin\Configure\ShopParameters\OrderStates\OrderStateType:
     arguments:
       $themeCatalog: "@prestashop.core.mail_template.theme_catalog"
+      $legacyTemplateLister: '@prestashop.core.email.legacy_template_lister'
 
   PrestaShopBundle\Form\Admin\Improve\International\Locations\ZoneType:
   PrestaShopBundle\Form\Admin\Improve\International\Locations\CountryType:
