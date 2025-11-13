@@ -226,6 +226,15 @@ default:
         - Tests\Integration\Behaviour\Features\Context\Domain\CurrencyFeatureContext
         - Tests\Integration\Behaviour\Features\Context\LanguageFeatureContext
         - Tests\Integration\Behaviour\Features\Context\ShopFeatureContext
+    tag:
+      paths:
+        - "%paths.base%/Features/Scenario/Tag"
+      contexts:
+        - Tests\Integration\Behaviour\Features\Context\CommonFeatureContext
+        - Tests\Integration\Behaviour\Features\Context\Domain\Product\AddProductFeatureContext
+        - Tests\Integration\Behaviour\Features\Context\Domain\TagFeatureContext
+        - Tests\Integration\Behaviour\Features\Context\LanguageFeatureContext
+        - Tests\Integration\Behaviour\Features\Context\ShopFeatureContext
     webservice:
       paths:
         - "%paths.base%/Features/Scenario/Webservice"

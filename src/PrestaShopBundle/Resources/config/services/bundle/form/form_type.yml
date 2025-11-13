@@ -707,3 +707,7 @@ services:
   PrestaShopBundle\Form\Admin\Sell\Order\Shipment\SplitShipmentType: ~
 
   PrestaShopBundle\Form\Admin\Sell\Order\Shipment\EditShipmentType: ~
+
+  PrestaShopBundle\Form\Admin\Configure\ShopParameters\Tag\TagType:
+    arguments:
+      $languagesChoices: '@=service("prestashop.core.form.choice_provider.all_languages").getChoices()'

@@ -17,3 +17,21 @@ admin_tags_search:
     _legacy_controller: AdminTags
     _legacy_link: AdminTags:submitFiltertags
     _legacy_feature_flag: tag
+
+admin_tags_create:
+  path: /tags/create
+  methods: [ GET, POST, PATCH ]
+  defaults:
+    _controller: PrestaShopBundle\Controller\Admin\Configure\ShopParameters\TagController::createAction
+    _legacy_controller: AdminTags
+    _legacy_link: AdminTags:addtag
+    _legacy_feature_flag: tag
+
+admin_tags_edit:
+  path: /tags/{tagId}/edit
+  methods: [ GET, POST, PATCH ]
+  defaults:
+    _controller: PrestaShopBundle\Controller\Admin\Configure\ShopParameters\TagController::editAction
+    _legacy_controller: AdminTags
+    _legacy_link: AdminTags:updatetag
+    _legacy_feature_flag: tag

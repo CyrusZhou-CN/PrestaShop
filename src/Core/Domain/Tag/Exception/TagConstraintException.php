@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -26,33 +27,12 @@
 
 declare(strict_types=1);
 
-namespace PrestaShop\PrestaShop\Core\Grid\Data\Factory;
+namespace PrestaShop\PrestaShop\Core\Domain\Tag\Exception;
 
-use PrestaShop\PrestaShop\Core\Grid\Data\GridData;
-use PrestaShop\PrestaShop\Core\Grid\Record\RecordCollectionInterface;
-use PrestaShop\PrestaShop\Core\Grid\Search\SearchCriteriaInterface;
-
-class TagGridDataFactory implements GridDataFactoryInterface
+class TagConstraintException extends TagException
 {
-    public function __construct(
-        private readonly GridDataFactoryInterface $tagDataFactory
-    ) {
-    }
-
-    public function getData(SearchCriteriaInterface $searchCriteria): GridData
-    {
-        $data = $this->tagDataFactory->getData($searchCriteria);
-        $modifiedRecords = $this->applyModifications($data->getRecords(), $data->getRecordsTotal());
-
-        return new GridData(
-            $modifiedRecords,
-            $data->getRecordsTotal(),
-            $data->getQuery()
-        );
-    }
-
-    private function applyModifications(RecordCollectionInterface $records, int $totalRecord): RecordCollectionInterface
-    {
-        return $records;
-    }
+    /**
+     * When id is not valid
+     */
+    public const INVALID_ID = 10;
 }

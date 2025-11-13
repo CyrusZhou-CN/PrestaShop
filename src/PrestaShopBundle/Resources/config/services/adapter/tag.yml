@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    public: false
+    autowire: true
+    autoconfigure: true
+
+  PrestaShop\PrestaShop\Adapter\Tag\CommandHandler\AddTagHandler:
+
+  PrestaShop\PrestaShop\Adapter\Tag\CommandHandler\EditTagHandler:
+
+  PrestaShop\PrestaShop\Adapter\Tag\QueryHandler\GetTagForEditingHandler:

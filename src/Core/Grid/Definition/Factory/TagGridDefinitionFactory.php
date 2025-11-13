@@ -31,6 +31,8 @@ namespace PrestaShop\PrestaShop\Core\Grid\Definition\Factory;
 use PrestaShop\PrestaShop\Core\Form\ConfigurableFormChoiceProviderInterface;
 use PrestaShop\PrestaShop\Core\Grid\Action\Bulk\BulkActionCollection;
 use PrestaShop\PrestaShop\Core\Grid\Action\GridActionCollection;
+use PrestaShop\PrestaShop\Core\Grid\Action\Row\RowActionCollection;
+use PrestaShop\PrestaShop\Core\Grid\Action\Row\Type\LinkRowAction;
 use PrestaShop\PrestaShop\Core\Grid\Action\Type\SimpleGridAction;
 use PrestaShop\PrestaShop\Core\Grid\Column\ColumnCollection;
 use PrestaShop\PrestaShop\Core\Grid\Column\Type\Common\ActionColumn;
@@ -127,8 +129,37 @@ class TagGridDefinitionFactory extends AbstractGridDefinitionFactory
             ->add(
                 (new ActionColumn('actions'))
                     ->setName($this->trans('Actions', [], 'Admin.Global'))
-                    ->setOptions([])
+                    ->setOptions([
+                        'actions' => $this->getRowActions(),
+                    ])
             );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getRowActions(): RowActionCollection
+    {
+        $rowActions = new RowActionCollection();
+        $rowActions
+            ->add((new LinkRowAction('edit'))
+                ->setName($this->trans('Edit', [], 'Admin.Actions'))
+                ->setIcon('edit')
+                ->setOptions([
+                    'route' => 'admin_tags_edit',
+                    'route_param_name' => 'tagId',
+                    'route_param_field' => 'id_tag',
+                ])
+            )/*
+            ->add(
+                $this->buildDeleteAction(
+                    'admin_api_clients_delete',
+                    'apiClientId',
+                    'id_api_client',
+                )
+            )*/;
+
+        return $rowActions;
     }
 
     /**
