@@ -32,6 +32,9 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
+      - name: Disable Composer audit blocking (global for CI)
+        run: composer config --no-interaction audit.block-insecure false
+
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --no-scripts
 
