@@ -6,22 +6,28 @@ on:
 
 jobs:
   update-prestashop-packages:
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         BRANCH:
           - develop
+          - 9.1.x
           - 9.0.x
     env:
       GH_BRANCH: ${{ matrix.BRANCH }}
-      IGNORE_PRESTASHOP_PACKAGES: "prestashop/psgdpr"
+      IGNORE_PRESTASHOP_PACKAGES: "prestashop/psgdpr prestashop/ps_apiresources"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ env.GH_BRANCH }}
+          token: ${{ secrets.JARVIS_TOKEN }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -31,9 +37,6 @@ jobs:
 
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Disable Composer audit blocking (global for CI)
-        run: composer config --no-interaction audit.block-insecure false
 
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --no-scripts
@@ -88,16 +91,25 @@ jobs:
 
           body="${body//GH_BRANCH/$GH_BRANCH}"
 
+          details_header=$(cat <<'EOF'
+
+          ## Updated packages
+
+          | Package | From | To |
+          | ------- | ---- | -- |
+          EOF
+          )
+
           details=$(printf '%s\n' "$json" | jq -r --arg ignore "$ignore" '
             .installed
             | map(select(.name | startswith("prestashop/")))
             | (if $ignore == "" then . else map(select(.name as $n |
                 ($ignore | split(" ") | index($n)) | not)) end)
             | .[]
-            | "Package `\(.name)`: `\(.version)` → `\(.latest)`<br />"
+            | "| `\(.name)` | `\(.version)` | `\(.latest)` |"
           ')
 
-          body="$body$details"
+          body="$body$details_header"$'\n'"$details"
 
           {
             echo "body<<EOF"
@@ -119,10 +131,10 @@ jobs:
         if: steps.outdated.outputs.has_updates == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.JARVIS_TOKEN }}
           commit-message: "Update prestashop/* composer packages"
           title: "Update prestashop/* composer packages"
           body: ${{ steps.outdated.outputs.body }}
           branch: chore/update-prestashop-packages-${{ env.GH_BRANCH }}
           base: ${{ env.GH_BRANCH }}
           delete-branch: true
+          token: ${{ secrets.JARVIS_TOKEN }}

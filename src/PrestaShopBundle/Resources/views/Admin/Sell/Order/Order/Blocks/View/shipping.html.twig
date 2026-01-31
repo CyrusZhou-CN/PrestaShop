@@ -24,7 +24,7 @@
  * #}
 
 {% if not orderForViewing.virtual %}
-    <table class="table" id="shipping-grid-table">
+    <table class="table mb-0" id="shipping-grid-table">
     <thead>
       <tr>
         <th>{{ 'Date'|trans({}, 'Admin.Global') }}</th>
@@ -59,6 +59,7 @@
                  class="js-update-shipping-btn d-print-none"
                  data-toggle="modal"
                  data-target="#updateOrderShippingModal"
+                 data-carrier-id="{{ carrier.carrierId }}"
                  data-order-carrier-id="{{ carrier.orderCarrierId }}"
                  data-order-tracking-number="{{ carrier.trackingNumber }}"
               >

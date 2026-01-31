@@ -514,7 +514,7 @@ abstract class PaymentModuleCore extends Module
                         $customization_text = '';
                         if (isset($customization['datas'][Product::CUSTOMIZE_TEXTFIELD])) {
                             foreach ($customization['datas'][Product::CUSTOMIZE_TEXTFIELD] as $text) {
-                                $customization_text .= '<strong>' . $text['name'] . '</strong>: ' . $text['value'] . '<br />';
+                                $customization_text .= '<strong>' . $text['name'] . '</strong>: ' . htmlspecialchars($text['value'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '<br />';
                             }
                         }
 
@@ -723,7 +723,7 @@ abstract class PaymentModuleCore extends Module
                         '{id_order}' => $order->id,
                         '{date}' => Tools::displayDate(date('Y-m-d H:i:s'), true),
                         '{carrier}' => ($virtual_product || !isset($carrier->name)) ? $this->trans('No carrier', [], 'Admin.Payment.Notification') : $carrier->name,
-                        '{payment}' => Tools::substr($order->payment, 0, 255) . ($order->hasBeenPaid() ? '' : '&nbsp;' . $this->trans('(waiting for validation)', [], 'Emails.Body')),
+                        '{payment}' => $order->payment,
                         '{products}' => $product_list_html,
                         '{products_txt}' => $product_list_txt,
                         '{discounts}' => $cart_rules_list_html,
@@ -980,8 +980,15 @@ abstract class PaymentModuleCore extends Module
      */
     protected function getEmailTemplateContent($template_name, $mail_type, $var)
     {
-        $email_configuration = Configuration::get('PS_MAIL_TYPE');
-        if ($email_configuration != $mail_type && $email_configuration != Mail::TYPE_BOTH) {
+        $configuration = Configuration::get('PS_MAIL_TYPE');
+
+        // Do not render TXT if not needed
+        if ($mail_type === Mail::TYPE_TEXT && !in_array($configuration, [Mail::TYPE_TEXT, Mail::TYPE_BOTH])) {
+            return '';
+        }
+
+        // Do not render HTML if not needed
+        if ($mail_type === Mail::TYPE_HTML && !in_array($configuration, [Mail::TYPE_HTML, Mail::TYPE_BOTH, Mail::TYPE_BOTH_AUTOMATIC_TEXT])) {
             return '';
         }
 
@@ -1324,7 +1331,10 @@ abstract class PaymentModuleCore extends Module
 
                 // Create a new instance of Cart Rule without id_lang, in order to update its quantity
                 $cart_rule_to_update = new CartRule((int) $cartRule->id);
-                $cart_rule_to_update->quantity = max(0, $cart_rule_to_update->quantity - 1);
+                // if the cart rule isn't in nolimit mode, we decrease the quantity available
+                if ($cart_rule_to_update->quantity !== null) {
+                    $cart_rule_to_update->quantity = max(0, $cart_rule_to_update->quantity - 1);
+                }
                 $cart_rule_to_update->update();
             }
 

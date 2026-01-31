@@ -12,13 +12,27 @@ services:
   PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\UpdateDiscountHandler:
     autoconfigure: true
 
-  PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\UpdateDiscountConditionsHandler:
+  PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\BulkUpdateDiscountsStatusHandler:
+    autoconfigure: true
+
+  PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\BulkDeleteDiscountsHandler:
+    autoconfigure: true
+
+  PrestaShop\PrestaShop\Adapter\Discount\CommandHandler\DuplicateDiscountHandler:
+    autoconfigure: true
+
+  PrestaShop\PrestaShop\Adapter\Discount\Update\DiscountBuilder:
     autoconfigure: true
 
   PrestaShop\PrestaShop\Adapter\Discount\Update\Filler\DiscountFiller:
     autoconfigure: true
 
   PrestaShop\PrestaShop\Adapter\Discount\Update\DiscountConditionsUpdater:
+    autoconfigure: true
+    arguments:
+      $dbPrefix: '%database_prefix%'
+
+  PrestaShop\PrestaShop\Adapter\Discount\Update\DiscountDuplicator:
     autoconfigure: true
     arguments:
       $dbPrefix: '%database_prefix%'

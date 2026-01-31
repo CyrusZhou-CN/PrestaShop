@@ -45,6 +45,13 @@ use PrestaShop\PrestaShop\Core\Domain\Customer\Group\Command\EditCustomerGroupCo
 use PrestaShop\PrestaShop\Core\Domain\Customer\Group\Query\GetCustomerGroupForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Customer\Group\QueryResult\EditableCustomerGroup;
 use PrestaShop\PrestaShop\Core\Domain\Customer\Group\ValueObject\GroupId;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRule;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroup;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroupType;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleType;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
 use PrestaShop\PrestaShop\Core\Domain\Module\Command\UploadModuleCommand;
 use PrestaShop\PrestaShop\Core\Domain\Product\Command\AddProductCommand;
 use PrestaShop\PrestaShop\Core\Domain\Product\Command\UpdateProductCommand;
@@ -63,6 +70,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\File\File;
 use Tests\Integration\Utility\LanguageTrait;
 use Tests\Resources\ApiPlatform\Resources\LocalizedResource;
+use Tests\Resources\ApiPlatform\Resources\UpdatePositionResource;
 use Tests\Resources\Resetter\LanguageResetter;
 use Tests\Resources\ResourceResetter;
 
@@ -427,14 +435,14 @@ class CQRSApiSerializerTest extends KernelTestCase
 
         $hook = new Hook();
         $hook->hookId = 1;
-        $hook->active = true;
+        $hook->enabled = true;
         $hook->name = 'testHook';
         $hook->title = 'testHookTitle';
         $hook->description = '';
         yield 'denormalize an APIPlatform DTO with specified mapping' => [
             [
                 'id_hook' => 1,
-                'active' => true,
+                'enabled' => true,
                 'name' => 'testHook',
                 'title' => 'testHookTitle',
                 'description' => '',
@@ -516,6 +524,67 @@ class CQRSApiSerializerTest extends KernelTestCase
                 '[archive].pathName' => '[source]',
             ],
         ];
+
+        $updateDiscountCommand = new UpdateDiscountCommand(42);
+        $updateDiscountCommand->setMinimumAmount(
+            new DecimalNumber('42.99'),
+            1,
+            false,
+            false,
+        );
+        $updateDiscountCommand->setReductionAmount(
+            new DecimalNumber('34.89'),
+            2,
+            true,
+        );
+        yield 'update discount command minimum amount' => [
+            [
+                'discountId' => 42,
+                'minimumAmount' => [
+                    'amount' => '42.99',
+                    'currencyId' => 1,
+                    'taxIncluded' => false,
+                    'shippingIncluded' => false,
+                ],
+                'reductionAmount' => [
+                    'amount' => '34.89',
+                    'currencyId' => 2,
+                    'taxIncluded' => true,
+                ],
+            ],
+            $updateDiscountCommand,
+        ];
+
+        $addDiscountCommand = new AddDiscountCommand(DiscountType::CART_LEVEL, [1 => 'name']);
+        $addDiscountCommand->setMinimumAmount(
+            new DecimalNumber('42.99'),
+            1,
+            false,
+            false,
+        );
+        $addDiscountCommand->setReductionAmount(
+            new DecimalNumber('34.89'),
+            2,
+            true,
+        );
+        yield 'add discount command minimum amount' => [
+            [
+                'type' => DiscountType::CART_LEVEL,
+                'localizedNames' => [1 => 'name'],
+                'minimumAmount' => [
+                    'amount' => '42.99',
+                    'currencyId' => 1,
+                    'taxIncluded' => false,
+                    'shippingIncluded' => false,
+                ],
+                'reductionAmount' => [
+                    'amount' => '34.89',
+                    'currencyId' => 2,
+                    'taxIncluded' => true,
+                ],
+            ],
+            $addDiscountCommand,
+        ];
     }
 
     public function testNormalize(): void
@@ -523,7 +592,8 @@ class CQRSApiSerializerTest extends KernelTestCase
         $serializer = self::getContainer()->get(CQRSApiSerializer::class);
         foreach ($this->getNormalizationData() as $useCase => $normalizationData) {
             list($dataToNormalize, $expectedNormalizedData, $normalizationMapping, $extraContext) = array_pad($normalizationData, 4, null);
-            $context = [NormalizationMapper::NORMALIZATION_MAPPING => ($normalizationMapping ?? [])] + ($extraContext ?? []);
+            // Force iri in context to avoid calling the IriConverter from ApiPlatform to run and cause error not relevant for this test
+            $context = ['iri' => 'kiri'] + [NormalizationMapper::NORMALIZATION_MAPPING => ($normalizationMapping ?? [])] + ($extraContext ?? []);
 
             self::assertEquals($expectedNormalizedData, $serializer->normalize($dataToNormalize, null, $context), $useCase);
         }
@@ -531,6 +601,73 @@ class CQRSApiSerializerTest extends KernelTestCase
 
     public static function getNormalizationData(): iterable
     {
+        $productRuleGroups = [
+            new ProductRuleGroup(
+                5,
+                [
+                    new ProductRule(
+                        ProductRuleType::PRODUCTS,
+                        [1, 3, 5],
+                    ),
+                ],
+            ),
+        ];
+        yield 'product conditions' => [
+            $productRuleGroups,
+            [
+                [
+                    'quantity' => 5,
+                    'rules' => [
+                        [
+                            'type' => ProductRuleType::PRODUCTS->value,
+                            'itemIds' => [1, 3, 5],
+                        ],
+                    ],
+                    'type' => ProductRuleGroupType::AT_LEAST_ONE_PRODUCT_RULE->value,
+                ],
+            ],
+        ];
+
+        $productResource = new Product();
+        $productResource->type = ProductType::TYPE_STANDARD;
+        $productResource->enabled = true;
+        $productResource->names = [
+            'en-US' => 'Product name',
+            'fr-FR' => 'Nom du produit',
+        ];
+        yield 'product resource with localized values' => [
+            $productResource,
+            [
+                'type' => ProductType::TYPE_STANDARD,
+                'enabled' => true,
+                'names' => [
+                    'en-US' => 'Product name',
+                    'fr-FR' => 'Nom du produit',
+                ],
+                'redirectTarget' => null,
+                'availableDate' => null,
+            ],
+        ];
+
+        $positionResource = new UpdatePositionResource();
+        $positionResource->positions = [
+            [
+                'testId' => 3,
+                'newPosition' => 1,
+            ],
+        ];
+        yield 'resource with position collection' => [
+            $positionResource,
+            [
+                'positions' => [
+                    [
+                        'rowId' => 3,
+                        'newPosition' => 1,
+                    ],
+                ],
+            ],
+        ];
+
         $virtualProduct = new VirtualProductFileForEditing(
             42,
             'virtual file',
@@ -548,15 +685,6 @@ class CQRSApiSerializerTest extends KernelTestCase
                 'accessDays' => 23,
                 'downloadTimesLimit' => 1,
                 'expirationDate' => '1969-07-11 00:00:00',
-            ],
-        ];
-
-        $createdApiClient = new CreatedApiClient(42, 'my_secret');
-        yield 'test' => [
-            $createdApiClient,
-            [
-                'apiClientId' => 42,
-                'secret' => 'my_secret',
             ],
         ];
 
