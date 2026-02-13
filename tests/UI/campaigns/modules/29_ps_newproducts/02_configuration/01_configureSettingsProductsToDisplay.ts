@@ -112,7 +112,7 @@ describe('New products block module - Configure settings of "Products to display
     it('should check the block "New Products" is visible', async function () {
       await testContext.addContextItem(this, 'testIdentifier', `checkBlockNewProductsVisible${index}`, baseContext);
 
-      const hasProductsBlock = await foHummingbirdHomePage.hasProductsBlock(page, 'newproducts');
+      const hasProductsBlock = await foHummingbirdHomePage.hasProductsBlock(page, 'ps-newproducts');
       expect(hasProductsBlock).to.be.equal(true);
 
       const numProductsBlock = await foHummingbirdHomePage.getProductsBlockNumber(page, 'ps-newproducts');
@@ -159,7 +159,7 @@ describe('New products block module - Configure settings of "Products to display
     it('should check the block "New Products" is visible', async function () {
       await testContext.addContextItem(this, 'testIdentifier', `checkBlockNewProductsVisibleError${index}`, baseContext);
 
-      const hasProductsBlock = await foHummingbirdHomePage.hasProductsBlock(page, 'newproducts');
+      const hasProductsBlock = await foHummingbirdHomePage.hasProductsBlock(page, 'ps-newproducts');
       expect(hasProductsBlock).to.be.equal(true);
 
       const numProductsBlock = await foHummingbirdHomePage.getProductsBlockNumber(page, 'ps-newproducts');

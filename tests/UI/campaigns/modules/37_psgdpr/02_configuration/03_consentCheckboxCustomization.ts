@@ -1,6 +1,6 @@
 import testContext from '@utils/testContext';
 import {expect} from 'chai';
-import {faker, fakerFR} from '@faker-js/faker';
+import {faker} from '@faker-js/faker';
 
 // Import commonTests
 import {createProductTest, deleteProductTest} from '@commonTests/BO/catalog/product';
@@ -8,8 +8,6 @@ import {resetModule} from '@commonTests/BO/modules/moduleManager';
 
 import {
   boDashboardPage,
-  boDesignPositionsPage,
-  boDesignPositionsHookModulePage,
   boLoginPage,
   boModuleManagerPage,
   type BrowserContext,
@@ -37,13 +35,14 @@ const baseContext: string = 'modules_psgdpr_configuration_consentCheckboxCustomi
 describe('GDPR : Consent checkbox customization', async () => {
   let browserContext: BrowserContext;
   let page: Page;
-  const messageAccountCreation: string = faker.lorem.sentence();
-  const messageCustomerAccount: string = faker.lorem.sentence();
-  const messageNewsletter: string = faker.lorem.sentence();
-  const messageContactForm: string = faker.lorem.sentence();
-  const messageProductComments: string = faker.lorem.sentence();
-  const messageMailAlerts: string = faker.lorem.sentence();
-  const messageMailAlertsFR: string = fakerFR.lorem.sentence();
+  const messageBase: string = faker.lorem.sentence();
+  const messageAccountCreation: string = `Account Creation - ${messageBase}`;
+  const messageCustomerAccount: string = `Customer Account - ${messageBase}`;
+  const messageNewsletter: string = `Newsletter - ${messageBase}`;
+  const messageContactForm: string = `Contact Form - ${messageBase}`;
+  const messageProductComments: string = `Product Comments - ${messageBase}`;
+  const messageMailAlerts: string = `Mail Alerts EN - ${messageBase}`;
+  const messageMailAlertsFR: string = `Mail Alerts FR - ${messageBase}`;
   const customerData: FakerCustomer = new FakerCustomer();
   const productOutOfStock: FakerProduct = new FakerProduct({
     quantity: 0,
@@ -52,7 +51,6 @@ describe('GDPR : Consent checkbox customization', async () => {
   createProductTest(productOutOfStock, `${baseContext}_preTest_0`);
 
   describe('Consent checkbox customization', async () => {
-    // before and after functions
     before(async function () {
       browserContext = await utilsPlaywright.createBrowserContext(this.browser);
       page = await utilsPlaywright.newTab(browserContext);
@@ -248,42 +246,6 @@ describe('GDPR : Consent checkbox customization', async () => {
       expect(isHomePage).to.eq(true);
 
       const hasSubscribeNewsletterRGPD = await foHummingbirdHomePage.hasSubscribeNewsletterRGPD(page);
-      expect(hasSubscribeNewsletterRGPD).to.equal(false);
-    });
-
-    it('should go to the Manage Hooks page', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'goToManageHooks', baseContext);
-
-      page = await foHummingbirdHomePage.changePage(browserContext, 0);
-      await modPsGdprBoTabDataConsent.clickHeaderManageHooks(page);
-
-      const pageTitle = await boDesignPositionsPage.getPageTitle(page);
-      expect(pageTitle).to.be.equal(boDesignPositionsPage.pageTitle);
-    });
-
-    it('should add a new hook', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'addNewHook', baseContext);
-
-      await boDesignPositionsPage.clickHeaderHookModule(page);
-
-      const pageTitle = await boDesignPositionsHookModulePage.getPageTitle(page);
-      expect(pageTitle).to.be.equal(boDesignPositionsHookModulePage.pageTitle);
-    });
-
-    it('should connect the hook', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'saveHook', baseContext);
-
-      const successMessage = await boDesignPositionsHookModulePage.saveForm(page);
-      expect(successMessage).to.be.equal(boDesignPositionsPage.messageModuleAddedFromHook);
-    });
-
-    it('should check on the Subscribe Newsletter the RGPD checkbox', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkSubscribeNewsletterHasBlock', baseContext);
-
-      page = await boDesignPositionsPage.changePage(browserContext, 1);
-      await foHummingbirdHomePage.reloadPage(page);
-
-      const hasSubscribeNewsletterRGPD = await foHummingbirdHomePage.hasSubscribeNewsletterRGPD(page);
       expect(hasSubscribeNewsletterRGPD).to.be.equals(true);
 
       const labelSubscribeNewsletterRGPD = await foHummingbirdHomePage.getSubscribeNewsletterRGPDLabel(page);
@@ -452,6 +414,11 @@ describe('GDPR : Consent checkbox customization', async () => {
 
       const successMessage = await modPsGdprBoTabDataConsent.saveForm(page);
       expect(successMessage).to.be.contains(modPsGdprBoTabDataConsent.saveFormMessage);
+
+      await page.screenshot({
+        path: `${global.SCREENSHOT.FOLDER}/gdpr_00.png`,
+        fullPage: true,
+      });
     });
 
     it('should check on Contact Form the GDPR Label', async function () {

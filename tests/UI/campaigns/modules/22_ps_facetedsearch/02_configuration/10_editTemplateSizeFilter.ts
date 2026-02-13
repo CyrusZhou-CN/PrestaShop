@@ -184,7 +184,7 @@ describe('Faceted search module - Edit template - Size filter', async () => {
     it('should check the "All products" page', async function () {
       await testContext.addContextItem(this, 'testIdentifier', `goToAllProductsPage_${index}`, baseContext);
 
-      await foHummingbirdHomePage.goToAllProductsBlockPage(page, 1);
+      await foHummingbirdHomePage.goToAllProductsPage(page, 'ps-featuredproducts');
 
       const isCategoryPageVisible = await foHummingbirdCategoryPage.isCategoryPage(page);
       expect(isCategoryPageVisible).to.be.eq(true);

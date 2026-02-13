@@ -194,7 +194,7 @@ describe('New products block module: Upgrade module', async () => {
     it('should check if the "New Products" block is visible', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkVisible', baseContext);
 
-      const hasProductsBlock = await foHummingbirdHomePage.hasProductsBlock(page, 'newproducts');
+      const hasProductsBlock = await foHummingbirdHomePage.hasProductsBlock(page, 'ps-newproducts');
       expect(hasProductsBlock).to.eq(true);
     });
   });
@@ -282,7 +282,7 @@ describe('New products block module: Upgrade module', async () => {
     it('should check if the "New Products" block is visible', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkVisibleWoMaintenance', baseContext);
 
-      const hasProductsBlock = await foHummingbirdHomePage.hasProductsBlock(page, 'newproducts');
+      const hasProductsBlock = await foHummingbirdHomePage.hasProductsBlock(page, 'ps-newproducts');
       expect(hasProductsBlock).to.eq(true);
     });
   });

@@ -1,6 +1,9 @@
 // Import utils
 import testContext from '@utils/testContext';
 
+// Import commonTests
+import {disableModule, enableModule} from '@commonTests/BO/modules/moduleManager';
+
 import {expect} from 'chai';
 import {
   boDashboardPage,
@@ -19,8 +22,11 @@ import {
 
 const baseContext: string = 'modules_ps_supplierlist_configure_configureSettings';
 
-describe('ps_supplierlist - Configure Settings',
-  async () => {
+describe('ps_supplierlist - Configure Settings', async () => {
+  // PRE-TEST : Enable ps_supplierlist
+  enableModule(dataModules.psSupplierList, `${baseContext}_preTest_0`);
+
+  describe('Configure Settings', async () => {
     let browserContext: BrowserContext;
     let page: Page;
 
@@ -187,3 +193,7 @@ describe('ps_supplierlist - Configure Settings',
       expect(hasFiltersSuppliers).to.equal(false);
     });
   });
+
+  // POST-TEST : Disable ps_supplierlist
+  disableModule(dataModules.psSupplierList, `${baseContext}_postTest_0`);
+});

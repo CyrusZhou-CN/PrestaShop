@@ -129,20 +129,16 @@ describe('FO - Cart : Change quantity', async () => {
       expect(notificationsNumber).to.be.equal(64);
     });
 
-    it('should set the quantity 2400 in the input', async function () {
+    it('should set the quantity 2400 in the input & check the error message', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'setQuantity2400', baseContext);
 
       await foHummingbirdCartPage.editProductQuantity(page, 1, 2400);
 
-      const notificationsNumber = await foHummingbirdCartPage.getCartNotificationsNumber(page);
-      expect(notificationsNumber).to.be.equal(300);
-    });
-
-    it('should check the error message', async function () {
-      await testContext.addContextItem(this, 'testIdentifier', 'checkErrorMessage', baseContext);
-
       const alertText = await foHummingbirdCartPage.getNotificationMessage(page);
       expect(alertText).to.contains(foHummingbirdCartPage.errorNotificationForProductQuantity(300));
+
+      const notificationsNumber = await foHummingbirdCartPage.getCartNotificationsNumber(page);
+      expect(notificationsNumber).to.be.equal(300);
     });
 
     it('should set the quantity 3 in the input without validation', async function () {

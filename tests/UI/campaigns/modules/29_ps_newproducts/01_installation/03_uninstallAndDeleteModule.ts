@@ -110,7 +110,7 @@ describe('New products block module - Uninstall and delete module', async () => 
     it('should check if the "New Products" block is not visible', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'checkNotVisible', baseContext);
 
-      const hasProductsBlock = await foHummingbirdHomePage.hasProductsBlock(page, 'newproducts');
+      const hasProductsBlock = await foHummingbirdHomePage.hasProductsBlock(page, 'ps-newproducts');
       expect(hasProductsBlock).to.eq(false);
     });
   });

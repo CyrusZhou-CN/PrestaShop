@@ -129,7 +129,7 @@ describe('New products block module - Configure settings of "Number of days for 
       it('should check the block "New Products" is visible', async function () {
         await testContext.addContextItem(this, 'testIdentifier', `checkBlockNewProductsVisible${index}`, baseContext);
 
-        const hasProductsBlock = await foHummingbirdHomePage.hasProductsBlock(page, 'newproducts');
+        const hasProductsBlock = await foHummingbirdHomePage.hasProductsBlock(page, 'ps-newproducts');
         expect(hasProductsBlock).to.be.equal(arg.blockIsVisible);
       });
 

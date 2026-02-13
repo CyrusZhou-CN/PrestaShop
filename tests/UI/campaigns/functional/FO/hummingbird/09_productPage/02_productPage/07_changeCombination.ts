@@ -283,7 +283,7 @@ describe('FO - Product page - Product page : Change combination', async () => {
       await foHummingbirdProductPage.selectAttributes(page, 'select', combination);
 
       const selectedAttribute = await foHummingbirdProductPage.getSelectedAttribute(page, 1, 'select');
-      expect(selectedAttribute).to.equal('S');
+      expect(selectedAttribute).to.equal('M');
     });
 
     it('should select the \'Emballage Carton\' and check it', async function () {

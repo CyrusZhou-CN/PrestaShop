@@ -107,7 +107,7 @@ class CartLazyArray extends AbstractLazyArray
         if ($this->shouldSeparateGifts) {
             $rawProducts = $this->cart->getProductsWithSeparatedGifts();
         } else {
-            $rawProducts = $this->cart->getProducts(true);
+            $rawProducts = $this->cart->getProducts();
         }
 
         /*
@@ -169,7 +169,7 @@ class CartLazyArray extends AbstractLazyArray
     {
         $subtotals = [];
         $totalCartAmount = $this->cart->getOrderTotal($this->cartPresenter->includeTaxes(), Cart::ONLY_PRODUCTS);
-        $total_discount = $this->cart->getDiscountSubtotalWithoutGifts($this->cartPresenter->includeTaxes());
+        $total_discount = $this->cart->getOrderTotal($this->cartPresenter->includeTaxes(), Cart::ONLY_DISCOUNTS);
         $subtotals['products'] = [
             'type' => 'products',
             'label' => $this->translator->trans('Subtotal', [], 'Shop.Theme.Checkout'),
@@ -493,9 +493,14 @@ class CartLazyArray extends AbstractLazyArray
 
     private function cartVoucherHasFreeShippingOnly(array $cartVoucher): bool
     {
+        /*
+         * Here, we cannot just use $cartVoucher['free_shipping'], because the rule can do multiple things.
+         * If it gives a money discount AND free shipping, we must still display a numeric value.
+         */
         return !$this->cartVoucherHasPercentReduction($cartVoucher)
             && !$this->cartVoucherHasAmountReduction($cartVoucher)
-            && !$this->cartVoucherHasGiftProductReduction($cartVoucher);
+            && !$this->cartVoucherHasGiftProductReduction($cartVoucher)
+            && $cartVoucher['free_shipping'];
     }
 
     private function cartVoucherHasPercentReduction(array $cartVoucher): bool
@@ -574,6 +579,7 @@ class CartLazyArray extends AbstractLazyArray
                 $rawProduct['total']
         );
 
+        // Pass the cart quantity as quantity wanted for proper price calculation
         $rawProduct['quantity_wanted'] = $rawProduct['cart_quantity'];
 
         $presenter = new ProductListingPresenter(
