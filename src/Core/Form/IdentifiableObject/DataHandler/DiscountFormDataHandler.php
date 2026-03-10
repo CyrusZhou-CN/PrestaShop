@@ -1,27 +1,7 @@
 <?php
 /**
- * Copyright since 2007 PrestaShop SA and Contributors
- * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.md.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/OSL-3.0
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@prestashop.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to https://devdocs.prestashop.com/ for more information.
- *
- * @author    PrestaShop SA and Contributors <contact@prestashop.com>
- * @copyright Since 2007 PrestaShop SA and Contributors
- * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
+ * For the full copyright and license information, please view the
+ * docs/licenses/LICENSE.txt file that was distributed with this source code.
  */
 
 namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataHandler;
@@ -148,13 +128,12 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
 
             $neverExpires = !empty($data['period']['period_never_expires']);
             if ($neverExpires) {
-                $validTo = (new DateTime())->modify('+100 years')->setTime(23, 59, 59);
-                $validTo = DateTimeImmutable::createFromMutable($validTo);
+                $validTo = null;
             } else {
                 $validTo = $this->parseDateWithDefaultTime($dateRange['to'] ?? null, '23:59');
             }
 
-            if ($validFrom && $validTo) {
+            if ($validFrom) {
                 $command->setValidityDateRange($validFrom, $validTo);
             }
         }
@@ -189,16 +168,18 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
      */
     private function setDiscountValue(AddDiscountCommand|UpdateDiscountCommand $command, array $data): void
     {
-        if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
+        $reduction = $data['value']['reduction'];
+
+        if ($reduction['type'] === DiscountSettings::AMOUNT) {
             $command->setReductionAmount(
-                new DecimalNumber((string) $data['value']['reduction']['value']),
-                (int) $data['value']['reduction']['currency'],
-                (bool) $data['value']['reduction']['include_tax']
+                new DecimalNumber((string) $reduction['value']['amount']),
+                (int) $reduction['value']['currency'],
+                (bool) $reduction['include_tax']
             );
-        } elseif ($data['value']['reduction']['type'] === DiscountSettings::PERCENT) {
-            $command->setReductionPercent(new DecimalNumber((string) $data['value']['reduction']['value']));
+        } elseif ($reduction['type'] === DiscountSettings::PERCENT) {
+            $command->setReductionPercent(new DecimalNumber((string) $reduction['value']['amount']));
         } else {
-            throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
+            throw new RuntimeException('Unknown discount value type ' . $reduction['type']);
         }
     }
 
@@ -289,11 +270,12 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         if ($data['conditions'][DiscountConditionsType::CART_CONDITIONS]['children_selector'] === CartConditionsType::MINIMUM_PRODUCT_QUANTITY) {
             $command->setMinimumProductQuantity($data['conditions'][DiscountConditionsType::CART_CONDITIONS]['minimum_product_quantity']);
         } elseif ($data['conditions'][DiscountConditionsType::CART_CONDITIONS]['children_selector'] === CartConditionsType::MINIMUM_AMOUNT) {
+            $minimumAmount = $data['conditions'][DiscountConditionsType::CART_CONDITIONS]['minimum_amount'];
             $command->setMinimumAmount(
-                new DecimalNumber((string) $data['conditions'][DiscountConditionsType::CART_CONDITIONS]['minimum_amount']['value']),
-                $data['conditions'][DiscountConditionsType::CART_CONDITIONS]['minimum_amount']['currency'],
-                $data['conditions'][DiscountConditionsType::CART_CONDITIONS]['minimum_amount']['tax_included'],
-                $data['conditions'][DiscountConditionsType::CART_CONDITIONS]['minimum_amount']['shipping_included'],
+                new DecimalNumber((string) $minimumAmount['value']['amount']),
+                (int) $minimumAmount['value']['currency'],
+                $minimumAmount['tax_included'],
+                $minimumAmount['shipping_included'] ?? false,
             );
         } elseif ($data['conditions'][DiscountConditionsType::CART_CONDITIONS]['children_selector'] === CartConditionsType::NONE) {
             $command->setMinimumAmount(null);

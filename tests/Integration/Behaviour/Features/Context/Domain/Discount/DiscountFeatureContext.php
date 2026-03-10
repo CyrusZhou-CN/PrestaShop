@@ -1,27 +1,7 @@
 <?php
 /**
- * Copyright since 2007 PrestaShop SA and Contributors
- * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.md.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/OSL-3.0
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@prestashop.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to https://devdocs.prestashop.com/ for more information.
- *
- * @author    PrestaShop SA and Contributors <contact@prestashop.com>
- * @copyright Since 2007 PrestaShop SA and Contributors
- * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
+ * For the full copyright and license information, please view the
+ * docs/licenses/LICENSE.txt file that was distributed with this source code.
  */
 
 namespace Tests\Integration\Behaviour\Features\Context\Domain\Discount;
@@ -29,9 +9,7 @@ namespace Tests\Integration\Behaviour\Features\Context\Domain\Discount;
 use Behat\Gherkin\Node\TableNode;
 use Cart;
 use CartRule;
-use DateTime;
 use DateTimeImmutable;
-use DateTimeInterface;
 use Exception;
 use PHPUnit\Framework\Assert;
 use PrestaShop\Decimal\DecimalNumber;
@@ -222,11 +200,8 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         if (isset($data['valid_from'])) {
             $validFrom = new DateTimeImmutable($data['valid_from']);
 
-            // Check if "never expires" is set
             if (isset($data['period_never_expires']) && PrimitiveUtils::castStringBooleanIntoBoolean($data['period_never_expires'])) {
-                // Set expiration date to 100 years in the future
-                $validTo = (new DateTime())->modify('+100 years')->setTime(23, 59, 59);
-                $validTo = DateTimeImmutable::createFromMutable($validTo);
+                $validTo = null;
             } elseif (!empty($data['valid_to'])) {
                 $validTo = new DateTimeImmutable($data['valid_to']);
             } else {
@@ -400,17 +375,14 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             $command->setActive(PrimitiveUtils::castStringBooleanIntoBoolean($data['active']));
         }
         if (isset($data['period_never_expires']) && PrimitiveUtils::castStringBooleanIntoBoolean($data['period_never_expires'])) {
-            // When "never expires" is set, use 100 years in the future
             if (isset($data['valid_from'])) {
                 $validFrom = new DateTimeImmutable($data['valid_from']);
             } else {
                 $validFrom = new DateTimeImmutable();
             }
-            $validTo = (new DateTime())->modify('+100 years')->setTime(23, 59, 59);
-            $validTo = DateTimeImmutable::createFromMutable($validTo);
 
             try {
-                $command->setValidityDateRange($validFrom, $validTo);
+                $command->setValidityDateRange($validFrom, null);
             } catch (DiscountConstraintException $e) {
                 $this->setLastException($e);
             }
@@ -632,9 +604,19 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         }
         if (isset($expectedData['total_quantity'])) {
             if ($expectedData['total_quantity'] === 'null') {
-                Assert::assertNull($discountForEditing->getTotalQuantity(), 'Unexpected total quantity, expected null');
+                Assert::assertNull($discountForEditing->getTotalQuantity(), 'Unexpected total_quantity, expected null');
             } else {
-                Assert::assertSame((int) $expectedData['total_quantity'], $discountForEditing->getTotalQuantity(), 'Unexpected quantity');
+                Assert::assertSame((int) $expectedData['total_quantity'], $discountForEditing->getTotalQuantity(), 'Unexpected total_quantity');
+            }
+        }
+        if (isset($expectedData['quantity_used_in_orders'])) {
+            Assert::assertSame((int) $expectedData['quantity_used_in_orders'], $discountForEditing->getQuantityUsedInOrders(), 'Unexpected quantity_used_in_orders');
+        }
+        if (isset($expectedData['remaining_quantity'])) {
+            if ($expectedData['remaining_quantity'] === 'null') {
+                Assert::assertNull($discountForEditing->getRemainingQuantity(), 'Unexpected remaining_quantity, expected null');
+            } else {
+                Assert::assertSame((int) $expectedData['remaining_quantity'], $discountForEditing->getRemainingQuantity(), 'Unexpected remaining_quantity');
             }
         }
         if (isset($expectedData['quantity_per_user'])) {
@@ -728,7 +710,7 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             Assert::assertSame($this->referencesToIds($expectedData['countries']), $discountForEditing->getCountryIds(), 'Unexpected countries');
         }
         if (isset($expectedData['period_never_expires'])) {
-            $neverExpires = $this->isPeriodNeverExpires($discountForEditing->getValidTo());
+            $neverExpires = $discountForEditing->getValidTo() === null;
             Assert::assertSame(
                 PrimitiveUtils::castStringBooleanIntoBoolean($expectedData['period_never_expires']),
                 $neverExpires,
@@ -741,40 +723,15 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
     }
 
     /**
-     * @Then discount :discountReference expiration date should be more than :years years in the future
+     * @Then discount :discountReference should have no expiration date
      */
-    public function assertExpirationDateIsFarInFuture(string $discountReference, int $years = 50): void
+    public function assertDiscountHasNoExpirationDate(string $discountReference): void
     {
         $discountForEditing = $this->getDiscountForEditing($discountReference);
-        $validTo = $discountForEditing->getValidTo();
-
-        Assert::assertNotNull($validTo, 'Expiration date should not be null');
-
-        $now = new DateTime();
-        $threshold = $now->modify('+' . $years . ' years');
-
-        Assert::assertGreaterThan(
-            $threshold,
-            $validTo,
-            sprintf('Expiration date should be more than %d years in the future', $years)
+        Assert::assertNull(
+            $discountForEditing->getValidTo(),
+            'Discount should have no expiration date (period never expires)'
         );
-    }
-
-    /**
-     * Check if the discount period is set to "never expires" (100 years in the future).
-     */
-    private function isPeriodNeverExpires(?DateTimeInterface $validTo): bool
-    {
-        if ($validTo === null) {
-            return false;
-        }
-
-        // Check if the expiration date is more than 50 years in the future
-        // (we use 50 years as a threshold to detect "never expires" dates set to 100 years)
-        $now = new DateTime();
-        $threshold = $now->modify('+50 years');
-
-        return $validTo > $threshold;
     }
 
     protected function getDiscountForEditing(string $discountReference): DiscountForEditing
@@ -901,7 +858,7 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         if (!$this->getSharedStorage()->exists(self::DISCOUNT_TYPE_PREFIX . $discountType)) {
             /** @var DiscountTypeRepository $repository */
             $repository = $this->getContainer()->get(DiscountTypeRepository::class);
-            $activeTypes = $repository->getAllActiveTypes();
+            $activeTypes = $repository->getAllActiveTypes($this->getDefaultLangId());
 
             // Cache all existing discount types in shared storage for future references
             foreach ($activeTypes as $activeType) {

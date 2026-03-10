@@ -1,27 +1,7 @@
 <?php
 /**
- * Copyright since 2007 PrestaShop SA and Contributors
- * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.md.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/OSL-3.0
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@prestashop.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to https://devdocs.prestashop.com/ for more information.
- *
- * @author    PrestaShop SA and Contributors <contact@prestashop.com>
- * @copyright Since 2007 PrestaShop SA and Contributors
- * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
+ * For the full copyright and license information, please view the
+ * docs/licenses/LICENSE.txt file that was distributed with this source code.
  */
 
 namespace PrestaShopBundle\Controller\Admin\Sell\Order;
@@ -35,6 +15,7 @@ use PrestaShop\PrestaShop\Adapter\Order\Repository\OrderDetailRepository;
 use PrestaShop\PrestaShop\Adapter\PDF\OrderInvoicePdfGenerator;
 use PrestaShop\PrestaShop\Adapter\Tools;
 use PrestaShop\PrestaShop\Core\Action\ActionsBarButtonsCollection;
+use PrestaShop\PrestaShop\Core\Domain\Carrier\Query\GetCarriersForProduct;
 use PrestaShop\PrestaShop\Core\Domain\Cart\Query\GetCartForOrderCreation;
 use PrestaShop\PrestaShop\Core\Domain\CartRule\Exception\InvalidCartRuleDiscountValueException;
 use PrestaShop\PrestaShop\Core\Domain\CustomerMessage\Command\AddOrderCustomerMessageCommand;
@@ -85,6 +66,8 @@ use PrestaShop\PrestaShop\Core\Domain\Product\Exception\ProductOutOfStockExcepti
 use PrestaShop\PrestaShop\Core\Domain\Product\Exception\ProductSearchEmptyPhraseException;
 use PrestaShop\PrestaShop\Core\Domain\Product\Query\SearchProducts;
 use PrestaShop\PrestaShop\Core\Domain\Product\QueryResult\FoundProduct;
+use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\AddProductToShipment;
+use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\CreateShipment;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\EditShipment;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\MergeProductsToShipment;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\SplitShipment;
@@ -93,6 +76,7 @@ use PrestaShop\PrestaShop\Core\Domain\Shipment\Exception\ShipmentException;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Query\GetOrderShipments;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Query\GetShipmentForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Query\GetShipmentProducts;
+use PrestaShop\PrestaShop\Core\Domain\Shipment\Query\ListAvailableShipmentsForProduct;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\QueryResult\OrderShipment;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\QueryResult\OrderShipmentProduct;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\QueryResult\ShipmentForEditing;
@@ -119,7 +103,6 @@ use PrestaShopBundle\Controller\Admin\PrestaShopAdminController;
 use PrestaShopBundle\Exception\InvalidModuleException;
 use PrestaShopBundle\Form\Admin\Sell\Customer\PrivateNoteType;
 use PrestaShopBundle\Form\Admin\Sell\Order\AddOrderCartRuleType;
-use PrestaShopBundle\Form\Admin\Sell\Order\AddProductRowType;
 use PrestaShopBundle\Form\Admin\Sell\Order\CartSummaryType;
 use PrestaShopBundle\Form\Admin\Sell\Order\ChangeOrderAddressType;
 use PrestaShopBundle\Form\Admin\Sell\Order\ChangeOrderCurrencyType;
@@ -453,6 +436,7 @@ class OrderController extends PrestaShopAdminController
         CurrencyDataProvider $currencyDataProvider,
         FeatureFlagStateCheckerInterface $featureFlagStateChecker,
         #[Autowire(service: 'PrestaShop\PrestaShop\Core\Grid\Factory\ShipmentFactory')] GridFactoryInterface $shipmentGridFactory,
+        #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.add_product_form_builder')] FormBuilderInterface $addProductFormBuilder,
         ShipmentFilters $filters,
         Tools $tools,
     ): Response {
@@ -523,11 +507,8 @@ class OrderController extends PrestaShopAdminController
         // @todo: Fix me. Should not rely on legacy object model - Currency
         $orderCurrency = $currencyDataProvider->getCurrencyById($orderForViewing->getCurrencyId());
 
-        $addProductRowForm = $this->createForm(AddProductRowType::class, [], [
-            'order_id' => $orderId,
-            'currency_id' => $orderForViewing->getCurrencyId(),
-            'symbol' => $orderCurrency->symbol,
-        ]);
+        $addProductForm = $addProductFormBuilder->getFormFor($orderId);
+
         $editProductRowForm = $this->createForm(EditProductRowType::class, [], [
             'order_id' => $orderId,
             'symbol' => $orderCurrency->symbol,
@@ -620,7 +601,7 @@ class OrderController extends PrestaShopAdminController
             'invoiceManagementIsEnabled' => $orderForViewing->isInvoiceManagementIsEnabled(),
             'changeOrderAddressForm' => $changeOrderAddressForm?->createView(),
             'orderMessageForm' => $orderMessageForm->createView(),
-            'addProductRowForm' => $addProductRowForm->createView(),
+            'addProductRowForm' => $addProductForm->createView(),
             'editProductRowForm' => $editProductRowForm->createView(),
             'backOfficeOrderButtons' => $backOfficeOrderButtons,
             'merchandiseReturnEnabled' => $merchandiseReturnEnabled,
@@ -653,6 +634,24 @@ class OrderController extends PrestaShopAdminController
             'shipmentId' => $shipmentId,
             'products' => $formData['products'],
             'isShipped' => $isShipped,
+        ]);
+    }
+
+    #[AdminSecurity("is_granted('update', 'AdminOrders')", redirectRoute: 'admin_orders_view', redirectQueryParamsToKeep: ['orderId'], message: 'You do not have permission to edit this.')]
+    public function getAddProductForm(
+        int $orderId,
+        #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.add_product_form_builder')] FormBuilderInterface $addProductFormBuilder,
+        FeatureFlagStateCheckerInterface $featureFlagStateChecker
+    ): Response {
+        $orderForViewing = $this->dispatchQuery(new GetOrderForViewing($orderId, QuerySorting::DESC));
+        $form = $addProductFormBuilder->getFormFor($orderId);
+
+        return $this->render('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/add_product_form.html.twig', [
+            'addProductForm' => $form->createView(),
+            'orderForViewing' => $orderForViewing,
+            'orderHasShipment' => $this->orderHasShipment($orderForViewing->getId()),
+            'isMultishipmentIsEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
+            'orderId' => $orderId,
         ]);
     }
 
@@ -882,6 +881,41 @@ class OrderController extends PrestaShopAdminController
         return !($allSelected && $allQuantitiesMatch);
     }
 
+    #[AdminSecurity("is_granted('update', 'AdminOrders')", message: 'You do not have permission to show this.')]
+    public function getShipmentsForProduct(
+        int $orderId,
+        int $productId,
+    ): Response {
+        $shipments = $this->dispatchCommand(new ListAvailableShipmentsForProduct($orderId, $productId));
+        $shipments[] = [
+            'id' => 0,
+            'name' => $this->trans('Create a shipment', [], 'Admin.Orderscustomers.Feature'),
+        ];
+
+        return $this->json(
+            ['shipments' => $shipments],
+            Response::HTTP_OK
+        );
+    }
+
+    #[AdminSecurity("is_granted('update', 'AdminOrders')", message: 'You do not have permission to show this.')]
+    public function getCarriersForProduct(
+        int $productId,
+    ): Response {
+        if (empty($productId)) {
+            return $this->json(
+                ['error' => 'missing productId'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $carriers = $this->dispatchQuery(new GetCarriersForProduct($productId));
+
+        return $this->json(
+            ['carriers' => $carriers],
+            Response::HTTP_OK
+        );
+    }
+
     private function isShipmentShipped(int $orderId, int $shipmentId): bool
     {
         /** @var ShipmentForEditing $shipment */
@@ -1082,7 +1116,8 @@ class OrderController extends PrestaShopAdminController
         int $orderId,
         Request $request,
         #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.cancel_product_form_builder')] FormBuilderInterface $formBuilder,
-        CurrencyDataProvider $currencyDataProvider
+        CurrencyDataProvider $currencyDataProvider,
+        FeatureFlagStateCheckerInterface $featureFlagStateChecker,
     ): Response {
         /** @var OrderForViewing $orderForViewing */
         $orderForViewing = $this->dispatchQuery(new GetOrderForViewing($orderId, QuerySorting::DESC));
@@ -1093,13 +1128,16 @@ class OrderController extends PrestaShopAdminController
         }
 
         $invoiceId = (int) $request->get('invoice_id');
+        $productId = (int) $request->get('product_id');
+        $combinationId = (int) $request->get('combination_id');
+
         try {
             if ($invoiceId > 0) {
                 $addProductCommand = AddProductToOrderCommand::toExistingInvoice(
                     $orderId,
                     $invoiceId,
-                    (int) $request->get('product_id'),
-                    (int) $request->get('combination_id'),
+                    $productId,
+                    $combinationId,
                     $request->get('price_tax_incl'),
                     $request->get('price_tax_excl'),
                     (int) $request->get('quantity')
@@ -1111,15 +1149,28 @@ class OrderController extends PrestaShopAdminController
                 }
                 $addProductCommand = AddProductToOrderCommand::withNewInvoice(
                     $orderId,
-                    (int) $request->get('product_id'),
-                    (int) $request->get('combination_id'),
+                    $productId,
+                    $combinationId,
                     $request->get('price_tax_incl'),
                     $request->get('price_tax_excl'),
                     (int) $request->get('quantity'),
                     $hasFreeShipping
                 );
             }
+
             $this->dispatchCommand($addProductCommand);
+            if ($featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT) && $this->orderHasShipment($orderForViewing->getId()) === true) {
+                $shipmentId = (int) $request->get('shipment_id');
+                $isVirtual = (bool) $request->get('virtual');
+
+                if ($shipmentId === 0 && !$isVirtual) {
+                    $carrierId = (int) $request->get('carrier_id');
+                    $shipmentId = $this->dispatchCommand(new CreateShipment($orderId, $carrierId, $productId, (int) $request->get('quantity'), $combinationId));
+                }
+                if (!$isVirtual) {
+                    $this->dispatchCommand(new AddProductToShipment($shipmentId, $productId, $orderId, $combinationId));
+                }
+            }
         } catch (Exception $e) {
             return $this->json(
                 ['message' => $this->getErrorMessageForException($e, $this->getErrorMessages($e))],
@@ -1155,6 +1206,7 @@ class OrderController extends PrestaShopAdminController
                 'isAvailableQuantityDisplayed' => (bool) $this->getConfiguration()->get('PS_STOCK_MANAGEMENT'),
                 'cancelProductForm' => $cancelProductForm->createView(),
                 'orderCurrency' => $orderCurrency,
+                'isImprovedShipmentFeatureFlagEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
             ]);
         }
 
@@ -1420,6 +1472,30 @@ class OrderController extends PrestaShopAdminController
             'orderForViewing' => $orderForViewing,
             'product' => $product,
         ]);
+    }
+
+    #[AdminSecurity("is_granted('update', 'AdminOrders')", message: 'You do not have permission to edit this.')]
+    public function getCarriersAction(int $orderId): Response
+    {
+        try {
+            /** @var OrderForViewing $orderForViewing */
+            $orderForViewing = $this->dispatchQuery(new GetOrderForViewing($orderId));
+            $carriers = $orderForViewing->getShipping()->getCarriers();
+
+            $carrierList = [];
+            foreach ($carriers as $carrier) {
+                $carrierList[] = [
+                    'id' => $carrier->getCarrierId(),
+                    'name' => $carrier->getName(),
+                ];
+            }
+
+            return $this->json(['carriers' => $carrierList]);
+        } catch (OrderNotFoundException $e) {
+            return $this->json(['message' => 'Order not found'], Response::HTTP_NOT_FOUND);
+        } catch (Exception $e) {
+            return $this->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -1894,7 +1970,8 @@ class OrderController extends PrestaShopAdminController
     public function getProductsListAction(
         int $orderId,
         #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.cancel_product_form_builder')] FormBuilderInterface $formBuilder,
-        CurrencyDataProvider $currencyDataProvider
+        CurrencyDataProvider $currencyDataProvider,
+        FeatureFlagStateCheckerInterface $featureFlagStateChecker
     ): Response {
         /** @var OrderForViewing $orderForViewing */
         $orderForViewing = $this->dispatchQuery(new GetOrderForViewing($orderId, QuerySorting::DESC));
@@ -1930,6 +2007,7 @@ class OrderController extends PrestaShopAdminController
             'isColumnLocationDisplayed' => $isColumnLocationDisplayed,
             'isColumnRefundedDisplayed' => $isColumnRefundedDisplayed,
             'isAvailableQuantityDisplayed' => (bool) $this->getConfiguration()->get('PS_STOCK_MANAGEMENT'),
+            'isImprovedShipmentFeatureFlagEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
         ]);
     }
 

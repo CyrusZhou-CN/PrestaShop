@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0fa229d7f982dd8d9c6019069e2294c9",
+    "content-hash": "e84fc033e547231cc577e5f8ceb7ec1d",
     "packages": [
         {
             "name": "api-platform/core",
@@ -4662,16 +4662,16 @@
         },
         {
             "name": "prestashop/classic",
-            "version": "3.1.0",
+            "version": "3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShop/classic-theme.git",
-                "reference": "9af074d6cdbb8002323780e85b11e30d210f002b"
+                "reference": "de7e61d9c4ef752c31d6c3d8633c51be33402865"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShop/classic-theme/zipball/9af074d6cdbb8002323780e85b11e30d210f002b",
-                "reference": "9af074d6cdbb8002323780e85b11e30d210f002b",
+                "url": "https://api.github.com/repos/PrestaShop/classic-theme/zipball/de7e61d9c4ef752c31d6c3d8633c51be33402865",
+                "reference": "de7e61d9c4ef752c31d6c3d8633c51be33402865",
                 "shasum": ""
             },
             "require-dev": {
@@ -4696,9 +4696,9 @@
             "description": "Classic theme for develop PrestaShop version",
             "support": {
                 "issues": "https://github.com/PrestaShop/classic-theme/issues",
-                "source": "https://github.com/PrestaShop/classic-theme/tree/3.1.0"
+                "source": "https://github.com/PrestaShop/classic-theme/tree/3.1.1"
             },
-            "time": "2026-01-16T10:02:47+00:00"
+            "time": "2026-02-17T13:50:00+00:00"
         },
         {
             "name": "prestashop/contactform",
@@ -5083,16 +5083,16 @@
         },
         {
             "name": "prestashop/hummingbird",
-            "version": "v2.0.0-beta.4",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShop/hummingbird.git",
-                "reference": "190debd25be5501ba2efc89af6b8d46900c6a00b"
+                "reference": "b481f9d67dbf2852df34ab6de9b89882d8154886"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShop/hummingbird/zipball/190debd25be5501ba2efc89af6b8d46900c6a00b",
-                "reference": "190debd25be5501ba2efc89af6b8d46900c6a00b",
+                "url": "https://api.github.com/repos/PrestaShop/hummingbird/zipball/b481f9d67dbf2852df34ab6de9b89882d8154886",
+                "reference": "b481f9d67dbf2852df34ab6de9b89882d8154886",
                 "shasum": ""
             },
             "require-dev": {
@@ -5117,9 +5117,9 @@
             "description": "Hummingbird development theme for PrestaShop",
             "support": {
                 "issues": "https://github.com/PrestaShop/hummingbird/issues",
-                "source": "https://github.com/PrestaShop/hummingbird/tree/v2.0.0-beta.4"
+                "source": "https://github.com/PrestaShop/hummingbird/tree/v2.0.0"
             },
-            "time": "2026-01-29T15:45:26+00:00"
+            "time": "2026-02-11T08:38:15+00:00"
         },
         {
             "name": "prestashop/pagesnotfound",
@@ -5208,16 +5208,16 @@
         },
         {
             "name": "prestashop/ps_apiresources",
-            "version": "dev-dev",
+            "version": "dev-change-validto",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShop/ps_apiresources.git",
-                "reference": "b280a1a4c3105a3c43021156651c911a68e659d2"
+                "reference": "c74a019fc74aa0df82b5b5a8187ca17c1fbfe9bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShop/ps_apiresources/zipball/b280a1a4c3105a3c43021156651c911a68e659d2",
-                "reference": "b280a1a4c3105a3c43021156651c911a68e659d2",
+                "url": "https://api.github.com/repos/PrestaShop/ps_apiresources/zipball/c74a019fc74aa0df82b5b5a8187ca17c1fbfe9bc",
+                "reference": "c74a019fc74aa0df82b5b5a8187ca17c1fbfe9bc",
                 "shasum": ""
             },
             "require": {
@@ -5231,7 +5231,6 @@
                 "prestashop/php-dev-tools": "^4.3",
                 "rector/rector": "^2.0"
             },
-            "default-branch": true,
             "type": "prestashop-module",
             "autoload": {
                 "psr-4": {
@@ -5282,10 +5281,10 @@
             "description": "PrestaShop - API Resources",
             "homepage": "https://github.com/PrestaShop/ps_apiresources",
             "support": {
-                "source": "https://github.com/PrestaShop/ps_apiresources/tree/dev",
+                "source": "https://github.com/PrestaShop/ps_apiresources/tree/change-validto",
                 "issues": "https://github.com/PrestaShop/ps_apiresources/issues"
             },
-            "time": "2026-02-03T08:24:41+00:00"
+            "time": "2026-02-24T15:00:54+00:00"
         },
         {
             "name": "prestashop/ps_banner",
@@ -16717,6 +16716,59 @@
             "time": "2024-10-28T13:06:21+00:00"
         },
         {
+            "name": "prestashop/header-stamp",
+            "version": "v3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PrestaShopCorp/header-stamp.git",
+                "reference": "936c4526eb1b7fe0468ec52a1fe2bdea013c9039"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PrestaShopCorp/header-stamp/zipball/936c4526eb1b7fe0468ec52a1fe2bdea013c9039",
+                "reference": "936c4526eb1b7fe0468ec52a1fe2bdea013c9039",
+                "shasum": ""
+            },
+            "require": {
+                "nikic/php-parser": "^4.10",
+                "php": "^8.0 || ^7.2",
+                "symfony/console": "^3.4 || ~4.0 || ~5.0 || ~6.0",
+                "symfony/finder": "^3.4 || ~4.0 || ~5.0 || ~6.0",
+                "symfony/yaml": "^3.4 || ~4.0 || ~5.0 || ~6.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.12",
+                "phpunit/phpunit": "^8.5",
+                "prestashop/php-dev-tools": "1.*"
+            },
+            "bin": [
+                "bin/header-stamp"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PrestaShop\\HeaderStamp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "AFL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "PrestaShop SA",
+                    "email": "contact@prestashop.com"
+                }
+            ],
+            "description": "Rewrite your file headers to add the license or to make them up-to-date",
+            "homepage": "https://github.com/PrestaShopCorp/header-stamp",
+            "support": {
+                "issues": "https://github.com/PrestaShopCorp/header-stamp/issues",
+                "source": "https://github.com/PrestaShopCorp/header-stamp/tree/v3.1.0"
+            },
+            "time": "2026-02-16T17:28:00+00:00"
+        },
+        {
             "name": "rector/rector",
             "version": "0.15.25",
             "source": {
@@ -18274,5 +18326,5 @@
     "platform-overrides": {
         "php": "8.1.0"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }

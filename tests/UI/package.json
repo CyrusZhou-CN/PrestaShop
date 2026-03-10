@@ -114,18 +114,18 @@
     "@prestashop-core/ui-testing": "https://github.com/PrestaShop/ui-testing-library#main",
     "chai": "^4.5.0",
     "chai-string": "^1.6.0",
-    "dotenv": "^17.2.4",
+    "dotenv": "^17.3.1",
     "mocha": "^11.7.5",
     "mochawesome": "^7.1.4",
-    "mysql2": "^3.16.3"
+    "mysql2": "^3.18.2"
   },
   "devDependencies": {
     "@types/chai": "^4.3.11",
     "@types/chai-string": "^1.4.5",
     "@types/mocha": "^10.0.10",
     "@types/mochawesome": "^6.2.5",
-    "@typescript-eslint/eslint-plugin": "^8.54.0",
-    "@typescript-eslint/parser": "^8.53.1",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.55.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",

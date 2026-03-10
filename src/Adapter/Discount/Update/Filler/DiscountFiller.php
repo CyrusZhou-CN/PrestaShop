@@ -1,32 +1,13 @@
 <?php
 /**
- * Copyright since 2007 PrestaShop SA and Contributors
- * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.md.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/OSL-3.0
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@prestashop.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to https://devdocs.prestashop.com/ for more information.
- *
- * @author    PrestaShop SA and Contributors <contact@prestashop.com>
- * @copyright Since 2007 PrestaShop SA and Contributors
- * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
+ * For the full copyright and license information, please view the
+ * docs/licenses/LICENSE.txt file that was distributed with this source code.
  */
 
 namespace PrestaShop\PrestaShop\Adapter\Discount\Update\Filler;
 
 use CartRule;
+use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountRepository;
 use PrestaShop\PrestaShop\Adapter\Discount\Trait\ProductConditionsTrait;
 use PrestaShop\PrestaShop\Adapter\Domain\LocalizedObjectModelTrait;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
@@ -38,6 +19,11 @@ class DiscountFiller
     use LocalizedObjectModelTrait;
     use ProductConditionsTrait;
 
+    public function __construct(
+        protected readonly DiscountRepository $discountRepository,
+    ) {
+    }
+
     public function fillUpdatableProperties(CartRule $cartRule, UpdateDiscountCommand $command): array
     {
         $updatableProperties = [];
@@ -46,7 +32,8 @@ class DiscountFiller
             $updatableProperties[] = 'date_from';
         }
         if ($command->isDirty('validTo')) {
-            $cartRule->date_to = $command->getValidTo()->format(DateTimeUtil::DEFAULT_DATETIME_FORMAT);
+            $validTo = $command->getValidTo();
+            $cartRule->date_to = $validTo !== null ? $validTo->format(DateTimeUtil::DEFAULT_DATETIME_FORMAT) : null;
             $updatableProperties[] = 'date_to';
         }
         if ($command->isDirty('localizedNames')) {
@@ -78,7 +65,17 @@ class DiscountFiller
             $updatableProperties[] = 'id_customer';
         }
         if ($command->isDirty('totalQuantity')) {
-            $cartRule->quantity = $command->getTotalQuantity();
+            if (null === $command->getTotalQuantity()) {
+                $cartRule->total_quantity = null;
+                $cartRule->quantity = null;
+            } else {
+                // Update total quantity field with provided integer value, the remaining quantity should be updated
+                // accordingly based on the already used quantity
+                $quantityUsed = $this->discountRepository->getQuantityUsedInOrders($command->getDiscountId());
+                $cartRule->total_quantity = $command->getTotalQuantity();
+                $cartRule->quantity = max($cartRule->total_quantity - $quantityUsed, 0);
+            }
+            $updatableProperties[] = 'total_quantity';
             $updatableProperties[] = 'quantity';
         }
         if ($command->isDirty('quantityPerUser')) {
