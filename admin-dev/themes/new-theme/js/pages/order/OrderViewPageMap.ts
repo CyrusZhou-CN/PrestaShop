@@ -68,8 +68,10 @@ export default {
   allMessagesList: '#all-messages-list',
   openAllMessagesBtn: '.js-open-all-messages-btn',
   addProductModalContainer: '#addProductFormContainer',
+  editProductModalContainer: '#editProductFormContainer',
   addProductConfirmNewInvoiceCheckbox: '[name="add_product_row[confirm_new_invoice]',
   productAddModal: '#addOrderProductModal',
+  productEditModal: '#editOrderProductModal',
   // Products table elements
   productOriginalPosition: '#orderProductsOriginalPosition',
   productModificationPosition: '#orderProductsModificationPosition',
@@ -124,6 +126,7 @@ export default {
   selectAddShipment: '#add_product_row_addShipment',
   selectAddShipmentContainer: '#addProductShipmentSelect',
   productEditSaveBtn: '.productEditSaveBtn',
+  productModalEditSaveBtn: '#edit_product_row',
   productEditCancelBtn: '.productEditCancelBtn',
   productEditRowTemplate: '#editProductTableRowTemplate',
   productEditRow: '.editProductRow',
@@ -140,6 +143,12 @@ export default {
   productEditLocationText: '.editProductLocation',
   productEditAvailableText: '.editProductAvailable',
   productEditTotalPriceText: '.editProductTotalPrice',
+  // for only modal edit
+  productModalEditImage: '#editProductImg',
+  productModalShipmentQuantityInput: '.js-shipment-quantity',
+  productModalEditName: '#editProductName',
+  productModalTotalTaxIncl: '#editProductTotalTaxIncl',
+  productModalShipmentQtyHeader: '.shipment-table-qty-counter',
   // Product Discount List
   productDiscountList: {
     list: '.table.discountList',

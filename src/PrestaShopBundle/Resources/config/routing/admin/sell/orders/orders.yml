@@ -261,6 +261,16 @@ admin_orders_get_add_product_form:
   options:
     expose: true
 
+admin_orders_get_edit_product_form:
+  path: /{orderId}/product/edit
+  methods: [ GET ]
+  defaults:
+    _controller: PrestaShopBundle\Controller\Admin\Sell\Order\OrderController::getEditProductForm
+  requirements:
+    orderId: \d+
+  options:
+    expose: true
+
 admin_orders_edit_shipment:
   path: /{orderId}/shipment/edit
   methods: [ POST ]

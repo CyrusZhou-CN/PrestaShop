@@ -11,7 +11,6 @@ use Exception;
 use InvalidArgumentException;
 use PrestaShop\PrestaShop\Adapter\Currency\CurrencyDataProvider;
 use PrestaShop\PrestaShop\Adapter\LegacyContext;
-use PrestaShop\PrestaShop\Adapter\Order\Repository\OrderDetailRepository;
 use PrestaShop\PrestaShop\Adapter\PDF\OrderInvoicePdfGenerator;
 use PrestaShop\PrestaShop\Adapter\Tools;
 use PrestaShop\PrestaShop\Core\Action\ActionsBarButtonsCollection;
@@ -72,15 +71,10 @@ use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\EditShipment;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\MergeProductsToShipment;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\SplitShipment;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Exception\CannotEditShipmentShippedException;
-use PrestaShop\PrestaShop\Core\Domain\Shipment\Exception\ShipmentException;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Query\GetOrderShipments;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Query\GetShipmentForEditing;
-use PrestaShop\PrestaShop\Core\Domain\Shipment\Query\GetShipmentProducts;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Query\ListAvailableShipmentsForProduct;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\QueryResult\OrderShipment;
-use PrestaShop\PrestaShop\Core\Domain\Shipment\QueryResult\OrderShipmentProduct;
-use PrestaShop\PrestaShop\Core\Domain\Shipment\QueryResult\ShipmentForEditing;
-use PrestaShop\PrestaShop\Core\Domain\Shipment\ValueObject\OrderDetailId;
 use PrestaShop\PrestaShop\Core\Domain\ValueObject\QuerySorting;
 use PrestaShop\PrestaShop\Core\Exception\CoreException;
 use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagSettings;
@@ -107,13 +101,10 @@ use PrestaShopBundle\Form\Admin\Sell\Order\CartSummaryType;
 use PrestaShopBundle\Form\Admin\Sell\Order\ChangeOrderAddressType;
 use PrestaShopBundle\Form\Admin\Sell\Order\ChangeOrderCurrencyType;
 use PrestaShopBundle\Form\Admin\Sell\Order\ChangeOrdersStatusType;
-use PrestaShopBundle\Form\Admin\Sell\Order\EditProductRowType;
 use PrestaShopBundle\Form\Admin\Sell\Order\InternalNoteType;
 use PrestaShopBundle\Form\Admin\Sell\Order\OrderMessageType;
 use PrestaShopBundle\Form\Admin\Sell\Order\OrderPaymentType;
 use PrestaShopBundle\Form\Admin\Sell\Order\Shipment\EditShipmentType;
-use PrestaShopBundle\Form\Admin\Sell\Order\Shipment\MergeShipmentType;
-use PrestaShopBundle\Form\Admin\Sell\Order\Shipment\SplitShipmentType;
 use PrestaShopBundle\Form\Admin\Sell\Order\UpdateOrderShippingType;
 use PrestaShopBundle\Form\Admin\Sell\Order\UpdateOrderStatusType;
 use PrestaShopBundle\Security\Attribute\AdminSecurity;
@@ -437,6 +428,7 @@ class OrderController extends PrestaShopAdminController
         FeatureFlagStateCheckerInterface $featureFlagStateChecker,
         #[Autowire(service: 'PrestaShop\PrestaShop\Core\Grid\Factory\ShipmentFactory')] GridFactoryInterface $shipmentGridFactory,
         #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.add_product_form_builder')] FormBuilderInterface $addProductFormBuilder,
+        #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.edit_order_product_form_builder')] FormBuilderInterface $editProductFormBuilder,
         ShipmentFilters $filters,
         Tools $tools,
     ): Response {
@@ -508,11 +500,7 @@ class OrderController extends PrestaShopAdminController
         $orderCurrency = $currencyDataProvider->getCurrencyById($orderForViewing->getCurrencyId());
 
         $addProductForm = $addProductFormBuilder->getFormFor($orderId);
-
-        $editProductRowForm = $this->createForm(EditProductRowType::class, [], [
-            'order_id' => $orderId,
-            'symbol' => $orderCurrency->symbol,
-        ]);
+        $editProductRowForm = $editProductFormBuilder->getFormFor($orderId);
 
         $internalNoteForm = $this->createForm(InternalNoteType::class, [
             'note' => $orderForViewing->getNote(),
@@ -621,19 +609,18 @@ class OrderController extends PrestaShopAdminController
     }
 
     #[AdminSecurity("is_granted('update', 'AdminOrders')", redirectRoute: 'admin_orders_view', redirectQueryParamsToKeep: ['orderId'], message: 'You do not have permission to edit this.')]
-    public function getMergeShipmentForm(int $orderId, Request $request): Response
+    public function getMergeShipmentForm(int $orderId, Request $request, #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.merge_shipment_form_builder')] FormBuilderInterface $formBuilder): Response
     {
         $shipmentId = (int) $request->query->get('shipmentId');
-        $formData = $this->getMergeFormData($orderId, $shipmentId);
-        $form = $this->createForm(MergeShipmentType::class, null, $formData);
-        $isShipped = $this->isShipmentShipped($orderId, $shipmentId);
+        $form = $formBuilder->getFormFor($orderId);
+        $data = $form->getData();
 
         return $this->render('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/merge_shipment_form.html.twig', [
             'mergeShipmentForm' => $form->createView(),
             'orderId' => $orderId,
             'shipmentId' => $shipmentId,
-            'products' => $formData['products'],
-            'isShipped' => $isShipped,
+            'products' => $data['products'],
+            'isShipped' => $data['is_shipped'],
         ]);
     }
 
@@ -652,6 +639,27 @@ class OrderController extends PrestaShopAdminController
             'orderHasShipment' => $this->orderHasShipment($orderForViewing->getId()),
             'isMultishipmentIsEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
             'orderId' => $orderId,
+        ]);
+    }
+
+    #[AdminSecurity("is_granted('update', 'AdminOrders')", redirectRoute: 'admin_orders_view', redirectQueryParamsToKeep: ['orderId'], message: 'You do not have permission to edit this.')]
+    public function getEditProductForm(
+        int $orderId,
+        #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.edit_order_product_form_builder')] FormBuilderInterface $orderProductFormBuilder,
+        FeatureFlagStateCheckerInterface $featureFlagStateChecker,
+        CurrencyDataProvider $currencyDataProvider
+    ): Response {
+        $orderForViewing = $this->dispatchQuery(new GetOrderForViewing($orderId, QuerySorting::DESC));
+        $form = $orderProductFormBuilder->getFormFor($orderId);
+        $orderCurrency = $currencyDataProvider->getCurrencyById($orderForViewing->getCurrencyId());
+
+        return $this->render('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/edit_product_form.html.twig', [
+            'editProductForm' => $form->createView(),
+            'orderForViewing' => $orderForViewing,
+            'orderHasShipment' => $this->orderHasShipment($orderForViewing->getId()),
+            'isMultishipmentIsEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
+            'orderId' => $orderId,
+            'currencySymbol' => $orderCurrency->symbol,
         ]);
     }
 
@@ -678,13 +686,11 @@ class OrderController extends PrestaShopAdminController
      * @return RedirectResponse
      */
     #[AdminSecurity("is_granted('update', 'AdminOrders')", redirectRoute: 'admin_orders_view', redirectQueryParamsToKeep: ['orderId'], message: 'You do not have permission to edit this.')]
-    public function mergeShipmentAction(int $orderId, Request $request): RedirectResponse
+    public function mergeShipmentAction(int $orderId, Request $request, #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.merge_shipment_form_builder')] FormBuilderInterface $formBuilder): RedirectResponse
     {
         try {
             $shipmentId = (int) $request->query->get('shipmentId');
-            $formData = $this->getMergeFormData($orderId, $shipmentId);
-
-            $form = $this->createForm(MergeShipmentType::class, null, $formData);
+            $form = $formBuilder->getFormFor($orderId);
             $form->handleRequest($request);
 
             if (!$form->isSubmitted() || !$form->isValid()) {
@@ -692,12 +698,13 @@ class OrderController extends PrestaShopAdminController
 
                 return $this->redirectToRoute('admin_orders_view', ['orderId' => $orderId]);
             }
+            $data = $form->getData();
 
             /** @var OrderShipment $targetShipment */
             $targetShipment = $form->get('merge_to_shipment')->getData();
             $targetShipmentId = $targetShipment->getId();
 
-            if ($this->isShipmentShipped($orderId, $targetShipmentId)) {
+            if ($data['is_shipped']) {
                 $this->addFlash('error', $this->trans('This shipment can\'t be merged because a tracking number has already been assigned, indicating that it has already been shipped.', [], 'Admin.Orderscustomers.Notification'));
 
                 return $this->redirectToRoute('admin_orders_view', ['orderId' => $orderId]);
@@ -772,26 +779,6 @@ class OrderController extends PrestaShopAdminController
         ]);
     }
 
-    private function getMergeFormData(int $orderId, int $shipmentId): array
-    {
-        /** @var OrderShipmentProduct[] $products */
-        $products = $this->dispatchQuery(new GetShipmentProducts($shipmentId));
-
-        /** @var OrderShipment[] $shipments */
-        $shipments = $this->dispatchQuery(new GetOrderShipments($orderId));
-
-        $shipments = array_filter($shipments, fn (OrderShipment $s) => $s->getId() !== $shipmentId);
-
-        foreach ($products as &$p) {
-            $p = $p->toArray();
-        }
-
-        return [
-            'products' => $products,
-            'shipments' => $shipments,
-        ];
-    }
-
     #[AdminSecurity("is_granted('update', 'AdminOrders')", redirectRoute: 'admin_orders_view', redirectQueryParamsToKeep: ['orderId'], message: 'You do not have permission to edit this.')]
     public function splitShipmentAction(int $orderId, int $shipmentId, Request $request): RedirectResponse
     {
@@ -833,52 +820,18 @@ class OrderController extends PrestaShopAdminController
     #[AdminSecurity("is_granted('update', 'AdminOrders')", message: 'You do not have permission to show this.')]
     public function getSplitShipmentForm(
         int $orderId,
-        Request $request,
-        #[Autowire(service: 'PrestaShop\PrestaShop\Adapter\Order\Repository\OrderDetailRepository')] OrderDetailRepository $orderDetailRepository,
+        #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.split_shipment_form_builder')] FormBuilderInterface $formBuilder,
     ): Response {
-        $shipmentId = $request->query->getInt('shipmentId');
-        $productsFromQuery = $request->get('products', []);
-        $selectedCarrier = $request->query->getInt('carrier');
-        $orderShipmentProducts = $this->mergeProductsFromQueries($shipmentId, $productsFromQuery, $orderDetailRepository);
-        $canSplitShipment = $this->isShipmentShipped($orderId, $shipmentId);
-
-        $formIsValid = $this->checkFormValidity($orderShipmentProducts);
-
-        $splitShipmentTypeForm = $this->createForm(SplitShipmentType::class, [
-            'products' => $orderShipmentProducts,
-            'carrier' => $selectedCarrier,
-            'shipment_id' => $shipmentId,
-            'order_id' => $orderId,
-        ]);
+        $form = $formBuilder->getFormFor($orderId);
+        $data = $form->getData();
 
         return $this->render('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/split_shipment_form.html.twig', [
-            'splitShipmentForm' => $splitShipmentTypeForm->createView(),
+            'splitShipmentForm' => $form->createView(),
             'orderId' => $orderId,
-            'shipmentId' => $shipmentId,
-            'formIsValid' => $formIsValid,
-            'isShipped' => $canSplitShipment,
+            'shipmentId' => $data['shipment_id'],
+            'formIsValid' => $data['form_is_valid'],
+            'isShipped' => $data['is_shipped'],
         ]);
-    }
-
-    /**
-     * @param array<array{
-     *      selected?: bool,
-     *      selected_quantity?: int,
-     *      order_detail_id: int,
-     *      quantity: int,
-     *      product_name: string,
-     *      product_reference: string,
-     *      product_image_path: string
-     *  }> $products
-     *
-     * @return bool
-     */
-    private function checkFormValidity(array $products): bool
-    {
-        $allSelected = array_reduce($products, fn ($carry, $product) => $carry && ($product['selected'] ?? false), true);
-        $allQuantitiesMatch = array_reduce($products, fn ($carry, $product) => $carry && (($product['selected_quantity'] ?? 0) === $product['quantity']), true);
-
-        return !($allSelected && $allQuantitiesMatch);
     }
 
     #[AdminSecurity("is_granted('update', 'AdminOrders')", message: 'You do not have permission to show this.')]
@@ -914,73 +867,6 @@ class OrderController extends PrestaShopAdminController
             ['carriers' => $carriers],
             Response::HTTP_OK
         );
-    }
-
-    private function isShipmentShipped(int $orderId, int $shipmentId): bool
-    {
-        /** @var ShipmentForEditing $shipment */
-        $shipment = $this->dispatchQuery(new GetShipmentForEditing($orderId, $shipmentId));
-
-        return !empty($shipment->getTrackingNumber());
-    }
-
-    /**
-     * @param int $shipmentId
-     * @param array<array{selected: string, selected_quantity: string, order_detail_id: string}> $productsFromQuery
-     * @param OrderDetailRepository $orderDetailRepository
-     *
-     * @return array<array{
-     *     selected?: bool,
-     *     selected_quantity?: int,
-     *     order_detail_id: int,
-     *     quantity: int,
-     *     product_name: string,
-     *     product_reference: string,
-     *     product_image_path: string
-     * }>
-     *
-     * @throws CoreException
-     * @throws ShipmentException
-     */
-    private function mergeProductsFromQueries(
-        int $shipmentId,
-        array $productsFromQuery,
-        OrderDetailRepository $orderDetailRepository,
-    ): array {
-        foreach ($productsFromQuery as &$product) {
-            if (isset($product['selected_quantity'])) {
-                $product['selected_quantity'] = (int) $product['selected_quantity'];
-            }
-            if (isset($product['selected'])) {
-                $product['selected'] = (bool) filter_var((int) $product['selected'], FILTER_VALIDATE_BOOLEAN);
-            }
-        }
-
-        $productsQueryMap = array_column(
-            $productsFromQuery,
-            null,
-            'order_detail_id'
-        );
-
-        /** @var OrderShipmentProduct[] $orderShipmentProducts */
-        $orderShipmentProducts = $this->dispatchQuery(new GetShipmentProducts($shipmentId));
-
-        $mergedProducts = [];
-
-        foreach ($orderShipmentProducts as $product) {
-            $productArray = $product->toArray();
-            $id = $productArray['order_detail_id'] ?? null;
-            if ($id !== null && isset($productsQueryMap[$id])) {
-                $productArray['product_id'] = $orderDetailRepository
-                    ->get(new OrderDetailId($productArray['order_detail_id']))
-                    ->product_id;
-                $productArray = array_merge($productsQueryMap[$id], $productArray);
-            }
-
-            $mergedProducts[] = $productArray;
-        }
-
-        return $mergedProducts;
     }
 
     /**
@@ -1207,6 +1093,7 @@ class OrderController extends PrestaShopAdminController
                 'cancelProductForm' => $cancelProductForm->createView(),
                 'orderCurrency' => $orderCurrency,
                 'isImprovedShipmentFeatureFlagEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
+                'orderHasShipment' => $this->orderHasShipment($orderForViewing->getId()),
             ]);
         }
 
@@ -1471,6 +1358,7 @@ class OrderController extends PrestaShopAdminController
             'orderCurrency' => $orderCurrency,
             'orderForViewing' => $orderForViewing,
             'product' => $product,
+            'orderHasShipment' => $this->orderHasShipment($orderId),
         ]);
     }
 
@@ -2008,6 +1896,7 @@ class OrderController extends PrestaShopAdminController
             'isColumnRefundedDisplayed' => $isColumnRefundedDisplayed,
             'isAvailableQuantityDisplayed' => (bool) $this->getConfiguration()->get('PS_STOCK_MANAGEMENT'),
             'isImprovedShipmentFeatureFlagEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
+            'orderHasShipment' => $this->orderHasShipment($orderForViewing->getId()),
         ]);
     }
 
@@ -2535,8 +2424,8 @@ class OrderController extends PrestaShopAdminController
     private function orderHasShipment(int $orderId): bool
     {
         /** @var OrderShipment[] $shipments */
-        $shipments = $this->dispatchQuery(new GetOrderShipments($orderId));
+        $shipments = $this->dispatchQuery(new GetOrderShipments($orderId, true));
 
-        return (bool) count($shipments) > 0;
+        return count($shipments) > 0;
     }
 }

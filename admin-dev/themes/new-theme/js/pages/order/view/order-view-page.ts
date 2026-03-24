@@ -116,6 +116,8 @@ export default class OrderViewPage {
         return;
       }
       this.orderProductRenderer.moveProductPanelToOriginalPosition();
+      // Initialize tooltips
+      $(OrderViewPageMap.productEditButtons).pstooltip();
     });
 
     EventEmitter.on(OrderViewEventMap.productAddedToOrder, (event) => {
@@ -147,9 +149,14 @@ export default class OrderViewPage {
   }
 
   listenForProductEdit(): void {
-    $(OrderViewPageMap.productEditButtons).off('click').on('click', (event) => {
+    $(OrderViewPageMap.productEditButtons).off('click').on('click', async (event) => {
       const $btn = $(event.currentTarget);
-      this.orderProductRenderer.moveProductsPanelToModificationPosition();
+
+      if (this.isMultishipmentIsEnabled) {
+        await this.getEditProductForm();
+      } else {
+        this.orderProductRenderer.moveProductsPanelToModificationPosition();
+      }
       this.orderProductRenderer.editProductFromList(
         $btn.data('orderDetailId'),
         $btn.data('productQuantity'),
@@ -385,18 +392,27 @@ export default class OrderViewPage {
       });
   }
 
-  private get modal(): HTMLDivElement {
-    const modal = document.querySelector(OrderViewPageMap.productAddModal) as HTMLDivElement;
+  modal(type: 'add' | 'edit'): HTMLDivElement {
+    let container = '';
+
+    if (type === 'add') {
+      container = OrderViewPageMap.productAddModal;
+    } else {
+      container = OrderViewPageMap.productEditModal;
+    }
+
+    const modal = document.querySelector(container) as HTMLDivElement;
 
     if (!modal) {
-      throw new Error('Add product modal not found');
+      throw new Error(`${type} product modal not found`);
     }
     return modal;
   }
 
   async getAddProductForm(): Promise<void> {
-    this.modal.dataset.state = 'loading';
-    const orderId = Number(this.modal.dataset.orderId);
+    const modal = this.modal('add');
+    modal.dataset.state = 'loading';
+    const orderId = Number(modal.dataset.orderId);
 
     try {
       const response = await fetch(this.router.generate('admin_orders_get_add_product_form', {
@@ -411,7 +427,7 @@ export default class OrderViewPage {
       if (!response.ok) {
         throw new Error(await response.text());
       }
-      const formContainer = document.querySelector(OrderViewPageMap.addProductModalContainer) as HTMLElement;
+      const formContainer = document.querySelector<HTMLElement>(OrderViewPageMap.addProductModalContainer);
       formContainer!.innerHTML = await response.text();
 
       const orderAddAutocomplete = new OrderProductAutocomplete($(OrderViewPageMap.productSearchInput));
@@ -420,8 +436,34 @@ export default class OrderViewPage {
       orderAddAutocomplete.listenForSearch();
       orderAddAutocomplete.onItemClickedCallback = (p: Record<string, any> | undefined): void => orderAdd.setProduct(p);
 
-      this.modal.addEventListener('hidden.bs.modal', () => orderAddAutocomplete.removeListener(), {once: true});
-      this.modal.dataset.state = 'loaded';
+      modal.addEventListener('hidden.bs.modal', () => orderAddAutocomplete.removeListener(), {once: true});
+      modal.dataset.state = 'loaded';
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async getEditProductForm(): Promise<void> {
+    const modal = this.modal('edit');
+    modal.dataset.state = 'loading';
+    const orderId = Number(modal.dataset.orderId);
+
+    try {
+      const response = await fetch(this.router.generate('admin_orders_get_edit_product_form', {
+        orderId,
+      }), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      const formContainer = document.querySelector(OrderViewPageMap.editProductModalContainer) as HTMLElement;
+      formContainer!.innerHTML = await response.text();
+      modal.dataset.state = 'loaded';
     } catch (error) {
       console.error(error);
     }

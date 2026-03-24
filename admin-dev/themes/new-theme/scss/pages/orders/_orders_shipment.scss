@@ -229,7 +229,8 @@
   }
 }
 
-#addOrderProductModal {
+#addOrderProductModal,
+#editOrderProductModal {
   // Default state
   .modal-body {
     display: none;
@@ -242,6 +243,10 @@
     }
 
     .skeleton-add-product-form {
+      display: none;
+    }
+
+    .skeleton-edit-product-form {
       display: none;
     }
   }

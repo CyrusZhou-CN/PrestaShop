@@ -34,7 +34,7 @@ export default class OrderProductRenderer {
   }
 
   updateNumProducts(numProducts: number): void {
-    $(OrderViewPageMap.productsCount).html(<string>(<unknown>numProducts));
+    $(OrderViewPageMap.productsCount).html(String(numProducts));
   }
 
   editProductFromList(
