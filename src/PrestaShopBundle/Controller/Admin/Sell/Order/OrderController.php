@@ -11,6 +11,7 @@ use Exception;
 use InvalidArgumentException;
 use PrestaShop\PrestaShop\Adapter\Currency\CurrencyDataProvider;
 use PrestaShop\PrestaShop\Adapter\LegacyContext;
+use PrestaShop\PrestaShop\Adapter\PDF\DeliverySlipPdfGenerator;
 use PrestaShop\PrestaShop\Adapter\PDF\OrderInvoicePdfGenerator;
 use PrestaShop\PrestaShop\Adapter\Tools;
 use PrestaShop\PrestaShop\Core\Action\ActionsBarButtonsCollection;
@@ -87,7 +88,6 @@ use PrestaShop\PrestaShop\Core\Grid\GridFactory;
 use PrestaShop\PrestaShop\Core\Grid\GridFactoryInterface;
 use PrestaShop\PrestaShop\Core\Kpi\Row\KpiRowFactoryInterface;
 use PrestaShop\PrestaShop\Core\Order\OrderSiblingProviderInterface;
-use PrestaShop\PrestaShop\Core\PDF\PDFGeneratorInterface;
 use PrestaShop\PrestaShop\Core\Search\Filters\OrderFilters;
 use PrestaShop\PrestaShop\Core\Search\Filters\ShipmentFilters;
 use PrestaShopBundle\Component\CsvResponse;
@@ -112,6 +112,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -305,8 +306,18 @@ class OrderController extends PrestaShopAdminController
     public function generateInvoicePdfAction(
         int $orderId,
         #[Autowire(service: 'prestashop.adapter.pdf.order_invoice_pdf_generator')] OrderInvoicePdfGenerator $invoicePdfGenerator,
-    ): BinaryFileResponse {
-        return new BinaryFileResponse($invoicePdfGenerator->generatePDF([$orderId]));
+    ): Response {
+        $generatedPdf = $invoicePdfGenerator->generatePDFForResponse([$orderId]);
+
+        $response = new Response($generatedPdf->getContent());
+        $disposition = HeaderUtils::makeDisposition(
+            HeaderUtils::DISPOSITION_ATTACHMENT,
+            $generatedPdf->getFileName()
+        );
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->headers->set('Content-Disposition', $disposition);
+
+        return $response;
     }
 
     /**
@@ -317,9 +328,19 @@ class OrderController extends PrestaShopAdminController
     #[AdminSecurity("is_granted('read', request.get('_legacy_controller'))", redirectRoute: 'admin_orders_index')]
     public function generateDeliverySlipPdfAction(
         int $orderId,
-        #[Autowire(service: 'prestashop.adapter.pdf.delivery_slip_pdf_generator')] PDFGeneratorInterface $deliverySlipPdfGenerator,
-    ): BinaryFileResponse {
-        return new BinaryFileResponse($deliverySlipPdfGenerator->generatePDF([$orderId]));
+        #[Autowire(service: 'prestashop.adapter.pdf.delivery_slip_pdf_generator')] DeliverySlipPdfGenerator $deliverySlipPdfGenerator,
+    ): Response {
+        $generatedPdf = $deliverySlipPdfGenerator->generatePDFForResponse([$orderId]);
+
+        $response = new Response($generatedPdf->getContent());
+        $disposition = HeaderUtils::makeDisposition(
+            HeaderUtils::DISPOSITION_ATTACHMENT,
+            $generatedPdf->getFileName()
+        );
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->headers->set('Content-Disposition', $disposition);
+
+        return $response;
     }
 
     /**
@@ -1303,7 +1324,8 @@ class OrderController extends PrestaShopAdminController
         int $orderDetailId,
         Request $request,
         #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.cancel_product_form_builder')] FormBuilderInterface $formBuilder,
-        CurrencyDataProvider $currencyDataProvider
+        CurrencyDataProvider $currencyDataProvider,
+        FeatureFlagStateCheckerInterface $featureFlagStateChecker,
     ): Response {
         try {
             $data = json_decode($request->getContent(), true);
@@ -1352,6 +1374,7 @@ class OrderController extends PrestaShopAdminController
             'orderForViewing' => $orderForViewing,
             'product' => $product,
             'orderHasShipment' => $this->orderHasShipment($orderId),
+            'isImprovedShipmentFeatureFlagEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
         ]);
     }
 
@@ -1852,7 +1875,7 @@ class OrderController extends PrestaShopAdminController
         int $orderId,
         #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.cancel_product_form_builder')] FormBuilderInterface $formBuilder,
         CurrencyDataProvider $currencyDataProvider,
-        FeatureFlagStateCheckerInterface $featureFlagStateChecker
+        FeatureFlagStateCheckerInterface $featureFlagStateChecker,
     ): Response {
         /** @var OrderForViewing $orderForViewing */
         $orderForViewing = $this->dispatchQuery(new GetOrderForViewing($orderId, QuerySorting::DESC));
@@ -2052,7 +2075,7 @@ class OrderController extends PrestaShopAdminController
         $internalNoteForm = $this->createForm(InternalNoteType::class);
         $internalNoteForm->handleRequest($request);
 
-        if ($internalNoteForm->isSubmitted()) {
+        if ($internalNoteForm->isSubmitted() && $internalNoteForm->isValid()) {
             $data = $internalNoteForm->getData();
 
             try {
@@ -2074,6 +2097,10 @@ class OrderController extends PrestaShopAdminController
                     'error',
                     $this->getErrorMessageForException($e, $this->getErrorMessages($e))
                 );
+            }
+        } else {
+            foreach ($internalNoteForm->getErrors(true) as $error) {
+                $this->addFlash('error', htmlentities($error->getMessage()));
             }
         }
 
